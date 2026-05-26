@@ -387,15 +387,19 @@ function selectQuestion(id) {
   padding: 32px 32px 32px 20px;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .builder-left {
-  flex: 1;
+  flex: 2 2 0;
   min-width: 0;
 }
 
 .builder-right {
-  flex-shrink: 0;
+  flex: 3 3 0;
+  min-width: 0;
 }
 </style>

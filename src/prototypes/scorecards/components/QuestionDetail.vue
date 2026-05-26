@@ -265,8 +265,7 @@ function handleCancel() {
   box-shadow: 0px 1px 2px rgba(0,0,0,0.03), 0px 2px 4px rgba(0,0,0,0.04), 0px 2px 16px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  width: 724px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .question-detail::before {
