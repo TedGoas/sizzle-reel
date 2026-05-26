@@ -265,8 +265,7 @@ function handleCancel() {
   box-shadow: 0px 1px 2px rgba(0,0,0,0.03), 0px 2px 4px rgba(0,0,0,0.04), 0px 2px 16px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  width: 724px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .question-detail::before {
@@ -307,6 +306,11 @@ function handleCancel() {
   border-radius: 8px;
   background: white;
   overflow: hidden;
+  outline: none;
+}
+
+.ai-question-input-wrapper:focus-within {
+  outline: none;
 }
 
 .ai-question-input {
@@ -320,6 +324,12 @@ function handleCancel() {
   outline: none;
   box-sizing: border-box;
   transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.ai-question-input:focus,
+.ai-question-input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .ai-question-input.ai-blur-out {

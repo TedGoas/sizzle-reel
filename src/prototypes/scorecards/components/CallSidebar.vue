@@ -56,7 +56,6 @@
     <div class="call-sidebar-actions">
       <button class="call-sidebar-action-btn"><DtIconShare2 size="200" /> Share</button>
       <button class="call-sidebar-action-btn"><DtIconDownload size="200" /> Download</button>
-      <button class="call-sidebar-action-btn"><DtIconListAdd size="200" /> Add to playlist</button>
     </div>
   </aside>
 </template>
@@ -70,14 +69,13 @@ import DtIconLightbulb from '@dialpad/dialtone-icons/vue3/lightbulb'
 import DtIconDialpadSparkle from '@dialpad/dialtone-icons/vue3/dialpad-sparkle'
 import DtIconShare2 from '@dialpad/dialtone-icons/vue3/share-2'
 import DtIconDownload from '@dialpad/dialtone-icons/vue3/download'
-import DtIconListAdd from '@dialpad/dialtone-icons/vue3/list-add'
 
 defineEmits(['scrollToChapter'])
 </script>
 
 <style scoped>
 .call-sidebar {
-  width: 332px;
+  width: 300px;
   flex-shrink: 0;
   padding: 24px;
   overflow-y: auto;
