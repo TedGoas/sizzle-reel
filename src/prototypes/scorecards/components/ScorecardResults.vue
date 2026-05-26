@@ -63,7 +63,7 @@ onMounted(() => {
 
 <style scoped>
 .scorecard-results {
-  width: 464px;
+  width: 400px;
   flex-shrink: 0;
   border-left: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;

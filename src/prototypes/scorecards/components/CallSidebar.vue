@@ -77,7 +77,7 @@ defineEmits(['scrollToChapter'])
 
 <style scoped>
 .call-sidebar {
-  width: 332px;
+  width: 300px;
   flex-shrink: 0;
   padding: 24px;
   overflow-y: auto;
