@@ -306,6 +306,11 @@ function handleCancel() {
   border-radius: 8px;
   background: white;
   overflow: hidden;
+  outline: none;
+}
+
+.ai-question-input-wrapper:focus-within {
+  outline: none;
 }
 
 .ai-question-input {
@@ -319,6 +324,12 @@ function handleCancel() {
   outline: none;
   box-sizing: border-box;
   transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.ai-question-input:focus,
+.ai-question-input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .ai-question-input.ai-blur-out {
