@@ -23,8 +23,8 @@
         </td>
         <td class="agent-table-td agent-table-td--change">
           <span class="agent-trend" :class="`agent-trend--${agent.changeDir}`">
-            <DtIconArrowUp v-if="agent.changeDir === 'up'" size="200" class="agent-trend-arrow" />
-            <DtIconArrowDown v-else size="200" class="agent-trend-arrow" />
+            <ArrowUp v-if="agent.changeDir === 'up'" :size="16" class="agent-trend-arrow" />
+            <ArrowDown v-else :size="16" class="agent-trend-arrow" />
             {{ agent.change.replace(/[+-]/, '') }}
           </span>
         </td>
@@ -46,8 +46,7 @@
 
 <script setup>
 import { agentRows } from '../data/analyticsData.js'
-import DtIconArrowUp from '@dialpad/dialtone-icons/vue3/arrow-up'
-import DtIconArrowDown from '@dialpad/dialtone-icons/vue3/arrow-down'
+import { ArrowUp, ArrowDown } from '@lucide/vue'
 
 const sequentialColors = [
   'hsl(220, 45%, 96%)',  // 01: 0–10%

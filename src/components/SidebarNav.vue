@@ -6,7 +6,7 @@
       class="sidebar-nav-item"
       :class="{ 'sidebar-nav-item--active': item.label === activeItem }"
     >
-      <component :is="item.icon" size="400" class="sidebar-nav-icon" />
+      <component :is="item.icon" :size="24" class="sidebar-nav-icon" />
       <span class="sidebar-nav-label">{{ item.label }}</span>
       <span v-if="item.label === 'Contact Centers'" class="sidebar-nav-status">
         <span class="sidebar-nav-status-dot"></span>
@@ -20,12 +20,7 @@
 </template>
 
 <script setup>
-import DtIconInbox from '@dialpad/dialtone-icons/vue3/inbox'
-import DtIconLayoutTemplate from '@dialpad/dialtone-icons/vue3/layout-template'
-import DtIconContacts from '@dialpad/dialtone-icons/vue3/contacts'
-import DtIconHeadphones from '@dialpad/dialtone-icons/vue3/headphones'
-import DtIconHash from '@dialpad/dialtone-icons/vue3/hash'
-import DtIconThread from '@dialpad/dialtone-icons/vue3/thread'
+import { Inbox, LayoutTemplate, Users, Headphones, Hash, MessageCircle } from '@lucide/vue'
 
 defineProps({
   activeItem: {
@@ -35,12 +30,12 @@ defineProps({
 })
 
 const navItems = [
-  { label: 'Inbox', icon: DtIconInbox },
-  { label: 'Launchpad', icon: DtIconLayoutTemplate },
-  { label: 'Contacts', icon: DtIconContacts },
-  { label: 'Contact Centers', icon: DtIconHeadphones },
-  { label: 'Channels', icon: DtIconHash },
-  { label: 'Threads', icon: DtIconThread },
+  { label: 'Inbox', icon: Inbox },
+  { label: 'Launchpad', icon: LayoutTemplate },
+  { label: 'Contacts', icon: Users },
+  { label: 'Contact Centers', icon: Headphones },
+  { label: 'Channels', icon: Hash },
+  { label: 'Threads', icon: MessageCircle },
 ]
 </script>
 

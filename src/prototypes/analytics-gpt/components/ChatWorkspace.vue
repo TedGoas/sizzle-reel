@@ -3,17 +3,17 @@
     <!-- Header -->
     <div class="chat-header">
       <button class="header-icon-btn" aria-label="Past conversations">
-        <DtIconPastConversations size="300" />
+        <MessagesSquare :size="20" />
       </button>
       <template v-if="messages.length > 0">
         <span class="session-title">{{ sessionTitle }}</span>
         <button class="header-icon-btn" aria-label="Options">
-          <DtIconChevronDown size="200" />
+          <ChevronDown :size="16" />
         </button>
       </template>
       <div v-if="messages.length > 0" class="header-spacer" />
       <button v-if="messages.length > 0" class="new-chat-btn" @click="resetChat">
-        <DtIconPlus size="200" />
+        <Plus :size="16" />
         <span>New Chat</span>
       </button>
     </div>
@@ -44,7 +44,7 @@
           />
           <div class="composer-action-bar">
             <button class="composer-send-btn" :class="{ 'has-input': hasInput }" aria-label="Send" @click="sendMessage">
-              <DtIconSend size="300" />
+              <Send :size="20" />
             </button>
           </div>
         </div>
@@ -63,7 +63,7 @@
 
         <!-- Refresh suggestions -->
         <button class="refresh-btn" :disabled="isRefreshing" @click="refreshSuggestions">
-          <DtIconRefresh size="200" />
+          <RefreshCw :size="16" />
           <span>Refresh Suggestions</span>
         </button>
       </div>
@@ -77,7 +77,7 @@
           <!-- User message -->
           <div v-if="msg.role === 'user'" class="user-message">
             <div class="user-avatar">
-              <DtIconUser size="200" />
+              <User :size="16" />
             </div>
             <div class="message-content">
               <div class="message-header">
@@ -132,12 +132,12 @@
               <!-- Action buttons — only on the LAST AI message -->
               <div v-if="i === lastAiMessageIndex" class="message-actions">
                 <div class="message-actions-left">
-                  <button class="action-icon-btn" aria-label="Copy" data-tooltip="Copy"><DtIconCopy size="200" /></button>
-                  <button class="action-icon-btn" aria-label="Add to playlist" data-tooltip="Add to playlist"><DtIconListBullet size="200" /></button>
+                  <button class="action-icon-btn" aria-label="Copy" data-tooltip="Copy"><Copy :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Add to playlist" data-tooltip="Add to playlist"><List :size="16" /></button>
                 </div>
                 <div class="message-actions-right">
-                  <button class="action-icon-btn" aria-label="Helpful" data-tooltip="Helpful"><DtIconThumbsUp size="200" /></button>
-                  <button class="action-icon-btn" aria-label="Not helpful" data-tooltip="Not helpful"><DtIconThumbsDown size="200" /></button>
+                  <button class="action-icon-btn" aria-label="Helpful" data-tooltip="Helpful"><ThumbsUp :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Not helpful" data-tooltip="Not helpful"><ThumbsDown :size="16" /></button>
                 </div>
               </div>
 
@@ -183,10 +183,10 @@
         />
         <div class="composer-action-bar">
           <button v-if="phase === 'busy'" class="composer-send-btn" aria-label="Stop">
-            <DtIconStopCircle size="300" />
+            <CircleStop :size="20" />
           </button>
           <button v-else class="composer-send-btn" :class="{ 'has-input': hasInput }" aria-label="Send" @click="sendMessage">
-            <DtIconSend size="300" />
+            <Send :size="20" />
           </button>
         </div>
       </div>
@@ -196,17 +196,7 @@
 
 <script setup>
 import { ref, computed, nextTick, onUnmounted } from 'vue'
-import DtIconPastConversations from '@dialpad/dialtone-icons/vue3/past-conversations'
-import DtIconSend from '@dialpad/dialtone-icons/vue3/send'
-import DtIconRefresh from '@dialpad/dialtone-icons/vue3/refresh'
-import DtIconChevronDown from '@dialpad/dialtone-icons/vue3/chevron-down'
-import DtIconPlus from '@dialpad/dialtone-icons/vue3/plus'
-import DtIconUser from '@dialpad/dialtone-icons/vue3/user'
-import DtIconStopCircle from '@dialpad/dialtone-icons/vue3/stop-circle'
-import DtIconCopy from '@dialpad/dialtone-icons/vue3/copy'
-import DtIconListBullet from '@dialpad/dialtone-icons/vue3/list-bullet'
-import DtIconThumbsUp from '@dialpad/dialtone-icons/vue3/thumbs-up'
-import DtIconThumbsDown from '@dialpad/dialtone-icons/vue3/thumbs-down'
+import { MessagesSquare, Send, RefreshCw, ChevronDown, Plus, User, CircleStop, Copy, List, ThumbsUp, ThumbsDown } from '@lucide/vue'
 import LineChartWidget from '../../launchpad/components/LineChartWidget.vue'
 
 const textareaRef = ref(null)

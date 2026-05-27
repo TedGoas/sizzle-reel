@@ -24,7 +24,7 @@
             <div class="question-item-meta">
               <span>{{ q.responses[0]?.points || 10 }} points</span>
               <span>{{ q.responseType }}</span>
-              <DtIconSparkle v-if="q.isAi" size="100" class="question-item-ai" />
+              <Sparkles v-if="q.isAi" :size="12" class="question-item-ai" />
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@
         Add Ai Questions
       </button>
       <button class="question-list-btn question-list-btn--create">
-        <DtIconAiWrite size="200" class="question-list-btn-icon" />
+        <PenLine :size="16" class="question-list-btn-icon" />
         Create Question
       </button>
     </div>
@@ -46,8 +46,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import DtIconSparkle from '@dialpad/dialtone-icons/vue3/sparkle'
-import DtIconAiWrite from '@dialpad/dialtone-icons/vue3/ai-write'
+import { Sparkles, PenLine } from '@lucide/vue'
 
 const props = defineProps({
   questions: { type: Array, required: true },

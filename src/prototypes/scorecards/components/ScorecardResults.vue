@@ -23,9 +23,9 @@
           <!-- Selected answer: animated swap -->
           <Transition name="answer-resolve" mode="out-in">
             <div v-if="i < resolvedCount" key="resolved" class="scorecard-answer scorecard-answer--selected">
-              <DtIconCheck class="scorecard-answer-check" size="100" />
+              <Check class="scorecard-answer-check" :size="12" />
               <span class="scorecard-answer-label">{{ q.answer }}</span>
-              <span v-if="q.gradedByAi" class="scorecard-ai-badge"><DtIconDialpadSparkle size="100" /> Graded by Ai</span>
+              <span v-if="q.gradedByAi" class="scorecard-ai-badge"><Sparkles :size="12" /> Graded by Ai</span>
             </div>
             <div v-else key="unresolved" class="scorecard-answer">
               <span class="scorecard-answer-radio"></span>
@@ -46,8 +46,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { scorecardQuestions } from '../data/callData.js'
-import DtIconCheck from '@dialpad/dialtone-icons/vue3/check'
-import DtIconDialpadSparkle from '@dialpad/dialtone-icons/vue3/dialpad-sparkle'
+import { Check, Sparkles } from '@lucide/vue'
 
 const resolvedCount = ref(0)
 

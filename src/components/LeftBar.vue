@@ -2,7 +2,10 @@
   <aside class="left-bar">
     <div class="left-bar-top">
       <div class="left-bar-logo">
-        <DtIconDialpadLogo size="500" />
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Dialpad">
+          <circle cx="16" cy="16" r="16" fill="#7C52FF"/>
+          <text x="16" y="21" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="white">D</text>
+        </svg>
       </div>
       <div class="left-bar-icons">
         <button
@@ -12,7 +15,7 @@
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
           @click="$emit('icon-click', item.name)"
         >
-          <component :is="item.icon" size="400" />
+          <component :is="item.icon" :size="24" />
         </button>
       </div>
     </div>
@@ -24,7 +27,7 @@
           class="left-bar-icon-btn"
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
         >
-          <component :is="item.icon" size="400" />
+          <component :is="item.icon" :size="24" />
         </button>
       </div>
       <div class="left-bar-avatar">
@@ -35,15 +38,7 @@
 </template>
 
 <script setup>
-import DtIconDialpadLogo from '@dialpad/dialtone-icons/vue3/dialpad-logo'
-import DtIconRocket from '@dialpad/dialtone-icons/vue3/rocket'
-import DtIconUser from '@dialpad/dialtone-icons/vue3/user'
-import DtIconSettings from '@dialpad/dialtone-icons/vue3/settings'
-import DtIconCoachingHub from '@dialpad/dialtone-icons/vue3/coaching-hub'
-import DtIconTrendingUp from '@dialpad/dialtone-icons/vue3/trending-up'
-import DtIconHistory from '@dialpad/dialtone-icons/vue3/history'
-import DtIconActivity from '@dialpad/dialtone-icons/vue3/activity'
-import DtIconHelpCircle from '@dialpad/dialtone-icons/vue3/help-circle'
+import { Rocket, User, Settings, GraduationCap, TrendingUp, History, Activity, HelpCircle } from '@lucide/vue'
 
 defineProps({
   activeItem: {
@@ -53,17 +48,17 @@ defineProps({
 })
 
 const topItems = [
-  { name: 'rocket', icon: DtIconRocket },
-  { name: 'user', icon: DtIconUser },
-  { name: 'settings', icon: DtIconSettings },
-  { name: 'coaching-hub', icon: DtIconCoachingHub },
-  { name: 'activity', icon: DtIconActivity },
-  { name: 'history', icon: DtIconHistory },
-  { name: 'trending-up', icon: DtIconTrendingUp },
+  { name: 'rocket', icon: Rocket },
+  { name: 'user', icon: User },
+  { name: 'settings', icon: Settings },
+  { name: 'coaching-hub', icon: GraduationCap },
+  { name: 'activity', icon: Activity },
+  { name: 'history', icon: History },
+  { name: 'trending-up', icon: TrendingUp },
 ]
 
 const bottomItems = [
-  { name: 'help-circle', icon: DtIconHelpCircle },
+  { name: 'help-circle', icon: HelpCircle },
 ]
 </script>
 

@@ -3,11 +3,9 @@
     <!-- Admin sidebar -->
     <aside class="builder-admin-nav">
       <div class="admin-nav-search">
-        <DtSelectMenu
-          v-model="selectedCompany"
-          :options="[{ value: 'my-company', label: 'My Company' }]"
-          size="sm"
-        />
+        <select v-model="selectedCompany" class="custom-select custom-select--sm">
+          <option value="my-company">My Company</option>
+        </select>
       </div>
       <div
         v-for="item in adminNavItems"
@@ -31,7 +29,7 @@
           </span>
         </div>
         <div class="builder-search-bar">
-          <DtIconSearch size="100" class="builder-search-icon" />
+          <Search :size="12" class="builder-search-icon" />
           <span>Search</span>
         </div>
       </div>
@@ -52,25 +50,25 @@
           <div class="builder-filters">
             <button class="builder-filter-btn">
               <span>Contact centers (0)</span>
-              <DtIconChevronDown size="200" class="builder-filter-chevron" />
+              <ChevronDown :size="16" class="builder-filter-chevron" />
             </button>
             <button class="builder-filter-btn">
               <span>Coaching teams (0)</span>
-              <DtIconChevronDown size="200" class="builder-filter-chevron" />
+              <ChevronDown :size="16" class="builder-filter-chevron" />
             </button>
           </div>
         </div>
         <div class="builder-title-right">
           <div class="builder-actions-row">
             <button class="builder-action-btn builder-action-btn--icon" aria-label="Delete">
-              <DtIconTrash size="300" />
+              <Trash2 :size="20" />
             </button>
             <button class="builder-action-btn builder-action-btn--icon" aria-label="Copy">
-              <DtIconCopy size="300" />
+              <Copy :size="20" />
             </button>
             <div class="builder-action-btn builder-action-btn--select">
               <span class="builder-select-value">English</span>
-              <DtIconChevronDown size="200" class="builder-select-arrow" />
+              <ChevronDown :size="16" class="builder-select-arrow" />
             </div>
             <button class="builder-action-btn builder-action-btn--primary">
               Publish
@@ -98,11 +96,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import DtIconTrash from '@dialpad/dialtone-icons/vue3/trash'
-import DtIconCopy from '@dialpad/dialtone-icons/vue3/copy'
-import DtIconChevronDown from '@dialpad/dialtone-icons/vue3/chevron-down'
-import DtIconSearch from '@dialpad/dialtone-icons/vue3/search'
-import { DtSelectMenu } from '@dialpad/dialtone/vue3/lib/select-menu'
+import { Trash2, Copy, ChevronDown, Search } from '@lucide/vue'
 import QuestionList from './QuestionList.vue'
 import QuestionDetail from './QuestionDetail.vue'
 import { questions, scorecardMeta, adminNavItems } from '../data/builderData.js'

@@ -1,7 +1,7 @@
 <template>
   <div class="playback-bar">
     <button class="playback-icon-btn" aria-label="Play">
-      <DtIconPlay size="200" />
+      <Play :size="16" />
     </button>
     <div class="playback-tray-wrapper">
       <div class="playback-tray">
@@ -16,13 +16,13 @@
     </div>
     <div class="playback-controls">
       <button class="playback-icon-btn" aria-label="Rewind 15 seconds">
-        <DtIconRewind15Sec size="200" />
+        <RotateCcw :size="16" />
       </button>
       <button class="playback-icon-btn" aria-label="Skip 15 seconds">
-        <DtIconSkip15Sec size="200" />
+        <RotateCw :size="16" />
       </button>
       <button class="playback-icon-btn" aria-label="Playback speed">
-        <DtIconPowerDialer size="200" />
+        <Gauge :size="16" />
       </button>
     </div>
   </div>
@@ -30,10 +30,7 @@
 
 <script setup>
 import { playbackSegments } from '../data/callData.js'
-import DtIconPlay from '@dialpad/dialtone-icons/vue3/play'
-import DtIconRewind15Sec from '@dialpad/dialtone-icons/vue3/rewind-15-sec'
-import DtIconSkip15Sec from '@dialpad/dialtone-icons/vue3/skip-15-sec'
-import DtIconPowerDialer from '@dialpad/dialtone-icons/vue3/power-dialer'
+import { Play, RotateCcw, RotateCw, Gauge } from '@lucide/vue'
 
 const segments = playbackSegments
 </script>

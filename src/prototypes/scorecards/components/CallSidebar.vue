@@ -8,7 +8,7 @@
     <!-- Details -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <DtIconToken size="100" class="call-sidebar-icon" />
+        <Coins :size="12" class="call-sidebar-icon" />
         Details
       </div>
       <div class="call-sidebar-details">
@@ -21,7 +21,7 @@
     <!-- Chapters -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <DtIconBook size="100" class="call-sidebar-icon" />
+        <BookOpen :size="12" class="call-sidebar-icon" />
         Chapters
       </div>
       <div class="call-sidebar-chapters">
@@ -32,7 +32,7 @@
           @click="$emit('scrollToChapter', ch.id)"
         >
           <span class="chapter-time" v-if="ch.time">{{ ch.time }}</span>
-          <span v-else class="chapter-ai-icon"><DtIconDialpadSparkle size="200" /></span>
+          <span v-else class="chapter-ai-icon"><Sparkles :size="16" /></span>
           <span class="chapter-label">{{ ch.label }}</span>
         </button>
       </div>
@@ -41,7 +41,7 @@
     <!-- Moments -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <DtIconLightbulb size="100" class="call-sidebar-icon" />
+        <Lightbulb :size="12" class="call-sidebar-icon" />
         Moments
       </div>
       <div class="call-sidebar-moments">
@@ -54,8 +54,8 @@
 
     <!-- Actions -->
     <div class="call-sidebar-actions">
-      <button class="call-sidebar-action-btn"><DtIconShare2 size="200" /> Share</button>
-      <button class="call-sidebar-action-btn"><DtIconDownload size="200" /> Download</button>
+      <button class="call-sidebar-action-btn"><Share2 :size="16" /> Share</button>
+      <button class="call-sidebar-action-btn"><Download :size="16" /> Download</button>
     </div>
   </aside>
 </template>
@@ -63,12 +63,7 @@
 <script setup>
 import { callDetails, chapters, moments } from '../data/callData.js'
 
-import DtIconToken from '@dialpad/dialtone-icons/vue3/token'
-import DtIconBook from '@dialpad/dialtone-icons/vue3/book'
-import DtIconLightbulb from '@dialpad/dialtone-icons/vue3/lightbulb'
-import DtIconDialpadSparkle from '@dialpad/dialtone-icons/vue3/dialpad-sparkle'
-import DtIconShare2 from '@dialpad/dialtone-icons/vue3/share-2'
-import DtIconDownload from '@dialpad/dialtone-icons/vue3/download'
+import { Coins, BookOpen, Lightbulb, Sparkles, Share2, Download } from '@lucide/vue'
 
 defineEmits(['scrollToChapter'])
 </script>

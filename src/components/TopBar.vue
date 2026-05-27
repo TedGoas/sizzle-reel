@@ -7,43 +7,46 @@
         <span class="window-dot window-dot--maximize"></span>
       </div>
       <div class="topbar-logo">
-        <DtIconDialpadLogo size="500" />
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Dialpad">
+          <circle cx="16" cy="16" r="16" fill="#7C52FF"/>
+          <text x="16" y="21" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="white">D</text>
+        </svg>
       </div>
       <div class="topbar-primary-actions">
         <button class="topbar-circle-btn" title="Phone">
-          <DtIconDpPhone size="400" />
+          <Phone :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Message">
-          <DtIconMessage size="400" />
+          <MessageSquare :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Video">
-          <DtIconVideo size="400" />
+          <Video :size="24" />
         </button>
       </div>
     </div>
     <div class="topbar-center">
       <div class="topbar-nav-buttons">
         <button class="topbar-circle-btn" title="Back">
-          <DtIconArrowLeft size="400" />
+          <ArrowLeft :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Forward">
-          <DtIconArrowRight size="400" />
+          <ArrowRight :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Reload">
-          <DtIconRefresh size="400" />
+          <RefreshCw :size="24" />
         </button>
       </div>
       <div class="topbar-search">
-        <DtIconSearch size="300" class="topbar-search-icon" />
+        <Search :size="20" class="topbar-search-icon" />
         <span class="topbar-search-text">Search Dialpad</span>
       </div>
     </div>
     <div class="topbar-right">
       <button class="topbar-circle-btn" title="Settings">
-        <DtIconSettings size="400" />
+        <Settings :size="24" />
       </button>
       <button class="topbar-circle-btn" title="Calendar">
-        <DtIconCalendar size="400" />
+        <Calendar :size="24" />
       </button>
       <div class="topbar-profile">
         <span class="topbar-profile-text">Available to chat</span>
@@ -55,24 +58,14 @@
         </div>
       </div>
       <button class="topbar-circle-btn" title="More">
-        <DtIconMoreVertical size="400" />
+        <MoreVertical :size="24" />
       </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import DtIconDialpadLogo from '@dialpad/dialtone-icons/vue3/dialpad-logo'
-import DtIconDpPhone from '@dialpad/dialtone-icons/vue3/dp-phone'
-import DtIconMessage from '@dialpad/dialtone-icons/vue3/message'
-import DtIconVideo from '@dialpad/dialtone-icons/vue3/video'
-import DtIconArrowLeft from '@dialpad/dialtone-icons/vue3/arrow-left'
-import DtIconArrowRight from '@dialpad/dialtone-icons/vue3/arrow-right'
-import DtIconRefresh from '@dialpad/dialtone-icons/vue3/refresh'
-import DtIconSearch from '@dialpad/dialtone-icons/vue3/search'
-import DtIconSettings from '@dialpad/dialtone-icons/vue3/settings'
-import DtIconCalendar from '@dialpad/dialtone-icons/vue3/calendar'
-import DtIconMoreVertical from '@dialpad/dialtone-icons/vue3/more-vertical'
+import { Phone, MessageSquare, Video, ArrowLeft, ArrowRight, RefreshCw, Search, Settings, Calendar, MoreVertical } from '@lucide/vue'
 </script>
 
 <style scoped>

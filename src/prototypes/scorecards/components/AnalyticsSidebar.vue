@@ -2,11 +2,9 @@
   <aside class="analytics-sidebar">
     <!-- Company dropdown -->
     <div class="analytics-sidebar-dropdown">
-      <DtSelectMenu
-        v-model="selectedCompany"
-        :options="[{ value: 'my-company', label: 'My Company' }]"
-        size="sm"
-      />
+      <select v-model="selectedCompany" class="custom-select custom-select--sm" style="width: 100%;">
+        <option value="my-company">My Company</option>
+      </select>
     </div>
 
     <!-- Nav items -->
@@ -30,7 +28,6 @@
 <script setup>
 import { ref } from 'vue'
 import { sidebarNavItems } from '../data/analyticsData.js'
-import { DtSelectMenu } from '@dialpad/dialtone/vue3/lib/select-menu'
 
 const selectedCompany = ref('my-company')
 const navItems = sidebarNavItems
