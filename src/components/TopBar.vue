@@ -11,26 +11,26 @@
       </div>
       <div class="topbar-primary-actions">
         <button class="topbar-circle-btn" title="Phone">
-          <DtIcon name="dp-phone" :size="24" />
+          <DtIcon name="dp-phone" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Message">
-          <DtIcon name="message" :size="24" />
+          <DtIcon name="message" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Video">
-          <DtIcon name="video" :size="24" />
+          <DtIcon name="video" :size="20" />
         </button>
       </div>
     </div>
     <div class="topbar-center">
       <div class="topbar-nav-buttons">
         <button class="topbar-circle-btn" title="Back">
-          <DtIcon name="arrow-left" :size="24" />
+          <DtIcon name="arrow-left" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Forward">
-          <DtIcon name="arrow-right" :size="24" />
+          <DtIcon name="arrow-right" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Reload">
-          <DtIcon name="refresh" :size="24" />
+          <DtIcon name="refresh" :size="20" />
         </button>
       </div>
       <div class="topbar-search">
@@ -40,10 +40,10 @@
     </div>
     <div class="topbar-right">
       <button class="topbar-circle-btn" title="Settings">
-        <DtIcon name="settings" :size="24" />
+        <DtIcon name="settings" :size="20" />
       </button>
       <button class="topbar-circle-btn" title="Calendar">
-        <DtIcon name="calendar" :size="24" />
+        <DtIcon name="calendar" :size="20" />
       </button>
       <div class="topbar-profile">
         <span class="topbar-profile-text">Available to chat</span>
@@ -55,7 +55,7 @@
         </div>
       </div>
       <button class="topbar-circle-btn" title="More">
-        <DtIcon name="more-vertical" :size="24" />
+        <DtIcon name="more-vertical" :size="20" />
       </button>
     </div>
   </header>

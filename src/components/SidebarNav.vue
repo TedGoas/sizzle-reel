@@ -6,7 +6,7 @@
       class="sidebar-nav-item"
       :class="{ 'sidebar-nav-item--active': item.label === activeItem }"
     >
-      <DtIcon :name="item.iconName" :size="24" class="sidebar-nav-icon" />
+      <DtIcon :name="item.iconName" :size="20" class="sidebar-nav-icon" />
       <span class="sidebar-nav-label">{{ item.label }}</span>
       <span v-if="item.label === 'Contact Centers'" class="sidebar-nav-status">
         <span class="sidebar-nav-status-dot"></span>
