@@ -12,7 +12,7 @@
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
           @click="$emit('icon-click', item.name)"
         >
-          <DtIcon :name="item.name" :size="24" />
+          <DtIcon :name="item.name" :size="20" />
         </button>
       </div>
     </div>
@@ -24,7 +24,7 @@
           class="left-bar-icon-btn"
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
         >
-          <DtIcon :name="item.name" :size="24" />
+          <DtIcon :name="item.name" :size="20" />
         </button>
       </div>
       <div class="left-bar-avatar">
@@ -100,8 +100,8 @@ const bottomItems = [
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
   background: none;
