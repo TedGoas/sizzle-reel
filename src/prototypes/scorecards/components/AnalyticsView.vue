@@ -13,7 +13,7 @@
           <span class="crumb-active">By group</span>
         </div>
         <div class="analytics-search">
-          <DtIconSearch size="100" class="search-icon" />
+          <DtIcon name="search" :size="12" class="search-icon" />
           <span>Search</span>
         </div>
       </div>
@@ -27,7 +27,7 @@
             <div class="analytics-filters">
               <button class="analytics-filter-btn">
                 <span>All groups</span>
-                <DtIconChevronDown size="200" class="analytics-filter-chevron" />
+                <DtIcon name="chevron-down" :size="16" class="analytics-filter-chevron" />
               </button>
               <button class="analytics-filter-btn analytics-filter-btn--active">
                 <span>Past 60 days</span>
@@ -58,8 +58,7 @@
 import AnalyticsSidebar from './AnalyticsSidebar.vue'
 import ComboChart from './ComboChart.vue'
 import AgentTable from './AgentTable.vue'
-import DtIconChevronDown from '@dialpad/dialtone-icons/vue3/chevron-down'
-import DtIconSearch from '@dialpad/dialtone-icons/vue3/search'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 </script>
 
 <style scoped>

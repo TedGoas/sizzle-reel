@@ -2,7 +2,7 @@
   <aside class="left-bar">
     <div class="left-bar-top">
       <div class="left-bar-logo">
-        <DtIconDialpadLogo size="500" />
+        <DialpadLogo :size="32" />
       </div>
       <div class="left-bar-icons">
         <button
@@ -12,7 +12,7 @@
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
           @click="$emit('icon-click', item.name)"
         >
-          <component :is="item.icon" size="400" />
+          <DtIcon :name="item.name" :size="20" />
         </button>
       </div>
     </div>
@@ -24,7 +24,7 @@
           class="left-bar-icon-btn"
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
         >
-          <component :is="item.icon" size="400" />
+          <DtIcon :name="item.name" :size="20" />
         </button>
       </div>
       <div class="left-bar-avatar">
@@ -35,15 +35,8 @@
 </template>
 
 <script setup>
-import DtIconDialpadLogo from '@dialpad/dialtone-icons/vue3/dialpad-logo'
-import DtIconRocket from '@dialpad/dialtone-icons/vue3/rocket'
-import DtIconUser from '@dialpad/dialtone-icons/vue3/user'
-import DtIconSettings from '@dialpad/dialtone-icons/vue3/settings'
-import DtIconCoachingHub from '@dialpad/dialtone-icons/vue3/coaching-hub'
-import DtIconTrendingUp from '@dialpad/dialtone-icons/vue3/trending-up'
-import DtIconHistory from '@dialpad/dialtone-icons/vue3/history'
-import DtIconActivity from '@dialpad/dialtone-icons/vue3/activity'
-import DtIconHelpCircle from '@dialpad/dialtone-icons/vue3/help-circle'
+import DtIcon from './icons/DtIcon.vue'
+import DialpadLogo from './DialpadLogo.vue'
 
 defineProps({
   activeItem: {
@@ -53,17 +46,17 @@ defineProps({
 })
 
 const topItems = [
-  { name: 'rocket', icon: DtIconRocket },
-  { name: 'user', icon: DtIconUser },
-  { name: 'settings', icon: DtIconSettings },
-  { name: 'coaching-hub', icon: DtIconCoachingHub },
-  { name: 'activity', icon: DtIconActivity },
-  { name: 'history', icon: DtIconHistory },
-  { name: 'trending-up', icon: DtIconTrendingUp },
+  { name: 'rocket' },
+  { name: 'user' },
+  { name: 'settings' },
+  { name: 'coaching-hub' },
+  { name: 'activity' },
+  { name: 'history' },
+  { name: 'trending-up' },
 ]
 
 const bottomItems = [
-  { name: 'help-circle', icon: DtIconHelpCircle },
+  { name: 'help-circle' },
 ]
 </script>
 
@@ -107,8 +100,8 @@ const bottomItems = [
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: var(--btn-height-nav);
+  height: var(--btn-height-nav);
   border: none;
   border-radius: 50%;
   background: none;

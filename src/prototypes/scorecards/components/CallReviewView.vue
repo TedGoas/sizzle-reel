@@ -3,11 +3,9 @@
     <!-- Top bar -->
     <div class="call-review-top-bar">
       <div class="call-review-top-left">
-        <DtSelectMenu
-          v-model="selectedCompany"
-          :options="[{ value: 'my-company', label: 'My Company' }]"
-          size="sm"
-        />
+        <select v-model="selectedCompany" class="custom-select custom-select--sm">
+          <option value="my-company">My Company</option>
+        </select>
       </div>
       <div class="call-review-breadcrumbs">
         <span class="crumb-muted">Call History</span>
@@ -15,7 +13,7 @@
         <span class="crumb-active">Call Review</span>
       </div>
       <div class="call-review-search">
-        <DtIconSearch size="100" class="search-icon" />
+        <DtIcon name="search" :size="12" class="search-icon" />
         <span>Search</span>
       </div>
     </div>
@@ -40,8 +38,7 @@ import CallSidebar from './CallSidebar.vue'
 import PlaybackBar from './PlaybackBar.vue'
 import Transcript from './Transcript.vue'
 import ScorecardResults from './ScorecardResults.vue'
-import { DtSelectMenu } from '@dialpad/dialtone/vue3/lib/select-menu'
-import DtIconSearch from '@dialpad/dialtone-icons/vue3/search'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const selectedCompany = ref('my-company')
 const transcriptRef = ref(null)

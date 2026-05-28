@@ -19,8 +19,8 @@
       </svg>
     </button>
     <button class="composer-send-btn" aria-label="Send">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M14 2L7 9M14 2l-4.5 12-2-5.5L2 6.5 14 2z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg width="16" height="16" viewBox="0 0 13 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M1.661 1.036a.5.5 0 0 1 .556-.083l9.546 4.597a.5.5 0 0 1 0 .9l-9.546 4.597a.5.5 0 0 1-.684-.63L3.233 6l-1.7-4.417a.5.5 0 0 1 .128-.547ZM4.111 6.5 2.92 9.599 9.355 6.5H4.11Zm5.244-1H4.11L2.92 2.401 9.355 5.5Z" fill-rule="evenodd" clip-rule="evenodd"/>
       </svg>
     </button>
   </div>

@@ -4,7 +4,7 @@
       <div class="combo-chart-stats">
         <span class="combo-chart-value">{{ summaryStats.averageGrade }}</span>
         <span class="combo-chart-trend">
-          <DtIconArrowUp size="200" class="combo-chart-trend-arrow" />
+          <DtIcon name="arrow-up" :size="16" class="combo-chart-trend-arrow" />
           <span class="combo-chart-trend-value">{{ summaryStats.trend.replace('+', '') }}</span>
         </span>
         <span class="combo-chart-comparison">{{ summaryStats.comparison }}</span>
@@ -55,7 +55,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
-import DtIconArrowUp from '@dialpad/dialtone-icons/vue3/arrow-up'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,

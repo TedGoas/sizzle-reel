@@ -7,43 +7,43 @@
         <span class="window-dot window-dot--maximize"></span>
       </div>
       <div class="topbar-logo">
-        <DtIconDialpadLogo size="500" />
+        <DialpadLogo :size="32" />
       </div>
       <div class="topbar-primary-actions">
         <button class="topbar-circle-btn" title="Phone">
-          <DtIconDpPhone size="400" />
+          <DtIcon name="dp-phone" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Message">
-          <DtIconMessage size="400" />
+          <DtIcon name="message" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Video">
-          <DtIconVideo size="400" />
+          <DtIcon name="video" :size="20" />
         </button>
       </div>
     </div>
     <div class="topbar-center">
       <div class="topbar-nav-buttons">
         <button class="topbar-circle-btn" title="Back">
-          <DtIconArrowLeft size="400" />
+          <DtIcon name="arrow-left" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Forward">
-          <DtIconArrowRight size="400" />
+          <DtIcon name="arrow-right" :size="20" />
         </button>
         <button class="topbar-circle-btn" title="Reload">
-          <DtIconRefresh size="400" />
+          <DtIcon name="refresh" :size="20" />
         </button>
       </div>
       <div class="topbar-search">
-        <DtIconSearch size="300" class="topbar-search-icon" />
+        <DtIcon name="search" :size="20" class="topbar-search-icon" />
         <span class="topbar-search-text">Search Dialpad</span>
       </div>
     </div>
     <div class="topbar-right">
       <button class="topbar-circle-btn" title="Settings">
-        <DtIconSettings size="400" />
+        <DtIcon name="settings" :size="20" />
       </button>
       <button class="topbar-circle-btn" title="Calendar">
-        <DtIconCalendar size="400" />
+        <DtIcon name="calendar" :size="20" />
       </button>
       <div class="topbar-profile">
         <span class="topbar-profile-text">Available to chat</span>
@@ -55,24 +55,15 @@
         </div>
       </div>
       <button class="topbar-circle-btn" title="More">
-        <DtIconMoreVertical size="400" />
+        <DtIcon name="more-vertical" :size="20" />
       </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import DtIconDialpadLogo from '@dialpad/dialtone-icons/vue3/dialpad-logo'
-import DtIconDpPhone from '@dialpad/dialtone-icons/vue3/dp-phone'
-import DtIconMessage from '@dialpad/dialtone-icons/vue3/message'
-import DtIconVideo from '@dialpad/dialtone-icons/vue3/video'
-import DtIconArrowLeft from '@dialpad/dialtone-icons/vue3/arrow-left'
-import DtIconArrowRight from '@dialpad/dialtone-icons/vue3/arrow-right'
-import DtIconRefresh from '@dialpad/dialtone-icons/vue3/refresh'
-import DtIconSearch from '@dialpad/dialtone-icons/vue3/search'
-import DtIconSettings from '@dialpad/dialtone-icons/vue3/settings'
-import DtIconCalendar from '@dialpad/dialtone-icons/vue3/calendar'
-import DtIconMoreVertical from '@dialpad/dialtone-icons/vue3/more-vertical'
+import DtIcon from './icons/DtIcon.vue'
+import DialpadLogo from './DialpadLogo.vue'
 </script>
 
 <style scoped>
@@ -124,8 +115,8 @@ import DtIconMoreVertical from '@dialpad/dialtone-icons/vue3/more-vertical'
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--btn-height-icon);
+  height: var(--btn-height-icon);
   border: none;
   background: none;
   border-radius: 16px;

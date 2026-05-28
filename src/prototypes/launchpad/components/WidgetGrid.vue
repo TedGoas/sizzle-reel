@@ -4,10 +4,10 @@
     <div class="widget-row">
       <div class="widget-card widget-card--narrow">
         <div v-if="loading" class="skeleton-donut">
-          <DtSkeletonText width="40%" :animate="true" />
-          <DtSkeletonShape shape="circle" class="skeleton-donut-circle" />
+          <div class="skeleton skeleton--text" style="width: 40%" />
+          <div class="skeleton skeleton--circle skeleton-donut-circle" />
           <div class="skeleton-donut-legend">
-            <DtSkeletonText v-for="n in 3" :key="n" :width="`${50 + n * 10}%`" :animate="true" />
+            <div v-for="n in 3" :key="n" class="skeleton skeleton--text" :style="{ width: `${50 + n * 10}%` }" />
           </div>
         </div>
         <DonutWidget
@@ -20,10 +20,11 @@
       </div>
       <div class="widget-card widget-card--wide">
         <div v-if="loading" class="skeleton-linechart">
-          <DtSkeletonText width="30%" :animate="true" />
-          <DtSkeletonText width="15%" type="heading" heading-height="lg" :animate="true" />
-          <DtSkeletonShape shape="square" class="skeleton-linechart-chart" />
-          <DtSkeletonParagraph :rows="2" />
+          <div class="skeleton skeleton--text" style="width: 30%" />
+          <div class="skeleton skeleton--heading" style="width: 15%" />
+          <div class="skeleton skeleton-linechart-chart" />
+          <div class="skeleton skeleton--text" style="width: 80%" />
+          <div class="skeleton skeleton--text" style="width: 60%" />
         </div>
         <LineChartWidget
           v-else
@@ -39,10 +40,11 @@
     <div class="widget-row widget-row--flipped">
       <div class="widget-card widget-card--wide">
         <div v-if="loading" class="skeleton-linechart">
-          <DtSkeletonText width="30%" :animate="true" />
-          <DtSkeletonText width="15%" type="heading" heading-height="lg" :animate="true" />
-          <DtSkeletonShape shape="square" class="skeleton-linechart-chart" />
-          <DtSkeletonParagraph :rows="2" />
+          <div class="skeleton skeleton--text" style="width: 30%" />
+          <div class="skeleton skeleton--heading" style="width: 15%" />
+          <div class="skeleton skeleton-linechart-chart" />
+          <div class="skeleton skeleton--text" style="width: 80%" />
+          <div class="skeleton skeleton--text" style="width: 60%" />
         </div>
         <LineChartWidget
           v-else
@@ -54,10 +56,10 @@
       </div>
       <div class="widget-card widget-card--narrow">
         <div v-if="loading" class="skeleton-donut">
-          <DtSkeletonText width="40%" :animate="true" />
-          <DtSkeletonShape shape="circle" class="skeleton-donut-circle" />
+          <div class="skeleton skeleton--text" style="width: 40%" />
+          <div class="skeleton skeleton--circle skeleton-donut-circle" />
           <div class="skeleton-donut-legend">
-            <DtSkeletonText v-for="n in 4" :key="n" :width="`${50 + n * 10}%`" :animate="true" />
+            <div v-for="n in 4" :key="n" class="skeleton skeleton--text" :style="{ width: `${50 + n * 10}%` }" />
           </div>
         </div>
         <DonutWidget
@@ -75,10 +77,10 @@
     <div class="widget-row">
       <div class="widget-card widget-card--narrow">
         <div v-if="loading" class="skeleton-donut">
-          <DtSkeletonText width="40%" :animate="true" />
-          <DtSkeletonShape shape="circle" class="skeleton-donut-circle" />
+          <div class="skeleton skeleton--text" style="width: 40%" />
+          <div class="skeleton skeleton--circle skeleton-donut-circle" />
           <div class="skeleton-donut-legend">
-            <DtSkeletonText v-for="n in 4" :key="n" :width="`${50 + n * 10}%`" :animate="true" />
+            <div v-for="n in 4" :key="n" class="skeleton skeleton--text" :style="{ width: `${50 + n * 10}%` }" />
           </div>
         </div>
         <DonutWidget
@@ -92,10 +94,11 @@
       </div>
       <div class="widget-card widget-card--wide">
         <div v-if="loading" class="skeleton-linechart">
-          <DtSkeletonText width="30%" :animate="true" />
-          <DtSkeletonText width="15%" type="heading" heading-height="lg" :animate="true" />
-          <DtSkeletonShape shape="square" class="skeleton-linechart-chart" />
-          <DtSkeletonParagraph :rows="2" />
+          <div class="skeleton skeleton--text" style="width: 30%" />
+          <div class="skeleton skeleton--heading" style="width: 15%" />
+          <div class="skeleton skeleton-linechart-chart" />
+          <div class="skeleton skeleton--text" style="width: 80%" />
+          <div class="skeleton skeleton--text" style="width: 60%" />
         </div>
         <LineChartWidget
           v-else
@@ -111,7 +114,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { DtSkeletonText, DtSkeletonShape, DtSkeletonParagraph } from '@dialpad/dialtone/vue3/lib/skeleton'
+
 import DonutWidget from './DonutWidget.vue'
 import LineChartWidget from './LineChartWidget.vue'
 import {
@@ -188,9 +191,9 @@ defineExpose({ startLoading, setTimeRange })
   height: 100%;
 }
 
-.skeleton-donut :deep(.d-bar-circle) {
-  width: 200px !important;
-  height: 200px !important;
+.skeleton-donut-circle {
+  width: 200px;
+  height: 200px;
 }
 
 .skeleton-donut-legend {
@@ -208,8 +211,8 @@ defineExpose({ startLoading, setTimeRange })
   height: 100%;
 }
 
-.skeleton-linechart :deep(.d-bar2) {
-  width: 100% !important;
-  height: 180px !important;
+.skeleton-linechart-chart {
+  width: 100%;
+  height: 180px;
 }
 </style>

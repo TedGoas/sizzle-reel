@@ -1,0 +1,174 @@
+/*
+ * Utility Classes
+ *
+ * Local replacements for the Dialtone d-* utility classes used in this repo.
+ * Class names are kept identical so templates don't need to change.
+ */
+
+/* -------------------------------------------------------------------------
+ * Typography
+ * ----------------------------------------------------------------------- */
+.d-headline-extra-large {
+  font: var(--dt-typography-headline-xl);
+}
+
+.d-headline-large {
+  font: var(--dt-typography-headline-lg);
+}
+
+.d-body-base {
+  font: var(--dt-typography-body-md);
+}
+
+.d-body-small {
+  font: var(--dt-typography-body-sm);
+}
+
+.d-body-compact-small {
+  font: var(--dt-typography-body-sm-compact);
+}
+
+.d-label-compact-small {
+  font: var(--dt-typography-label-sm-compact);
+}
+
+/* -------------------------------------------------------------------------
+ * Layout — Stack (flex column)
+ * ----------------------------------------------------------------------- */
+.d-stack {
+  --stack-gap: 0;
+  --stack-direction: column;
+  --stack-align: initial;
+  --stack-justify: initial;
+  display: flex;
+  flex-direction: var(--stack-direction);
+  gap: var(--stack-gap);
+  align-items: var(--stack-align);
+  justify-content: var(--stack-justify);
+}
+
+.d-stack--row {
+  --stack-direction: row;
+  --stack-align: center;
+}
+
+.d-stack--gap-300 {
+  --stack-gap: var(--dt-space-300);
+}
+
+.d-stack--gap-400 {
+  --stack-gap: var(--dt-space-400);
+}
+
+.d-stack--gap-450 {
+  --stack-gap: var(--dt-space-450);
+}
+
+.d-stack--gap-500 {
+  --stack-gap: var(--dt-space-500);
+}
+
+/* -------------------------------------------------------------------------
+ * Spacing
+ * ----------------------------------------------------------------------- */
+.d-p24 {
+  padding: var(--dt-space-550) !important; /* 24px */
+}
+
+/* -------------------------------------------------------------------------
+ * Text alignment
+ * ----------------------------------------------------------------------- */
+.d-ta-center {
+  text-align: center !important;
+}
+
+/* -------------------------------------------------------------------------
+ * Links
+ * ----------------------------------------------------------------------- */
+.d-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  color: var(--dt-color-link-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.d-link:hover {
+  color: var(--dt-color-link-primary-hover);
+  text-decoration: none;
+}
+
+/* -------------------------------------------------------------------------
+ * Skeleton loading (replaces DtSkeleton* components)
+ * ----------------------------------------------------------------------- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--dt-color-surface-moderate) 25%,
+    var(--dt-color-surface-secondary) 50%,
+    var(--dt-color-surface-moderate) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+}
+
+.skeleton--text {
+  height: 12px;
+  border-radius: 4px;
+}
+
+.skeleton--heading {
+  height: 20px;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* -------------------------------------------------------------------------
+ * Select (replaces DtSelectMenu)
+ * ----------------------------------------------------------------------- */
+.custom-select {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 28px 0 8px;
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-primary);
+  background-color: var(--dt-color-surface-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233A3A3A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 14px;
+  border: 1px solid var(--dt-color-border-default);
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.custom-select:focus-visible {
+  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-link-primary);
+}
+
+.custom-select--sm {
+  height: 28px;
+  font-size: 11px;
+}
