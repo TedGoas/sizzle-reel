@@ -7,10 +7,7 @@
         <span class="window-dot window-dot--maximize"></span>
       </div>
       <div class="topbar-logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Dialpad">
-          <circle cx="16" cy="16" r="16" fill="#7C52FF"/>
-          <text x="16" y="21" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="white">D</text>
-        </svg>
+        <DialpadLogo :size="32" />
       </div>
       <div class="topbar-primary-actions">
         <button class="topbar-circle-btn" title="Phone">
@@ -66,6 +63,7 @@
 
 <script setup>
 import { Phone, MessageSquare, Video, ArrowLeft, ArrowRight, RefreshCw, Search, Settings, Calendar, MoreVertical } from '@lucide/vue'
+import DialpadLogo from './DialpadLogo.vue'
 </script>
 
 <style scoped>

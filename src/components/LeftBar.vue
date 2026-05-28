@@ -2,10 +2,7 @@
   <aside class="left-bar">
     <div class="left-bar-top">
       <div class="left-bar-logo">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Dialpad">
-          <circle cx="16" cy="16" r="16" fill="#7C52FF"/>
-          <text x="16" y="21" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="white">D</text>
-        </svg>
+        <DialpadLogo :size="32" />
       </div>
       <div class="left-bar-icons">
         <button
@@ -39,6 +36,7 @@
 
 <script setup>
 import { Rocket, User, Settings, GraduationCap, TrendingUp, History, Activity, HelpCircle } from '@lucide/vue'
+import DialpadLogo from './DialpadLogo.vue'
 
 defineProps({
   activeItem: {
