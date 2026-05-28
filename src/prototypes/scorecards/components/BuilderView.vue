@@ -328,7 +328,7 @@ function selectQuestion(id) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  height: var(--btn-height-md);
   box-sizing: border-box;
   border-radius: 8px;
   font-size: 14px;
@@ -341,7 +341,7 @@ function selectQuestion(id) {
 }
 
 .builder-action-btn--icon {
-  width: 32px;
+  width: var(--btn-height-icon);
   color: #3a3a3a;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;

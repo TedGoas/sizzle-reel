@@ -100,8 +100,8 @@ const bottomItems = [
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--btn-height-nav);
+  height: var(--btn-height-nav);
   border: none;
   border-radius: 50%;
   background: none;

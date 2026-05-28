@@ -78,6 +78,14 @@
   --dt-color-link-primary-hover: #5023DD;
 
   /* -------------------------------------------------------------------------
+   * Button heights
+   * ----------------------------------------------------------------------- */
+  --btn-height-sm:   28px;  /* compact / small buttons */
+  --btn-height-md:   32px;  /* standard text buttons */
+  --btn-height-icon: 32px;  /* square icon-only buttons (same height, explicit semantic) */
+  --btn-height-nav:  36px;  /* nav icon buttons (left bar) */
+
+  /* -------------------------------------------------------------------------
    * Shadows
    * ----------------------------------------------------------------------- */
   --dt-shadow-focus: 0 0 0 3px rgba(124, 82, 255, 0.35);

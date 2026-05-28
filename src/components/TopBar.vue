@@ -115,8 +115,8 @@ import DialpadLogo from './DialpadLogo.vue'
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--btn-height-icon);
+  height: var(--btn-height-icon);
   border: none;
   background: none;
   border-radius: 16px;

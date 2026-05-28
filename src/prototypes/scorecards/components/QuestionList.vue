@@ -179,7 +179,7 @@ const totalPoints = computed(() =>
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 32px;
+  height: var(--btn-height-md);
   padding: 0 12px;
   border-radius: 8px;
   font-size: 12px;
