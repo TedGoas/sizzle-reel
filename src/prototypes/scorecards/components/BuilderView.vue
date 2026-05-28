@@ -61,10 +61,10 @@
         <div class="builder-title-right">
           <div class="builder-actions-row">
             <button class="builder-action-btn builder-action-btn--icon" aria-label="Delete">
-              <DtIcon name="trash" :size="20" />
+              <DtIcon name="trash" :size="16" />
             </button>
             <button class="builder-action-btn builder-action-btn--icon" aria-label="Copy">
-              <Copy :size="20" />
+              <DtIcon name="copy" :size="16" />
             </button>
             <div class="builder-action-btn builder-action-btn--select">
               <span class="builder-select-value">English</span>
@@ -328,7 +328,7 @@ function selectQuestion(id) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
+  height: 32px;
   box-sizing: border-box;
   border-radius: 8px;
   font-size: 14px;
@@ -341,7 +341,7 @@ function selectQuestion(id) {
 }
 
 .builder-action-btn--icon {
-  width: 36px;
+  width: 32px;
   color: #3a3a3a;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;

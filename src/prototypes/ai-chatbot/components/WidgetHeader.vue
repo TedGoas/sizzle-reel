@@ -24,7 +24,7 @@
     <div class="header-actions">
       <button class="header-btn" aria-label="Minimize">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
       <button class="header-btn" aria-label="Close" @click="$emit('close')">

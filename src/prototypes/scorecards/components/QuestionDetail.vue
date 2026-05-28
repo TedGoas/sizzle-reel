@@ -668,7 +668,8 @@ function handleCancel() {
 }
 
 .footer-btn {
-  padding: 8px 16px;
+  height: 32px;
+  padding: 0 16px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
