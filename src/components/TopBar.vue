@@ -11,39 +11,39 @@
       </div>
       <div class="topbar-primary-actions">
         <button class="topbar-circle-btn" title="Phone">
-          <Phone :size="24" />
+          <DtIcon name="dp-phone" :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Message">
-          <MessageSquare :size="24" />
+          <DtIcon name="message" :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Video">
-          <Video :size="24" />
+          <DtIcon name="video" :size="24" />
         </button>
       </div>
     </div>
     <div class="topbar-center">
       <div class="topbar-nav-buttons">
         <button class="topbar-circle-btn" title="Back">
-          <ArrowLeft :size="24" />
+          <DtIcon name="arrow-left" :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Forward">
-          <ArrowRight :size="24" />
+          <DtIcon name="arrow-right" :size="24" />
         </button>
         <button class="topbar-circle-btn" title="Reload">
-          <RefreshCw :size="24" />
+          <DtIcon name="refresh" :size="24" />
         </button>
       </div>
       <div class="topbar-search">
-        <Search :size="20" class="topbar-search-icon" />
+        <DtIcon name="search" :size="20" class="topbar-search-icon" />
         <span class="topbar-search-text">Search Dialpad</span>
       </div>
     </div>
     <div class="topbar-right">
       <button class="topbar-circle-btn" title="Settings">
-        <Settings :size="24" />
+        <DtIcon name="settings" :size="24" />
       </button>
       <button class="topbar-circle-btn" title="Calendar">
-        <Calendar :size="24" />
+        <DtIcon name="calendar" :size="24" />
       </button>
       <div class="topbar-profile">
         <span class="topbar-profile-text">Available to chat</span>
@@ -55,14 +55,14 @@
         </div>
       </div>
       <button class="topbar-circle-btn" title="More">
-        <MoreVertical :size="24" />
+        <DtIcon name="more-vertical" :size="24" />
       </button>
     </div>
   </header>
 </template>
 
 <script setup>
-import { Phone, MessageSquare, Video, ArrowLeft, ArrowRight, RefreshCw, Search, Settings, Calendar, MoreVertical } from '@lucide/vue'
+import DtIcon from './icons/DtIcon.vue'
 import DialpadLogo from './DialpadLogo.vue'
 </script>
 

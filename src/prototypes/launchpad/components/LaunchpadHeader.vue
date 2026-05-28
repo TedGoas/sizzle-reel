@@ -31,7 +31,7 @@
       </div>
       <div class="lp-header-right">
         <button class="lp-action-btn" @click="$emit('refresh')">
-          <RefreshCw :size="16" />
+          <DtIcon name="refresh" :size="16" />
           <span>Refresh</span>
         </button>
         <button class="lp-action-btn">
@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { RefreshCw } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const emit = defineEmits(['refresh', 'timeTabChange'])
 

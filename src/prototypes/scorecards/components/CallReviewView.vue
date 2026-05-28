@@ -13,7 +13,7 @@
         <span class="crumb-active">Call Review</span>
       </div>
       <div class="call-review-search">
-        <Search :size="12" class="search-icon" />
+        <DtIcon name="search" :size="12" class="search-icon" />
         <span>Search</span>
       </div>
     </div>
@@ -38,7 +38,7 @@ import CallSidebar from './CallSidebar.vue'
 import PlaybackBar from './PlaybackBar.vue'
 import Transcript from './Transcript.vue'
 import ScorecardResults from './ScorecardResults.vue'
-import { Search } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const selectedCompany = ref('my-company')
 const transcriptRef = ref(null)

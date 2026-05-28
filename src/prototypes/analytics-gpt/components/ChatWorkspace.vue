@@ -3,17 +3,17 @@
     <!-- Header -->
     <div class="chat-header">
       <button class="header-icon-btn" aria-label="Past conversations">
-        <MessagesSquare :size="20" />
+        <DtIcon name="past-conversations" :size="20" />
       </button>
       <template v-if="messages.length > 0">
         <span class="session-title">{{ sessionTitle }}</span>
         <button class="header-icon-btn" aria-label="Options">
-          <ChevronDown :size="16" />
+          <DtIcon name="chevron-down" :size="16" />
         </button>
       </template>
       <div v-if="messages.length > 0" class="header-spacer" />
       <button v-if="messages.length > 0" class="new-chat-btn" @click="resetChat">
-        <Plus :size="16" />
+        <DtIcon name="plus" :size="16" />
         <span>New Chat</span>
       </button>
     </div>
@@ -44,7 +44,7 @@
           />
           <div class="composer-action-bar">
             <button class="composer-send-btn" :class="{ 'has-input': hasInput }" aria-label="Send" @click="sendMessage">
-              <Send :size="20" />
+              <DtIcon name="send" :size="20" />
             </button>
           </div>
         </div>
@@ -63,7 +63,7 @@
 
         <!-- Refresh suggestions -->
         <button class="refresh-btn" :disabled="isRefreshing" @click="refreshSuggestions">
-          <RefreshCw :size="16" />
+          <DtIcon name="refresh" :size="16" />
           <span>Refresh Suggestions</span>
         </button>
       </div>
@@ -77,7 +77,7 @@
           <!-- User message -->
           <div v-if="msg.role === 'user'" class="user-message">
             <div class="user-avatar">
-              <User :size="16" />
+              <DtIcon name="user" :size="16" />
             </div>
             <div class="message-content">
               <div class="message-header">
@@ -132,12 +132,12 @@
               <!-- Action buttons — only on the LAST AI message -->
               <div v-if="i === lastAiMessageIndex" class="message-actions">
                 <div class="message-actions-left">
-                  <button class="action-icon-btn" aria-label="Copy" data-tooltip="Copy"><Copy :size="16" /></button>
-                  <button class="action-icon-btn" aria-label="Add to playlist" data-tooltip="Add to playlist"><List :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Copy" data-tooltip="Copy"><DtIcon name="copy" :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Add to playlist" data-tooltip="Add to playlist"><DtIcon name="list-bullet" :size="16" /></button>
                 </div>
                 <div class="message-actions-right">
-                  <button class="action-icon-btn" aria-label="Helpful" data-tooltip="Helpful"><ThumbsUp :size="16" /></button>
-                  <button class="action-icon-btn" aria-label="Not helpful" data-tooltip="Not helpful"><ThumbsDown :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Helpful" data-tooltip="Helpful"><DtIcon name="thumbs-up" :size="16" /></button>
+                  <button class="action-icon-btn" aria-label="Not helpful" data-tooltip="Not helpful"><DtIcon name="thumbs-down" :size="16" /></button>
                 </div>
               </div>
 
@@ -183,10 +183,10 @@
         />
         <div class="composer-action-bar">
           <button v-if="phase === 'busy'" class="composer-send-btn" aria-label="Stop">
-            <CircleStop :size="20" />
+            <DtIcon name="stop-circle" :size="20" />
           </button>
           <button v-else class="composer-send-btn" :class="{ 'has-input': hasInput }" aria-label="Send" @click="sendMessage">
-            <Send :size="20" />
+            <DtIcon name="send" :size="20" />
           </button>
         </div>
       </div>
@@ -196,7 +196,7 @@
 
 <script setup>
 import { ref, computed, nextTick, onUnmounted } from 'vue'
-import { MessagesSquare, Send, RefreshCw, ChevronDown, Plus, User, CircleStop, Copy, List, ThumbsUp, ThumbsDown } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 import LineChartWidget from '../../launchpad/components/LineChartWidget.vue'
 
 const textareaRef = ref(null)

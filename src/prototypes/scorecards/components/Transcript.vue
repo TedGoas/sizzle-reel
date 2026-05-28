@@ -11,7 +11,7 @@
         class="transcript-hidden-divider"
       >
         <span class="transcript-hidden-line"></span>
-        <ChevronsDownUp class="transcript-hidden-icon" :size="16" />
+        <DtIcon name="chevrons-down-up" :size="16" class="transcript-hidden-icon" />
         <span class="transcript-hidden-label">4 hidden messages</span>
         <span class="transcript-hidden-line"></span>
       </div>
@@ -57,7 +57,7 @@
     <!-- Search bar at bottom -->
     <div class="transcript-search">
       <div class="transcript-search-input">
-        <Sparkles class="transcript-search-icon" :size="20" />
+        <DtIcon name="dialpad-sparkle" :size="20" class="transcript-search-icon" />
         <span class="transcript-search-placeholder">Explore this conversation</span>
       </div>
     </div>
@@ -66,7 +66,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import { Sparkles, ChevronsDownUp } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 import { transcript, chapters } from '../data/callData.js'
 
 const transcriptRef = ref(null)

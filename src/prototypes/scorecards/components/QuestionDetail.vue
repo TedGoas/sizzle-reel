@@ -38,7 +38,7 @@
             <!-- Confirming content -->
             <div v-else key="confirming" class="banner-confirming">
               <button class="banner-close-btn" @click="handleCancel">
-                <X :size="16" />
+                <DtIcon name="close" :size="16" />
               </button>
               <div class="banner-header">
                 <svg class="sparkle-icon" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="url(#ai-gradient-banner)"/><defs><linearGradient id="ai-gradient-banner" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#471571"/><stop offset=".031" stop-color="#551B84"/><stop offset=".145" stop-color="#7C229E"/><stop offset=".237" stop-color="#9024A4"/><stop offset=".355" stop-color="#B02290"/><stop offset=".483" stop-color="#D32B86"/><stop offset=".603" stop-color="#E92F6F"/><stop offset=".701" stop-color="#F6484F"/><stop offset=".9" stop-color="#FB7328"/><stop offset=".973" stop-color="#F3960F"/><stop offset="1" stop-color="#F3960F"/></linearGradient></defs></svg>
@@ -56,11 +56,11 @@
         <!-- Action buttons (only when idle) -->
         <div v-if="rewriteState === 'idle'" class="ai-question-actions">
           <button class="compose-action-btn" @click="handleRewrite">
-            <PenLine :size="16" />
+            <DtIcon name="ai-write" :size="16" />
             Rewrite
           </button>
           <button class="compose-action-btn">
-            <Languages :size="16" />
+            <DtIcon name="languages" :size="16" />
             Translate
           </button>
         </div>
@@ -77,7 +77,7 @@
               <option>Scale</option>
               <option>Free text</option>
             </select>
-            <ChevronDown :size="16" class="dt-select-icon" />
+            <DtIcon name="chevron-down" :size="16" class="dt-select-icon" />
           </div>
         </div>
 
@@ -168,7 +168,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { ChevronDown, X, PenLine, Languages } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const props = defineProps({
   question: { type: Object, default: null },

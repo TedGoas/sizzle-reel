@@ -54,7 +54,7 @@
           </template>
           <template v-else-if="item.icon === 'user'">
             <span class="sidebar-icon-svg">
-              <User :size="16" />
+              <DtIcon name="user" :size="16" />
             </span>
           </template>
           <div class="sidebar-row-text">
@@ -70,7 +70,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { User } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const props = defineProps({
   title: String,

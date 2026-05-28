@@ -8,7 +8,7 @@
     <!-- Details -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <Coins :size="12" class="call-sidebar-icon" />
+        <DtIcon name="token" :size="12" class="call-sidebar-icon" />
         Details
       </div>
       <div class="call-sidebar-details">
@@ -21,7 +21,7 @@
     <!-- Chapters -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <BookOpen :size="12" class="call-sidebar-icon" />
+        <DtIcon name="book" :size="12" class="call-sidebar-icon" />
         Chapters
       </div>
       <div class="call-sidebar-chapters">
@@ -32,7 +32,7 @@
           @click="$emit('scrollToChapter', ch.id)"
         >
           <span class="chapter-time" v-if="ch.time">{{ ch.time }}</span>
-          <span v-else class="chapter-ai-icon"><Sparkles :size="16" /></span>
+          <span v-else class="chapter-ai-icon"><DtIcon name="dialpad-sparkle" :size="16" /></span>
           <span class="chapter-label">{{ ch.label }}</span>
         </button>
       </div>
@@ -41,7 +41,7 @@
     <!-- Moments -->
     <div class="call-sidebar-section">
       <div class="call-sidebar-section-title">
-        <Lightbulb :size="12" class="call-sidebar-icon" />
+        <DtIcon name="lightbulb" :size="12" class="call-sidebar-icon" />
         Moments
       </div>
       <div class="call-sidebar-moments">
@@ -54,8 +54,8 @@
 
     <!-- Actions -->
     <div class="call-sidebar-actions">
-      <button class="call-sidebar-action-btn"><Share2 :size="16" /> Share</button>
-      <button class="call-sidebar-action-btn"><Download :size="16" /> Download</button>
+      <button class="call-sidebar-action-btn"><DtIcon name="share-2" :size="16" /> Share</button>
+      <button class="call-sidebar-action-btn"><DtIcon name="download" :size="16" /> Download</button>
     </div>
   </aside>
 </template>
@@ -63,7 +63,7 @@
 <script setup>
 import { callDetails, chapters, moments } from '../data/callData.js'
 
-import { Coins, BookOpen, Lightbulb, Sparkles, Share2, Download } from '@lucide/vue'
+import DtIcon from '../../../components/icons/DtIcon.vue'
 
 defineEmits(['scrollToChapter'])
 </script>

@@ -12,7 +12,7 @@
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
           @click="$emit('icon-click', item.name)"
         >
-          <component :is="item.icon" :size="24" />
+          <DtIcon :name="item.name" :size="24" />
         </button>
       </div>
     </div>
@@ -24,7 +24,7 @@
           class="left-bar-icon-btn"
           :class="{ 'left-bar-icon-btn--active': item.name === activeItem }"
         >
-          <component :is="item.icon" :size="24" />
+          <DtIcon :name="item.name" :size="24" />
         </button>
       </div>
       <div class="left-bar-avatar">
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { Rocket, User, Settings, GraduationCap, TrendingUp, History, Activity, HelpCircle } from '@lucide/vue'
+import DtIcon from './icons/DtIcon.vue'
 import DialpadLogo from './DialpadLogo.vue'
 
 defineProps({
@@ -46,17 +46,17 @@ defineProps({
 })
 
 const topItems = [
-  { name: 'rocket', icon: Rocket },
-  { name: 'user', icon: User },
-  { name: 'settings', icon: Settings },
-  { name: 'coaching-hub', icon: GraduationCap },
-  { name: 'activity', icon: Activity },
-  { name: 'history', icon: History },
-  { name: 'trending-up', icon: TrendingUp },
+  { name: 'rocket' },
+  { name: 'user' },
+  { name: 'settings' },
+  { name: 'coaching-hub' },
+  { name: 'activity' },
+  { name: 'history' },
+  { name: 'trending-up' },
 ]
 
 const bottomItems = [
-  { name: 'help-circle', icon: HelpCircle },
+  { name: 'help-circle' },
 ]
 </script>
 
