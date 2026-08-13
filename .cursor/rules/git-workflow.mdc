@@ -1,0 +1,21 @@
+---
+description: Git workflow — never commit or push unless the user asks; never work on main
+alwaysApply: true
+---
+
+# Git workflow
+
+This repo’s default branch is `main` (treat `master` the same).
+
+## Branch
+
+- Never commit, amend, or push on `main` / `master`.
+- If you are on `main` / `master` and files need to change, create a new branch first (`git checkout -b …`) so the working-tree changes come along. Then edit on that branch.
+- Stay on the current feature branch if we are already off `main`.
+
+## Commit and push — user must ask
+
+- Never create a local commit unless the user explicitly asks to commit.
+- Never push unless the user explicitly asks to push.
+- “Commit and push” means both. “Commit” does not mean push. Making file changes does not mean commit.
+- After editing, stop. The user verifies before commit almost every time. Do not assume the work is ready to go.

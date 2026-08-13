@@ -1,0 +1,22 @@
+---
+description: Scorecards Figma work only changes .builder-main; keep existing chrome
+alwaysApply: true
+---
+
+# Scorecards — only change `.builder-main`
+
+When implementing a Figma (or any design) for Scorecards, **only change `.builder-main`** in `src/prototypes/scorecards-v1-mvp/components/BuilderView.vue`.
+
+That is the page body (breadcrumbs, title, actions, question list, detail). Everything around it is chrome and already correct.
+
+## Leave these alone
+
+- Global left nav (`LeftBar`)
+- Admin sidebar (`.builder-admin-nav`)
+- Call Review and Analytics views, unless the user explicitly asks
+
+Figma files may show older or different sidebar, left menu, or shell artwork. **Ignore those differences.** The live chrome is the source of truth for every design going forward.
+
+## When to ask
+
+If a Figma difference in chrome looks **major** (missing a whole nav, a different product shell), ask once. Default assumption: ignore it and implement only `.builder-main`.
