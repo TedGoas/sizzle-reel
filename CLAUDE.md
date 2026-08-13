@@ -174,6 +174,8 @@ To register a prototype, add one `{ name, label }` entry to the `prototypes` arr
 
 When a Figma (or other design) is the reference, **only change `.builder-main`** in `BuilderView.vue`. Ignore differences in the left nav, admin sidebar, and other chrome — those files are often old. The chrome we have now is what we want going forward. Ask only if a chrome difference looks major.
 
+Inside `.builder-main`, keep the layout and intent of the file, but restyle to current Dialtone (match the cloned Scorecards prototype and [dialtone.dialpad.com](https://dialtone.dialpad.com/)). Do not implement older button colors/sizes, darker input borders, or other pre-Dialtone styling. If a faithful copy would look meaningfully older, ask first.
+
 ## Project Structure
 
 ```

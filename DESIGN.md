@@ -85,3 +85,5 @@ Avoid `margin`; use gap on a flex/stack parent and padding on the element.
 ## Scorecards Figma scope
 
 For Scorecards designs, implement **only** `.builder-main` (in `src/prototypes/scorecards-v1-mvp/components/BuilderView.vue`). Leave `LeftBar`, `.builder-admin-nav`, and other chrome as they are — Figma may show outdated artwork for those. Ask only if a chrome difference looks major.
+
+Figma for `.builder-main` may also be old. Keep layout and intent; restyle buttons, inputs, type, and color to current Dialtone (cloned Scorecards prototype + docs above). Do not ship controls that look like the old design system. Ask first if a faithful copy would look meaningfully older.

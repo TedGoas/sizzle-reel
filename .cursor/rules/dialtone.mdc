@@ -18,5 +18,6 @@ All UI should look like Dialtone. Vue Dialtone components are optional; **tokens
 
 - Do not install `@dialpad/dialtone`, `@dialpad/dialtone-css`, `@dialpad/dialtone-icons`, or `@dialpad/dialtone-tokens`.
 - Do not hardcode colors, spacing, or type that Dialtone already tokens.
+- Do not reproduce old design-system visuals from Figma (off-color buttons, heavier input borders, etc.). Match Dialtone and the existing Scorecards prototype; ask if a faithful copy would look older.
 
 Lookup index and naming: [DESIGN.md](DESIGN.md).

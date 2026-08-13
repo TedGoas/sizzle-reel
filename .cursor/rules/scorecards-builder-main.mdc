@@ -1,5 +1,5 @@
 ---
-description: Scorecards Figma work only changes .builder-main; keep existing chrome
+description: Scorecards Figma work only changes .builder-main; restyle old visuals to Dialtone
 alwaysApply: true
 ---
 
@@ -17,6 +17,18 @@ That is the page body (breadcrumbs, title, actions, question list, detail). Ever
 
 Figma files may show older or different sidebar, left menu, or shell artwork. **Ignore those differences.** The live chrome is the source of truth for every design going forward.
 
+## Old Figma, modern visuals
+
+Figma for `.builder-main` may also be old (wrong button color/size, darker input borders, pre-Dialtone styling). Keep the **layout and intent**. Restyle controls to current Dialtone using:
+
+1. The cloned Scorecards prototype (`scorecards-v1-mvp` / original `scorecards`)
+2. [dialtone.dialpad.com](https://dialtone.dialpad.com/)
+
+Do **not** ship a version that looks meaningfully older or off-system. If the file would require that, **ask first**. The user may say the file is old — treat that as “take the spirit, update the visual language.”
+
 ## When to ask
 
-If a Figma difference in chrome looks **major** (missing a whole nav, a different product shell), ask once. Default assumption: ignore it and implement only `.builder-main`.
+- Chrome difference looks **major** (missing a whole nav, a different product shell)
+- A `.builder-main` control would look older or unlike Dialtone / the existing prototype
+
+Default: ignore outdated chrome; modernize outdated builder-main styling.
