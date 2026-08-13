@@ -148,6 +148,19 @@ Never hardcode button heights. Use these tokens from `src/assets/design-tokens.c
 }
 ```
 
+## Adding Prototypes
+
+New work lives in **new folders** under `src/prototypes/`. Do not modify these four original prototype folders unless explicitly allowed:
+
+- `src/prototypes/analytics-gpt/`
+- `src/prototypes/launchpad/`
+- `src/prototypes/ai-chatbot/`
+- `src/prototypes/scorecards/`
+
+To register a prototype, add one `{ name, label }` entry to the `prototypes` array in `src/router.js`. The homepage reads that list automatically. The `name` must match the folder name (`src/prototypes/<name>/index.vue`).
+
+**Scorecards V1 - MVP** (`src/prototypes/scorecards-v1-mvp/`) is a copy of Scorecards, for iteration. Do not change the original Scorecards folder when working on this copy.
+
 ## Project Structure
 
 ```
@@ -164,6 +177,11 @@ src/
 │   ├── TopBar.vue          # Global top bar
 │   └── SidebarNav.vue      # Secondary sidebar navigation
 ├── prototypes/             # Individual prototype components
+│   ├── analytics-gpt/      # Frozen original
+│   ├── launchpad/          # Frozen original
+│   ├── ai-chatbot/         # Frozen original
+│   ├── scorecards/         # Frozen original
+│   └── scorecards-v1-mvp/  # Copy of Scorecards, for iteration
 └── main.js                 # Imports design-tokens.css and utilities.css
 ```
 
