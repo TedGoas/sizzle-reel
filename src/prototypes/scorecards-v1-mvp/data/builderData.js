@@ -5,6 +5,22 @@ export const scorecardMeta = {
   breadcrumbs: ['Admin', 'Office', 'AI Scorecards', 'Customer Care'],
 }
 
+export function createBlankQuestion() {
+  return {
+    id: 1,
+    number: 1,
+    text: '',
+    responseType: 'Yes or no',
+    responses: [
+      { label: 'Yes', points: 10 },
+      { label: 'No', points: 0 },
+    ],
+    triggerWords: '',
+    isAi: false,
+    aiSuggestions: [],
+  }
+}
+
 export const questions = [
   {
     id: 1,

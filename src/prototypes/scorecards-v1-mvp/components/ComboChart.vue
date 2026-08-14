@@ -2,50 +2,44 @@
   <div class="combo-chart">
     <div class="combo-chart-header">
       <div class="combo-chart-stats">
-        <span class="combo-chart-value">{{ summaryStats.averageGrade }}</span>
-        <span class="combo-chart-trend">
-          <DtIcon name="arrow-up" :size="16" class="combo-chart-trend-arrow" />
-          <span class="combo-chart-trend-value">{{ summaryStats.trend.replace('+', '') }}</span>
-        </span>
-        <span class="combo-chart-comparison">{{ summaryStats.comparison }}</span>
+        <span class="combo-chart-label">{{ summaryStats.label }}</span>
+        <div class="combo-chart-title-row">
+          <span class="combo-chart-value">{{ summaryStats.averageGrade }}</span>
+          <span class="combo-chart-trend">
+            <DtIcon name="arrow-up" :size="16" class="combo-chart-trend-arrow" />
+            <span>{{ summaryStats.trend }} {{ summaryStats.comparison }}</span>
+          </span>
+        </div>
       </div>
       <div class="combo-chart-legend">
         <div class="combo-chart-legend-item">
-          <span class="combo-chart-legend-line" style="background: #52C926;"></span>
+          <span class="combo-chart-legend-line"></span>
           <span>Average grade</span>
         </div>
         <div class="combo-chart-legend-item">
-          <span class="combo-chart-legend-box" style="background: #CFDAF0;"></span>
-          <span>Ai graded</span>
-        </div>
-        <div class="combo-chart-legend-item">
-          <span class="combo-chart-legend-box" style="background: #ECF0F9;"></span>
-          <span>Human graded</span>
+          <span class="combo-chart-legend-box"></span>
+          <span>Calls graded</span>
         </div>
       </div>
     </div>
 
-    <div class="combo-chart-canvas" @mouseleave="clearHover">
+    <div class="combo-chart-canvas">
       <Bar ref="chartRef" :data="chartDataConfig" :options="chartOptions" :plugins="[progressiveRevealPlugin, hoverPlugin]" />
+      <div
+        v-for="(col, i) in columnHits"
+        :key="i"
+        class="combo-chart-col"
+        :data-autoplay="`chart-col-${i}`"
+        :style="col"
+      />
       <transition name="tooltip-fade">
         <div v-if="activeIndex !== null" class="combo-chart-tooltip" :style="tooltipPos">
           <div class="combo-chart-tooltip-body">
-            <div class="combo-chart-tooltip-header">{{ chartLabels[activeIndex] }}</div>
-            <div class="combo-chart-tooltip-row">
-              <span class="combo-chart-tooltip-line" style="background: #52C926;"></span>
-              <span>Avg grade:</span>
+            <div class="combo-chart-tooltip-value">
               <span>{{ lineData[activeIndex] }}%</span>
+              <span class="combo-chart-tooltip-muted">({{ callsGraded[activeIndex] }} grades)</span>
             </div>
-            <div class="combo-chart-tooltip-row">
-              <span class="combo-chart-tooltip-box" style="background: #CFDAF0;"></span>
-              <span>Ai graded:</span>
-              <span>{{ barData.aiGraded[activeIndex] }}</span>
-            </div>
-            <div class="combo-chart-tooltip-row">
-              <span class="combo-chart-tooltip-box" style="background: #ECF0F9;"></span>
-              <span>Human:</span>
-              <span>{{ barData.humanGraded[activeIndex] }}</span>
-            </div>
+            <div class="combo-chart-tooltip-date">{{ ordinalLabel(chartLabels[activeIndex]) }}</div>
           </div>
         </div>
       </transition>
@@ -67,49 +61,111 @@ import {
   LineController,
   BarController,
 } from 'chart.js'
-import { chartLabels, barData, lineData, summaryStats } from '../data/analyticsData.js'
+import {
+  chartLabels,
+  callsGraded,
+  lineData,
+  summaryStats,
+  HOVER_INDEX,
+} from '../data/analyticsData.js'
 
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, LineController, BarController)
 
+const LINE_COLOR = '#52C926'
+
 const chartRef = ref(null)
 const activeIndex = ref(null)
+const columnHits = ref([])
+
+function ordinalLabel(label) {
+  const [month, day] = label.split(' ')
+  const n = Number(day)
+  const suffixes = ['th', 'st', 'nd', 'rd']
+  const v = n % 100
+  const suffix = suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]
+  return `${month} ${n}${suffix}`
+}
+
+function updateColumnHits() {
+  const chart = chartRef.value?.chart
+  if (!chart) return
+  const meta = chart.getDatasetMeta(0)
+  const yScale = chart.scales.y1
+  if (!meta?.data?.length || !yScale) return
+
+  columnHits.value = meta.data.map((bar) => {
+    const { x, width } = bar.getProps(['x', 'width'], true)
+    const colWidth = Math.max(width, 12)
+    return {
+      left: `${x - colWidth / 2}px`,
+      top: `${yScale.top}px`,
+      width: `${colWidth}px`,
+      height: `${yScale.bottom - yScale.top}px`,
+    }
+  })
+}
 
 function clearHover() {
   activeIndex.value = null
 }
+
+function showHover(index = HOVER_INDEX) {
+  updateColumnHits()
+  activeIndex.value = index
+}
+
+function easeOutQuart(t) {
+  return 1 - Math.pow(1 - t, 4)
+}
+
+function playReveal() {
+  const chart = chartRef.value?.chart
+  if (!chart) return
+  chart.resize()
+  chart._revealProgress = 0
+  const startTime = performance.now()
+  const duration = 700
+
+  function tick(now) {
+    const t = Math.min((now - startTime) / duration, 1)
+    chart._revealProgress = easeOutQuart(t)
+    chart.draw()
+    if (t < 1) {
+      requestAnimationFrame(tick)
+    } else {
+      updateColumnHits()
+    }
+  }
+
+  requestAnimationFrame(tick)
+}
+
+defineExpose({ showHover, clearHover, playReveal })
 
 const chartDataConfig = computed(() => ({
   labels: chartLabels,
   datasets: [
     {
       type: 'bar',
-      label: 'Ai graded',
-      data: barData.aiGraded,
-      backgroundColor: '#CFDAF0',
+      label: 'Calls graded',
+      data: callsGraded,
+      backgroundColor: '#E9E9E9',
       borderRadius: 0,
-      barPercentage: 0.85,
-      categoryPercentage: 0.7,
+      barPercentage: 0.92,
+      categoryPercentage: 1,
+      yAxisID: 'y',
       order: 2,
-    },
-    {
-      type: 'bar',
-      label: 'Human graded',
-      data: barData.humanGraded,
-      backgroundColor: '#ECF0F9',
-      borderRadius: 0,
-      barPercentage: 0.85,
-      categoryPercentage: 0.7,
-      order: 3,
     },
     {
       type: 'line',
       label: 'Average grade',
       data: lineData,
-      borderColor: '#52C926',
+      borderColor: LINE_COLOR,
       borderWidth: 3,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      pointHoverBackgroundColor: '#52C926',
+      pointRadius: lineData.map((_, i) => (i === activeIndex.value ? 5 : 0)),
+      pointHoverRadius: 5,
+      pointBackgroundColor: LINE_COLOR,
+      pointHoverBackgroundColor: LINE_COLOR,
       tension: 0.3,
       fill: false,
       yAxisID: 'y1',
@@ -122,6 +178,7 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   animation: { duration: 0 },
+  events: [],
   interaction: {
     mode: 'index',
     intersect: false,
@@ -130,31 +187,17 @@ const chartOptions = {
     legend: { display: false },
     tooltip: { enabled: false },
   },
-  onHover: (event, elements) => {
-    if (!elements.length) {
-      activeIndex.value = null
-      return
-    }
-    activeIndex.value = elements[0].index
-  },
   scales: {
     x: {
       grid: { display: false },
-      ticks: { font: { size: 12 }, color: 'rgba(0,0,0,0.5)' },
-      stacked: true,
+      ticks: { font: { size: 12 }, color: '#6B6B6B' },
     },
     y: {
       position: 'left',
-      stacked: true,
-      grid: {
-        color: 'rgba(0,0,0,0.06)',
-        drawBorder: false,
-      },
-      ticks: {
-        font: { size: 12 },
-        color: 'rgba(0,0,0,0.5)',
-      },
       display: false,
+      min: 0,
+      max: 80,
+      grid: { display: false },
     },
     y1: {
       position: 'left',
@@ -166,7 +209,7 @@ const chartOptions = {
       },
       ticks: {
         font: { size: 12 },
-        color: 'rgba(0,0,0,0.5)',
+        color: '#6B6B6B',
         callback: (v) => `${v}%`,
         stepSize: 25,
       },
@@ -174,32 +217,25 @@ const chartOptions = {
   },
 }
 
-// Tooltip position
 const tooltipPos = computed(() => {
   if (activeIndex.value === null) return {}
   const chart = chartRef.value?.chart
   if (!chart) return {}
 
-  const meta = chart.getDatasetMeta(0)
-  const bar = meta.data[activeIndex.value]
-  if (!bar) return {}
+  const meta = chart.getDatasetMeta(1)
+  const pt = meta.data[activeIndex.value]
+  if (!pt) return {}
 
-  const { x } = bar.getProps(['x'], true)
-  let tipX = x + 16
-  const tipY = 40
+  const { x, y } = pt.getProps(['x', 'y'], true)
+  let tipX = x + 14
+  const tipY = Math.max(8, y - 12)
 
-  if (tipX + 180 > chart.width) {
-    tipX = x - 196
+  if (tipX + 160 > chart.width) {
+    tipX = x - 170
   }
-  tipX = Math.max(8, tipX)
 
   return { top: `${tipY}px`, left: `${tipX}px` }
 })
-
-// Progressive reveal
-function easeOutQuart(t) {
-  return 1 - Math.pow(1 - t, 4)
-}
 
 const progressiveRevealPlugin = {
   id: 'comboReveal',
@@ -222,11 +258,11 @@ const hoverPlugin = {
   afterDraw(chart) {
     if (activeIndex.value === null) return
     const ctx = chart.ctx
-    const meta = chart.getDatasetMeta(0)
-    const bar = meta.data[activeIndex.value]
-    if (!bar) return
+    const meta = chart.getDatasetMeta(1)
+    const pt = meta.data[activeIndex.value]
+    if (!pt) return
 
-    const { x } = bar.getProps(['x'], true)
+    const { x } = pt.getProps(['x'], true)
     const yAxis = chart.scales.y1
 
     ctx.save()
@@ -245,19 +281,8 @@ onMounted(() => {
   nextTick(() => {
     const chart = chartRef.value?.chart
     if (!chart) return
-
-    chart._revealProgress = 0
-    const startTime = performance.now()
-    const duration = 700
-
-    function tick(now) {
-      const t = Math.min((now - startTime) / duration, 1)
-      chart._revealProgress = easeOutQuart(t)
-      chart.draw()
-      if (t < 1) requestAnimationFrame(tick)
-    }
-
-    requestAnimationFrame(tick)
+    chart._revealProgress = 1
+    updateColumnHits()
   })
 })
 </script>
@@ -266,82 +291,91 @@ onMounted(() => {
 .combo-chart {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .combo-chart-header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: var(--dt-space-500);
 }
 
 .combo-chart-stats {
   display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-200);
+}
+
+.combo-chart-label {
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-tertiary);
+}
+
+.combo-chart-title-row {
+  display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--dt-space-400);
 }
 
 .combo-chart-value {
-  font-size: 19px;
-  font-weight: 700;
-  color: black;
-  line-height: 1.6;
+  font: var(--dt-typography-headline-xl);
+  color: var(--dt-color-foreground-primary);
+  line-height: 1.2;
 }
 
 .combo-chart-trend {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding-left: 4px;
+  gap: var(--dt-space-200);
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-success);
 }
 
 .combo-chart-trend-arrow {
-  color: #1AA340;
+  color: var(--dt-color-foreground-success);
   flex-shrink: 0;
-}
-
-.combo-chart-trend-value {
-  font-size: 15px;
-  color: #1AA340;
-  font-feature-settings: 'lnum' 1, 'tnum' 1;
-}
-
-.combo-chart-comparison {
-  font-size: 15px;
-  color: #3a3a3a;
 }
 
 .combo-chart-legend {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: var(--dt-space-500);
 }
 
 .combo-chart-legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  color: #3a3a3a;
+  gap: var(--dt-space-400);
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-secondary);
 }
 
 .combo-chart-legend-line {
   width: 20px;
   height: 4px;
   border-radius: 3px;
+  background: var(--dt-color-green-300);
 }
 
 .combo-chart-legend-box {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--dt-space-200);
+  background: var(--dt-color-surface-moderate);
 }
 
 .combo-chart-canvas {
   position: relative;
-  height: 450px;
+  height: 185px;
+  pointer-events: none;
 }
 
-/* Tooltip */
+.combo-chart-col {
+  position: absolute;
+  pointer-events: none;
+}
+
 .combo-chart-tooltip {
   position: absolute;
   z-index: 10;
@@ -358,42 +392,28 @@ onMounted(() => {
 }
 
 .combo-chart-tooltip-body {
-  background: rgba(249, 249, 249, 0.92);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius: 4px;
-  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
-  padding: 8px 12px;
+  background: var(--dt-color-surface-primary);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-small);
+  padding: var(--dt-space-400) var(--dt-space-450);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 160px;
-  font-size: 12px;
-  color: #3a3a3a;
+  gap: var(--dt-space-200);
+  min-width: 120px;
   white-space: nowrap;
 }
 
-.combo-chart-tooltip-header {
-  font-weight: 500;
-}
-
-.combo-chart-tooltip-row {
+.combo-chart-tooltip-value {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: baseline;
+  gap: var(--dt-space-300);
+  font: var(--dt-typography-label-md-compact);
+  color: var(--dt-color-foreground-primary);
 }
 
-.combo-chart-tooltip-line {
-  width: 14px;
-  height: 3px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-.combo-chart-tooltip-box {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex-shrink: 0;
+.combo-chart-tooltip-muted,
+.combo-chart-tooltip-date {
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-tertiary);
 }
 </style>
