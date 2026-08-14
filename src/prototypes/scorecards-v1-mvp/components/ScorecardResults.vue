@@ -1,14 +1,16 @@
 <template>
   <div class="scorecard-results">
-    <!-- Tabs -->
     <div class="scorecard-tabs">
-      <div class="scorecard-tabs-row">
-        <button class="scorecard-tab scorecard-tab--active">Scorecard</button>
-        <button class="scorecard-tab">Comments (2)</button>
+      <div class="scorecard-tabs-row" role="tablist">
+        <button type="button" class="scorecard-tab scorecard-tab--active" role="tab" aria-selected="true">
+          Scorecard
+        </button>
+        <button type="button" class="scorecard-tab" role="tab" aria-selected="false">
+          Comments (2)
+        </button>
       </div>
     </div>
 
-    <!-- Questions list -->
     <div class="scorecard-questions">
       <div
         v-for="(q, i) in scorecardQuestions"
@@ -19,44 +21,65 @@
           <span class="scorecard-question-label">{{ q.text }}</span>
           <span class="scorecard-question-points">{{ q.points }}pts</span>
         </div>
-        <div class="scorecard-question-answers">
-          <!-- Selected answer: animated swap -->
-          <Transition name="answer-resolve" mode="out-in">
-            <div v-if="i < resolvedCount" key="resolved" class="scorecard-answer scorecard-answer--selected">
-              <DtIcon name="check" :size="12" class="scorecard-answer-check" />
-              <span class="scorecard-answer-label">{{ q.answer }}</span>
-              <span v-if="q.gradedByAi" class="scorecard-ai-badge"><DtIcon name="dialpad-sparkle" :size="12" /> Graded by Ai</span>
-            </div>
-            <div v-else key="unresolved" class="scorecard-answer">
-              <span class="scorecard-answer-radio"></span>
-              <span class="scorecard-answer-label">{{ q.answer }}</span>
-            </div>
-          </Transition>
-          <!-- Non-selected answer -->
-          <div class="scorecard-answer">
-            <span class="scorecard-answer-radio"></span>
-            <span class="scorecard-answer-label scorecard-answer-label--muted">{{ q.answer === 'Yes' ? 'No' : 'Yes' }}</span>
+
+        <Transition name="grade-fade" mode="out-in">
+          <div v-if="mode === 'grading'" :key="'grading-' + i" class="scorecard-question-answers">
+            <button
+              v-for="option in OPTIONS"
+              :key="option"
+              type="button"
+              class="scorecard-answer"
+              :class="{ 'scorecard-answer--on': selections[i] === option }"
+            >
+              <span
+                class="dt-radio"
+                :class="{ 'dt-radio--selected': selections[i] === option }"
+                :data-autoplay="`q-${i}-${option}`"
+              />
+              <span class="scorecard-answer-label">{{ option }}</span>
+            </button>
           </div>
-        </div>
+          <div v-else :key="'graded-' + i" class="scorecard-question-answers">
+            <div
+              v-for="option in OPTIONS"
+              :key="option"
+              class="scorecard-answer"
+              :class="{
+                'scorecard-answer--selected': selections[i] === option,
+                'scorecard-answer--muted': selections[i] !== option,
+              }"
+            >
+              <DtIcon
+                v-if="selections[i] === option"
+                name="check"
+                :size="16"
+                class="scorecard-answer-check"
+              />
+              <span
+                v-else
+                class="scorecard-answer-spacer"
+              />
+              <span
+                class="scorecard-answer-label"
+                :class="{ 'scorecard-answer-label--muted': selections[i] !== option }"
+              >{{ option }}</span>
+            </div>
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
 import { scorecardQuestions } from '../data/callData.js'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 
-const resolvedCount = ref(0)
+const OPTIONS = ['Yes', 'No']
 
-onMounted(() => {
-  const interval = setInterval(() => {
-    resolvedCount.value++
-    if (resolvedCount.value >= scorecardQuestions.length) {
-      clearInterval(interval)
-    }
-  }, 150)
+defineProps({
+  mode: { type: String, default: 'grading' },
+  selections: { type: Object, default: () => ({}) },
 })
 </script>
 
@@ -64,148 +87,149 @@ onMounted(() => {
 .scorecard-results {
   width: 400px;
   flex-shrink: 0;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 1px solid var(--dt-color-border-subtle);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
 .scorecard-tabs {
-  padding: 24px 24px 0;
+  padding: var(--dt-space-550) var(--dt-space-550) 0;
 }
 
 .scorecard-tabs-row {
   display: flex;
+  gap: var(--dt-space-500);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
 }
 
 .scorecard-tab {
-  padding: 4px 12px;
-  background: none;
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-200);
   border: none;
-  font-size: 12px;
-  font-weight: 500;
-  color: #525252;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  font: var(--dt-typography-body-md);
+  color: var(--dt-color-foreground-tertiary);
   cursor: default;
-  border-radius: 50px;
-  letter-spacing: -0.12px;
-  line-height: 16px;
 }
 
 .scorecard-tab--active {
-  color: #8200db;
-  background: #f3e8ff;
-  font-weight: 500;
+  color: var(--dt-color-foreground-primary);
+  font-weight: 600;
+  border-bottom-color: var(--dt-color-link-primary);
 }
 
 .scorecard-questions {
-  padding: 24px;
+  padding: var(--dt-space-550);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--dt-space-500);
 }
 
 .scorecard-question {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 16px;
+  gap: var(--dt-space-400);
+  padding-bottom: var(--dt-space-500);
 }
 
 .scorecard-question-text {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .scorecard-question-label {
-  font-size: 14px;
+  font: var(--dt-typography-body-md);
   font-weight: 500;
-  color: #262626;
-  line-height: 1.4;
+  color: var(--dt-color-foreground-primary);
   flex: 1;
 }
 
 .scorecard-question-points {
-  font-size: 13px;
-  color: #808080;
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-tertiary);
   flex-shrink: 0;
 }
 
 .scorecard-question-answers {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--dt-space-200);
 }
 
 .scorecard-answer {
   display: flex;
   align-items: center;
-  gap: 8px;
-  height: 24px;
+  gap: var(--dt-space-400);
+  min-height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: default;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
 
 .scorecard-answer--selected {
-  gap: 8px;
-  background: linear-gradient(171deg, rgba(249, 0, 142, 0.1) 10%, rgba(124, 82, 255, 0.1) 90%);
-  border-radius: 8px;
-  padding: 0 2px 0 4px;
   width: fit-content;
 }
 
 .scorecard-answer-check {
-  width: 12px;
-  height: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000000;
-  margin: 0;
-}
-
-.scorecard-answer-radio {
-  width: 14px;
-  height: 14px;
-  border: 1.5px solid rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  margin: 0 3px;
+  color: var(--dt-color-link-primary);
   flex-shrink: 0;
 }
 
+.scorecard-answer-spacer {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.dt-radio {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 2px solid var(--dt-color-border-default);
+  border-radius: 50%;
+  background: var(--dt-color-surface-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, transform 0.12s ease, filter 0.12s ease;
+}
+
+.dt-radio--selected {
+  border-color: var(--dt-color-link-primary);
+}
+
+.dt-radio--selected::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dt-color-link-primary);
+}
+
 .scorecard-answer-label {
-  font-size: 14px;
-  color: #1c1c1c;
+  font: var(--dt-typography-body-md);
+  color: var(--dt-color-foreground-primary);
 }
 
 .scorecard-answer-label--muted {
-  color: #808080;
+  color: var(--dt-color-foreground-tertiary);
 }
 
-.scorecard-ai-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 12px;
-  color: #000000;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 3px 6px 3px 4px;
-  border-radius: 6px;
-  white-space: nowrap;
-  line-height: 1.2;
+.grade-fade-enter-active,
+.grade-fade-leave-active {
+  transition: opacity 1s ease;
 }
 
-.answer-resolve-enter-active {
-  transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
-}
-.answer-resolve-leave-active {
-  transition: opacity 0.12s ease;
-}
-.answer-resolve-enter-from {
-  opacity: 0;
-  filter: blur(4px);
-  transform: scale(0.95);
-}
-.answer-resolve-leave-to {
+.grade-fade-enter-from,
+.grade-fade-leave-to {
   opacity: 0;
 }
 </style>

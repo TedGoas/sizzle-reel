@@ -8,29 +8,54 @@
 /* -------------------------------------------------------------------------
  * Typography
  * ----------------------------------------------------------------------- */
-.d-headline-extra-large {
+.d-headline-extra-large,
+.d-headline--xl {
   font: var(--dt-typography-headline-xl);
 }
 
-.d-headline-large {
+.d-headline-large,
+.d-headline--lg {
   font: var(--dt-typography-headline-lg);
 }
 
-.d-body-base {
+.d-headline--md {
+  font: var(--dt-typography-headline-md);
+}
+
+.d-body-base,
+.d-body--md {
   font: var(--dt-typography-body-md);
 }
 
-.d-body-small {
+.d-body--md-compact {
+  font: var(--dt-typography-body-md-compact);
+}
+
+.d-body-small,
+.d-body--sm {
   font: var(--dt-typography-body-sm);
 }
 
-.d-body-compact-small {
+.d-body-compact-small,
+.d-body--sm-compact {
   font: var(--dt-typography-body-sm-compact);
 }
 
-.d-label-compact-small {
+.d-label--md-compact {
+  font: var(--dt-typography-label-md-compact);
+}
+
+.d-label-compact-small,
+.d-label--sm-compact {
   font: var(--dt-typography-label-sm-compact);
 }
+
+.d-fc-primary { color: var(--dt-color-foreground-primary); }
+.d-fc-secondary { color: var(--dt-color-foreground-secondary); }
+.d-fc-tertiary { color: var(--dt-color-foreground-tertiary); }
+.d-fc-muted { color: var(--dt-color-foreground-muted); }
+.d-fc-success { color: var(--dt-color-foreground-success); }
+.d-fc-critical { color: var(--dt-color-foreground-critical); }
 
 /* -------------------------------------------------------------------------
  * Layout — Stack (flex column)

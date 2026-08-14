@@ -23,9 +23,9 @@
       <!-- Top bar -->
       <div class="builder-top-bar">
         <div class="builder-breadcrumbs">
-          <span v-for="(crumb, i) in scorecardMeta.breadcrumbs" :key="i">
-            <span :class="i < scorecardMeta.breadcrumbs.length - 1 ? 'crumb-muted' : 'crumb-active'">{{ crumb }}</span>
-            <span v-if="i < scorecardMeta.breadcrumbs.length - 1" class="crumb-separator"> / </span>
+          <span v-for="(crumb, i) in breadcrumbs" :key="i">
+            <span :class="i < breadcrumbs.length - 1 ? 'crumb-muted' : 'crumb-active'">{{ crumb }}</span>
+            <span v-if="i < breadcrumbs.length - 1" class="crumb-separator"> / </span>
           </span>
         </div>
         <div class="builder-search-bar">
@@ -34,62 +34,66 @@
         </div>
       </div>
 
-      <!-- Page title area -->
-      <div class="builder-title-area">
-        <div class="builder-title-left">
-          <div class="builder-title-row">
-            <h1 class="builder-title">{{ scorecardMeta.name }}</h1>
-            <div class="builder-ai-badge">
-              <svg class="builder-ai-badge-icon" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="url(#ai-gradient)"/><defs><linearGradient id="ai-gradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#471571"/><stop offset=".031" stop-color="#551B84"/><stop offset=".145" stop-color="#7C229E"/><stop offset=".237" stop-color="#9024A4"/><stop offset=".355" stop-color="#B02290"/><stop offset=".483" stop-color="#D32B86"/><stop offset=".603" stop-color="#E92F6F"/><stop offset=".701" stop-color="#F6484F"/><stop offset=".9" stop-color="#FB7328"/><stop offset=".973" stop-color="#F3960F"/><stop offset="1" stop-color="#F3960F"/></linearGradient></defs></svg>
-              <span class="builder-ai-badge-text">{{ scorecardMeta.gradeBy }}</span>
-            </div>
-            <div class="builder-draft-badge">
-              <span class="builder-draft-badge-text">Draft</span>
-            </div>
-          </div>
-          <div class="builder-filters">
-            <button class="builder-filter-btn">
-              <span>Contact centers (0)</span>
-              <DtIcon name="chevron-down" :size="16" class="builder-filter-chevron" />
-            </button>
-            <button class="builder-filter-btn">
-              <span>Coaching teams (0)</span>
-              <DtIcon name="chevron-down" :size="16" class="builder-filter-chevron" />
-            </button>
-          </div>
-        </div>
-        <div class="builder-title-right">
-          <div class="builder-actions-row">
-            <button class="builder-action-btn builder-action-btn--icon" aria-label="Delete">
-              <DtIcon name="trash" :size="16" />
-            </button>
-            <button class="builder-action-btn builder-action-btn--icon" aria-label="Copy">
-              <DtIcon name="copy" :size="16" />
-            </button>
-            <div class="builder-action-btn builder-action-btn--select">
-              <span class="builder-select-value">English</span>
-              <DtIcon name="chevron-down" :size="16" class="builder-select-arrow" />
-            </div>
-            <button class="builder-action-btn builder-action-btn--primary">
-              Publish
-            </button>
-          </div>
-        </div>
-      </div>
+      <ScorecardsEmptyList v-if="scene === 'list'" />
 
-      <!-- Two column layout -->
-      <div class="builder-content">
-        <div class="builder-left">
-          <QuestionList
-            :questions="localQuestions"
-            :selectedId="selectedQuestionId"
-            @select="selectQuestion"
-          />
+      <template v-else>
+        <!-- Page title area -->
+        <div class="builder-title-area">
+          <div class="builder-title-left">
+            <div class="builder-title-row">
+              <h1 class="builder-title">{{ scorecardMeta.name }}</h1>
+              <div class="builder-ai-badge">
+                <svg class="builder-ai-badge-icon" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="url(#ai-gradient)"/><defs><linearGradient id="ai-gradient" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#471571"/><stop offset=".031" stop-color="#551B84"/><stop offset=".145" stop-color="#7C229E"/><stop offset=".237" stop-color="#9024A4"/><stop offset=".355" stop-color="#B02290"/><stop offset=".483" stop-color="#D32B86"/><stop offset=".603" stop-color="#E92F6F"/><stop offset=".701" stop-color="#F6484F"/><stop offset=".9" stop-color="#FB7328"/><stop offset=".973" stop-color="#F3960F"/><stop offset="1" stop-color="#F3960F"/></linearGradient></defs></svg>
+                <span class="builder-ai-badge-text">{{ scorecardMeta.gradeBy }}</span>
+              </div>
+              <div class="builder-draft-badge">
+                <span class="builder-draft-badge-text">Draft</span>
+              </div>
+            </div>
+            <div class="builder-filters">
+              <button class="builder-filter-btn">
+                <span>Contact centers (0)</span>
+                <DtIcon name="chevron-down" :size="16" class="builder-filter-chevron" />
+              </button>
+              <button class="builder-filter-btn">
+                <span>Coaching teams (0)</span>
+                <DtIcon name="chevron-down" :size="16" class="builder-filter-chevron" />
+              </button>
+            </div>
+          </div>
+          <div class="builder-title-right">
+            <div class="builder-actions-row">
+              <button class="builder-action-btn builder-action-btn--icon" aria-label="Delete">
+                <DtIcon name="trash" :size="16" />
+              </button>
+              <button class="builder-action-btn builder-action-btn--icon" aria-label="Copy">
+                <DtIcon name="copy" :size="16" />
+              </button>
+              <div class="builder-action-btn builder-action-btn--select">
+                <span class="builder-select-value">English</span>
+                <DtIcon name="chevron-down" :size="16" class="builder-select-arrow" />
+              </div>
+              <button class="builder-action-btn builder-action-btn--primary">
+                Publish
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="builder-right">
-          <QuestionDetail :question="selectedQuestion" />
+
+        <!-- Two column layout -->
+        <div class="builder-content">
+          <div class="builder-left">
+            <QuestionList
+              :questions="localQuestions"
+              :selectedId="selectedQuestionId"
+              @select="selectQuestion"
+            />
+          </div>
+          <div class="builder-right">
+            <QuestionDetail :question="selectedQuestion" />
+          </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -99,19 +103,54 @@ import { ref, computed } from 'vue'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 import QuestionList from './QuestionList.vue'
 import QuestionDetail from './QuestionDetail.vue'
-import { questions, scorecardMeta, adminNavItems } from '../data/builderData.js'
+import ScorecardsEmptyList from './ScorecardsEmptyList.vue'
+import { scorecardMeta, adminNavItems, createBlankQuestion } from '../data/builderData.js'
+
+const TYPED_QUESTION = 'Did the agent greet the customer?'
+const LIST_BREADCRUMBS = ['Admin', 'Scorecards']
 
 const selectedCompany = ref('my-company')
-const localQuestions = ref([...questions])
-const selectedQuestionId = ref(questions[0]?.id || null)
+const scene = ref('list')
+const localQuestions = ref([createBlankQuestion()])
+const selectedQuestionId = ref(1)
 
 const selectedQuestion = computed(() =>
   localQuestions.value.find(q => q.id === selectedQuestionId.value) || null
 )
 
+const breadcrumbs = computed(() =>
+  scene.value === 'list' ? LIST_BREADCRUMBS : scorecardMeta.breadcrumbs
+)
+
 function selectQuestion(id) {
   selectedQuestionId.value = id
 }
+
+function resetDemo() {
+  scene.value = 'list'
+  localQuestions.value = [createBlankQuestion()]
+  selectedQuestionId.value = 1
+}
+
+function setScene(next) {
+  scene.value = next
+}
+
+async function typeQuestion(text = TYPED_QUESTION, sleepFn) {
+  const question = localQuestions.value[0]
+  if (!question || !sleepFn) return
+  question.text = ''
+  for (let i = 1; i <= text.length; i++) {
+    question.text = text.slice(0, i)
+    await sleepFn(38)
+  }
+}
+
+defineExpose({
+  resetDemo,
+  setScene,
+  typeQuestion,
+})
 </script>
 
 <style scoped>
@@ -175,15 +214,16 @@ function selectQuestion(id) {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
+  position: relative;
 }
 
 .builder-top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 16px;
-  background: #f9f9f9;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 9px var(--dt-space-500);
+  background: var(--dt-color-surface-secondary);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
   height: 50px;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -191,24 +231,24 @@ function selectQuestion(id) {
 
 .builder-breadcrumbs {
   display: flex;
-  gap: 6px;
-  font-size: 14px;
+  gap: var(--dt-space-350);
+  font: var(--dt-typography-body-md);
 }
 
-.crumb-muted { color: #808080; }
-.crumb-active { color: #1c1c1c; font-weight: 500; }
-.crumb-separator { color: #808080; }
+.crumb-muted { color: var(--dt-color-foreground-muted); }
+.crumb-active { color: var(--dt-color-foreground-primary); font-weight: 500; }
+.crumb-separator { color: var(--dt-color-foreground-muted); }
 
 .builder-search-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: white;
-  border: 1.5px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 14px;
-  color: #808080;
+  gap: var(--dt-space-350);
+  padding: 6px var(--dt-space-450);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-400);
+  font: var(--dt-typography-body-md);
+  color: var(--dt-color-foreground-muted);
   width: 200px;
 }
 
@@ -220,8 +260,8 @@ function selectQuestion(id) {
 .builder-title-area {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px 32px 0;
+  gap: var(--dt-space-500);
+  padding: var(--dt-space-500) var(--dt-space-600) 0;
   flex-shrink: 0;
 }
 
@@ -233,27 +273,24 @@ function selectQuestion(id) {
 .builder-title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+  gap: var(--dt-space-400);
+  padding: var(--dt-space-300) 0;
 }
 
-
 .builder-title {
-  font-size: 27px;
-  font-weight: 500;
-  color: #1c1c1c;
+  font: var(--dt-typography-headline-xl);
+  color: var(--dt-color-foreground-primary);
   margin: 0;
-  line-height: 1.2;
 }
 
 .builder-ai-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 6px 3px 4px;
-  border: 1px solid rgba(28, 28, 28, 0.11);
-  border-radius: 6px;
-  color: #1c1c1c;
+  gap: var(--dt-space-300);
+  padding: 3px var(--dt-space-350) 3px var(--dt-space-300);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-350);
+  color: var(--dt-color-foreground-primary);
   background: linear-gradient(168deg, rgba(71,21,113,0.1) 0%, rgba(85,27,132,0.1) 3.08%, rgba(124,34,158,0.1) 14.48%, rgba(144,36,164,0.1) 23.67%, rgba(176,34,144,0.1) 35.5%, rgba(211,43,134,0.1) 48.3%, rgba(233,47,111,0.1) 60.29%, rgba(246,72,79,0.1) 70.08%, rgba(251,115,40,0.1) 90.02%, rgba(243,150,15,0.1) 97.29%, rgba(243,150,15,0.1) 100%);
 }
 
@@ -262,52 +299,47 @@ function selectQuestion(id) {
 }
 
 .builder-ai-badge-text {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.2;
+  font: var(--dt-typography-body-sm-compact);
   white-space: nowrap;
 }
 
 .builder-draft-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 6px;
-  border: 1px solid rgba(28, 28, 28, 0.11);
-  border-radius: 6px;
-  background: white;
+  padding: 3px var(--dt-space-350);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-350);
+  background: var(--dt-color-surface-primary);
 }
 
 .builder-draft-badge-text {
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.2;
-  color: #1c1c1c;
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-primary);
   white-space: nowrap;
 }
 
 .builder-filters {
   display: flex;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .builder-filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5.5px;
-  padding: 8px 10px 8px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  gap: var(--dt-space-300);
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-450);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-400);
   background: none;
-  font-size: 12px;
-  font-weight: 500;
-  color: #3a3a3a;
+  font: var(--dt-typography-label-sm-compact);
+  color: var(--dt-color-foreground-secondary);
   cursor: default;
-  line-height: 1.2;
   white-space: nowrap;
 }
 
 .builder-filter-chevron {
-  color: #3a3a3a;
+  color: var(--dt-color-foreground-secondary);
   flex-shrink: 0;
 }
 
@@ -321,7 +353,7 @@ function selectQuestion(id) {
 .builder-actions-row {
   display: flex;
   align-items: stretch;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .builder-action-btn {
@@ -330,11 +362,9 @@ function selectQuestion(id) {
   justify-content: center;
   height: var(--btn-height-md);
   box-sizing: border-box;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--dt-space-400);
+  font: var(--dt-typography-label-md-compact);
   cursor: default;
-  line-height: 1.2;
   padding: 0;
   border: none;
   background: none;
@@ -342,43 +372,41 @@ function selectQuestion(id) {
 
 .builder-action-btn--icon {
   width: var(--btn-height-icon);
-  color: #3a3a3a;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  color: var(--dt-color-foreground-secondary);
+  border: 1px solid var(--dt-color-border-subtle);
 }
 
 .builder-action-btn--icon:hover {
-  background: rgba(28, 28, 28, 0.05);
+  background: var(--dt-color-surface-moderate);
 }
 
 .builder-action-btn--select {
-  gap: 6px;
-  padding: 0 10px 0 12px;
-  border: 1.5px solid rgba(0, 0, 0, 0.1);
-  background: rgba(0, 0, 0, 0.03);
-  color: #3a3a3a;
-  font-weight: 400;
+  gap: var(--dt-space-350);
+  padding: 0 10px 0 var(--dt-space-450);
+  border: 1px solid var(--dt-color-border-subtle);
+  background: var(--dt-color-surface-secondary);
+  color: var(--dt-color-foreground-secondary);
+  font: var(--dt-typography-body-md);
 }
 
 .builder-select-value {
-  font-size: 14px;
+  font: var(--dt-typography-body-md);
 }
 
 .builder-select-arrow {
-  color: #808080;
+  color: var(--dt-color-foreground-muted);
 }
 
 .builder-action-btn--primary {
-  padding: 0 20px;
-  background: #7C52FF;
-  color: white;
-  font-size: 14px;
+  padding: 0 var(--dt-space-525);
+  background: var(--dt-color-link-primary);
+  color: var(--dt-color-surface-primary);
 }
 
 .builder-content {
   display: flex;
-  gap: 16px;
-  padding: 32px 32px 32px 20px;
+  gap: var(--dt-space-500);
+  padding: var(--dt-space-600) var(--dt-space-600) var(--dt-space-600) var(--dt-space-525);
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;

@@ -36,8 +36,8 @@ const navItems = sidebarNavItems
 <style scoped>
 .analytics-sidebar {
   width: 200px;
-  background: #f9f9f9;
-  border-right: 1px solid rgba(28, 28, 28, 0.11);
+  background: var(--dt-color-surface-secondary);
+  border-right: 1px solid var(--dt-color-border-subtle);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -45,8 +45,8 @@ const navItems = sidebarNavItems
 }
 
 .analytics-sidebar-dropdown {
-  padding: 0 12px;
-  border-bottom: 1px solid rgba(28, 28, 28, 0.11);
+  padding: 0 var(--dt-space-450);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
   height: 50px;
   box-sizing: border-box;
   display: flex;
@@ -60,30 +60,27 @@ const navItems = sidebarNavItems
 .analytics-sidebar-nav {
   display: flex;
   flex-direction: column;
-  padding-top: 8px;
+  padding-top: var(--dt-space-400);
 }
 
 .analytics-sidebar-item {
-  padding: 8px 16px;
-  margin-top: 4px;
-  font-size: 15px;
-  color: #1c1c1c;
+  padding: var(--dt-space-400) var(--dt-space-500);
+  margin-top: var(--dt-space-300);
+  font: var(--dt-typography-body-md-compact);
+  color: var(--dt-color-foreground-primary);
   cursor: default;
-  line-height: 1.4;
-  border-radius: 4px;
+  border-radius: var(--dt-space-300);
   white-space: nowrap;
 }
 
 .analytics-sidebar-item--parent {
-  font-size: 12px;
-  line-height: 1.2;
+  font: var(--dt-typography-label-sm-compact);
 }
 
 .analytics-sidebar-item--indented {
-  padding: 4px 16px 4px 32px;
-  margin: 4px 4px 0;
-  font-size: 12px;
-  line-height: 1.2;
+  padding: var(--dt-space-300) var(--dt-space-500) var(--dt-space-300) var(--dt-space-600);
+  margin: var(--dt-space-300) var(--dt-space-300) 0;
+  font: var(--dt-typography-body-sm-compact);
   border-radius: 50px;
   height: 30px;
   box-sizing: border-box;
@@ -92,6 +89,6 @@ const navItems = sidebarNavItems
 }
 
 .analytics-sidebar-item--active {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--dt-color-surface-moderate);
 }
 </style>

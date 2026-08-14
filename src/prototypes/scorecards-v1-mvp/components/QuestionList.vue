@@ -20,7 +20,7 @@
         <div class="question-item-content">
           <span class="question-item-number">{{ q.number }}.</span>
           <div class="question-item-body">
-            <span class="question-item-text">{{ q.text }}</span>
+            <span class="question-item-text">{{ q.text || 'Untitled question' }}</span>
             <div class="question-item-meta">
               <span>{{ q.responses[0]?.points || 10 }} points</span>
               <span>{{ q.responseType }}</span>
@@ -64,78 +64,74 @@ const totalPoints = computed(() =>
 .question-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .question-list-header {
-  padding-left: 12px;
+  padding-left: var(--dt-space-450);
 }
 
 .question-list-title {
-  font-size: 19px;
-  font-weight: 700;
-  color: #1c1c1c;
+  font: var(--dt-typography-headline-lg);
+  color: var(--dt-color-foreground-primary);
   margin: 0;
-  line-height: 1.6;
 }
 
 .question-list-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--dt-space-400);
 }
 
 .question-list-meta-text {
-  font-size: 12px;
-  color: #808080;
-  line-height: 1.2;
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-muted);
 }
 
 .question-list-meta-dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #808080;
+  background: var(--dt-color-foreground-muted);
 }
 
 .question-list-items {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--dt-space-100);
 }
 
 .question-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 12px;
-  background: white;
+  padding: var(--dt-space-450);
+  background: var(--dt-color-surface-primary);
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--dt-space-400);
   cursor: pointer;
   text-align: left;
   width: 100%;
 }
 
 .question-item:hover {
-  background: #fafafa;
+  background: var(--dt-color-surface-secondary);
 }
 
 .question-item--selected {
-  border-color: rgba(0, 0, 0, 0.12);
-  background: #faf8ff;
+  border-color: var(--dt-color-border-subtle);
+  background: var(--dt-color-surface-brand-subtle);
 }
 
 .question-item-content {
   display: flex;
-  gap: 2px;
+  gap: var(--dt-space-100);
   flex: 1;
 }
 
 .question-item-number {
-  font-size: 15px;
-  color: #1c1c1c;
-  line-height: 1.4;
+  font: var(--dt-typography-body-md-compact);
+  color: var(--dt-color-foreground-primary);
   width: 24px;
   flex-shrink: 0;
 }
@@ -143,14 +139,13 @@ const totalPoints = computed(() =>
 .question-item-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--dt-space-100);
   min-width: 0;
 }
 
 .question-item-text {
-  font-size: 15px;
-  color: #1c1c1c;
-  line-height: 1.4;
+  font: var(--dt-typography-body-md-compact);
+  color: var(--dt-color-foreground-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,33 +154,30 @@ const totalPoints = computed(() =>
 .question-item-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  color: #808080;
-  line-height: 1.2;
+  gap: var(--dt-space-450);
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-muted);
 }
 
 .question-item-ai {
-  color: #808080;
+  color: var(--dt-color-foreground-muted);
 }
 
 .question-list-footer {
   display: flex;
-  gap: 8px;
-  padding-top: 8px;
+  gap: var(--dt-space-400);
+  padding-top: var(--dt-space-400);
 }
 
 .question-list-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--dt-space-350);
   height: var(--btn-height-md);
-  padding: 0 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 0 var(--dt-space-450);
+  border-radius: var(--dt-space-400);
+  font: var(--dt-typography-label-sm-compact);
   cursor: pointer;
-  line-height: 1.2;
 }
 
 .question-list-btn-icon {
@@ -193,22 +185,22 @@ const totalPoints = computed(() =>
 }
 
 .question-list-btn--ai {
-  background: #7C52FF;
-  color: white;
+  background: var(--dt-color-link-primary);
+  color: var(--dt-color-surface-primary);
   border: none;
 }
 
 .question-list-btn--ai:hover {
-  background: #6a3fef;
+  background: var(--dt-color-link-primary-hover);
 }
 
 .question-list-btn--create {
-  background: white;
-  color: #7C52FF;
-  border: 1px solid #7C52FF;
+  background: var(--dt-color-surface-primary);
+  color: var(--dt-color-link-primary);
+  border: 1px solid var(--dt-color-link-primary);
 }
 
 .question-list-btn--create:hover {
-  background: #faf8ff;
+  background: var(--dt-color-surface-brand-subtle);
 }
 </style>

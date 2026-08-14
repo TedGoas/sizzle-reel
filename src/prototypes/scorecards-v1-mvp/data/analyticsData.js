@@ -1,41 +1,47 @@
 export const chartLabels = [
-  'Jan 4', 'Jan 11', 'Jan 18', 'Jan 25', 'Feb 1', 'Feb 8', 'Feb 15', 'Feb 22', 'Mar 1',
+  'Mar 2', 'Mar 4', 'Mar 6', 'Mar 8', 'Mar 10',
+  'Mar 12', 'Mar 14', 'Mar 16', 'Mar 18', 'Mar 20',
+  'Mar 22', 'Mar 24', 'Mar 26', 'Mar 28', 'Mar 30',
 ]
 
-export const barData = {
-  aiGraded: [417, 428, 421, 411, 424, 417, 429, 419, 428],
-  humanGraded: [23, 12, 19, 29, 16, 23, 11, 21, 12],
-}
+export const lineData = [88, 90, 91, 91, 89, 93, 91, 92, 94, 92, 91, 93, 95, 91, 89]
 
-export const lineData = [88, 86, 87, 85, 86, 84, 85, 83, 86]
+export const callsGraded = [21, 14, 26, 19, 11, 10, 15, 13, 18, 21, 18, 26, 23, 21, 18]
 
 export const summaryStats = {
-  averageGrade: '86%',
-  trend: '+2%',
+  label: 'All Groups',
+  averageGrade: '90%',
+  trend: '4%',
   trendDirection: 'up',
-  comparison: 'vs. previous 60 days',
+  comparison: 'vs prev 30 days',
 }
 
+export const HOVER_INDEX = 9
+export const HOVER_PATH = [7, 8, 9]
+
 export const agentRows = [
-  { name: 'West Coast Sales', avgGrade: '86%', change: '+2%', changeDir: 'up', callsGraded: 56, gradeDistribution: { ai: 48, human: 8 } },
-  { name: 'Enterprise Support', avgGrade: '94%', change: '+2%', changeDir: 'up', callsGraded: 55, gradeDistribution: { ai: 50, human: 5 } },
-  { name: 'Billing & Payments', avgGrade: '82%', change: '+2%', changeDir: 'up', callsGraded: 54, gradeDistribution: { ai: 45, human: 9 } },
-  { name: 'New Customer Onboarding', avgGrade: '71%', change: '-1%', changeDir: 'down', callsGraded: 52, gradeDistribution: { ai: 42, human: 10 } },
-  { name: 'Technical Support', avgGrade: '52%', change: '-2%', changeDir: 'down', callsGraded: 50, gradeDistribution: { ai: 40, human: 10 } },
-  { name: 'Retention & Loyalty', avgGrade: '93%', change: '-4%', changeDir: 'down', callsGraded: 48, gradeDistribution: { ai: 44, human: 4 } },
-  { name: 'East Coast Sales', avgGrade: '100%', change: '-4%', changeDir: 'down', callsGraded: 44, gradeDistribution: { ai: 38, human: 6 } },
-  { name: 'Partner Solutions', avgGrade: '78%', change: '-5%', changeDir: 'down', callsGraded: 32, gradeDistribution: { ai: 26, human: 6 } },
+  { name: 'Mobile Support', avgGrade: '96%', change: '4%', changeDir: 'up', callsGraded: 341 },
+  { name: 'OberConference Support', avgGrade: '95%', change: '3%', changeDir: 'up', callsGraded: 242 },
+  { name: 'Conagra Support', avgGrade: '94%', change: '6%', changeDir: 'up', callsGraded: 88 },
+  { name: 'Grand Rapids Call Center', avgGrade: '94%', change: '2%', changeDir: 'down', callsGraded: 179 },
+  { name: 'Emergency Call Line', avgGrade: '93%', change: '2%', changeDir: 'up', callsGraded: 258 },
+  { name: 'Calpine Call Center', avgGrade: '93%', change: '11%', changeDir: 'down', callsGraded: 431 },
+  { name: 'NRG Support', avgGrade: '92%', change: '8%', changeDir: 'up', callsGraded: 266 },
+]
+
+export const graders = [
+  { name: 'Mark Bayani', calls: 166, avatar: 'https://i.pravatar.cc/56?img=12' },
+  { name: 'Alicia Kurniawan', calls: 156, avatar: 'https://i.pravatar.cc/56?img=32' },
+  { name: 'Faith Smyth', calls: 216, avatar: 'https://i.pravatar.cc/56?img=5' },
+  { name: 'Samantha Jones', calls: 89, avatar: 'https://i.pravatar.cc/56?img=47' },
 ]
 
 export const sidebarNavItems = [
-  { label: 'Analytics Agent', indent: 0 },
   { label: 'All calls', indent: 0 },
+  { label: 'My calls', indent: 0 },
   { label: 'Coaching teams', indent: 0 },
-  { label: 'AI CSAT', indent: 0 },
-  { label: 'AI Assistants', indent: 0 },
-  { label: 'AI Scorecards', indent: 0, expanded: true },
-  { label: 'By group', indent: 1, active: true },
-  { label: 'By agent', indent: 1 },
-  { label: 'By scorecards', indent: 1 },
-  { label: 'Playbooks', indent: 0 },
+  { label: 'QA Scorecards', indent: 0, expanded: true },
+  { label: 'Teams & Groups', indent: 1, active: true },
+  { label: 'Agents', indent: 1 },
+  { label: 'Scorecards', indent: 1 },
 ]
