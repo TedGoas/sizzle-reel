@@ -1,0 +1,60 @@
+export const scorecardMeta = {
+  name: 'Ai Scorecard Example',
+  status: 'Draft',
+  gradeBy: 'Grade by Ai',
+  breadcrumbs: ['Admin', 'Office', 'AI Scorecards', 'Ai Scorecard Example'],
+}
+
+export const aiQuestionCatalog = [
+  { text: 'Did the agent greet the customer?' },
+  { text: 'Did they confirm the account?' },
+  { text: 'Did they have a nice tone?' },
+  { text: 'Did they conclude the call properly?' },
+  { text: 'Did the agent verify the caller’s identity?' },
+  { text: 'Did they offer a next step?' },
+]
+
+function yesNoQuestion(id, number, text, isAi = true) {
+  return {
+    id,
+    number,
+    text,
+    responseType: 'Yes or no',
+    responses: [
+      { label: 'Yes', points: 10 },
+      { label: 'No', points: 0 },
+    ],
+    triggerWords: '',
+    triggerChips: [],
+    isAi,
+    aiSuggestions: [],
+  }
+}
+
+export function createBlankQuestion() {
+  return yesNoQuestion(3, 3, '', true)
+}
+
+export function createInitialQuestions() {
+  return [
+    yesNoQuestion(1, 1, 'Did the agent ask for the persons name?'),
+    yesNoQuestion(2, 2, 'Did the agent restate the purpose of the conversation?'),
+    createBlankQuestion(),
+  ]
+}
+
+export const questions = createInitialQuestions()
+
+export const adminNavItems = [
+  { label: 'Office', hasPlus: false },
+  { label: 'Departments', hasPlus: true },
+  { label: 'Ai Contact Centers', hasPlus: true },
+  { label: 'Geo. Routing', hasPlus: true },
+  { label: 'Coaching Groups', hasPlus: true },
+  { label: 'Coaching Teams', hasPlus: true },
+  { label: 'Channels & Workflows', hasPlus: false },
+  { label: 'Ai Scorecards', hasPlus: false, active: true },
+  { label: 'Billing', hasPlus: false },
+  { label: 'Dialpad Ai', hasPlus: false },
+  { label: 'Privacy & Legal', hasPlus: false },
+]

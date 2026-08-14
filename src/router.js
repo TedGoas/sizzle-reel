@@ -7,6 +7,7 @@ const prototypes = [
   { name: 'ai-chatbot', label: 'AI Chatbot' },
   { name: 'scorecards', label: 'Scorecards' },
   { name: 'scorecards-v1-mvp', label: 'Scorecards V1 - MVP' },
+  { name: 'scorecards-v1-ai-questions', label: 'Scorecards V1 - AI Questions' },
 ]
 
 const routes = [
