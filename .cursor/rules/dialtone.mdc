@@ -1,0 +1,23 @@
+---
+description: Use Dialtone tokens and utility classes for all UI
+alwaysApply: true
+---
+
+# Dialtone is the design system
+
+All UI should look like Dialtone. Vue Dialtone components are optional; **tokens and utility classes are not**.
+
+## Do
+
+- Use `--dt-*` tokens from `src/assets/design-tokens.css` for color, space, type, radius, and shadows.
+- Use Dialtone `d-*` utility classes in markup. Prefer official names from [dialtone.dialpad.com](https://dialtone.dialpad.com/).
+- If a token or utility is missing locally, look it up on the Dialtone site, then add a local replica to `design-tokens.css` or `utilities.css`. Do not invent values.
+- If you must write custom CSS, still use `--dt-*` tokens (never raw hex/px for design values). Prefer padding + gap over margin.
+
+## Don’t
+
+- Do not install `@dialpad/dialtone`, `@dialpad/dialtone-css`, `@dialpad/dialtone-icons`, or `@dialpad/dialtone-tokens`.
+- Do not hardcode colors, spacing, or type that Dialtone already tokens.
+- Do not reproduce old design-system visuals from Figma (off-color buttons, heavier input borders, etc.). Match Dialtone and the existing Scorecards prototype; ask if a faithful copy would look older.
+
+Lookup index and naming: [DESIGN.md](DESIGN.md).

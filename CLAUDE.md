@@ -4,6 +4,15 @@
 
 Vue 3 + Vite prototype showcase. Published publicly at `/sizzle-reel/` base path. All dependencies must be publicly installable — no private registry access, no auth tokens.
 
+**Dialtone** is the design system. Tokens and `d-*` utility classes are required; Dialtone Vue/CSS packages are not (replicate locally). Lookup index: [DESIGN.md](DESIGN.md). Live docs: [dialtone.dialpad.com](https://dialtone.dialpad.com/).
+
+## Git workflow
+
+- Never commit or push on `main` / `master`. If you are on that branch and files need to change, create a new branch first so the working-tree changes come along.
+- Never create a local commit unless the user explicitly asks to commit.
+- Never push unless the user explicitly asks to push. “Commit and push” means both; making edits does not.
+- Stop after changing files so the user can verify before commit.
+
 ## Critical Rule: No Auth-Gated Dependencies
 
 `npm install` must work without `NODE_AUTH_TOKEN` or any private GitHub Packages token.
@@ -17,6 +26,8 @@ Vue 3 + Vite prototype showcase. Published publicly at `/sizzle-reel/` base path
 All Dialtone design assets have been replicated locally. Use those instead.
 
 ## Local Replacements for Dialtone
+
+Use Dialtone **tokens and utility classes** wherever possible so prototypes look like Dialtone. You do not need Dialtone Vue components for everything — native HTML + local `--dt-*` tokens + `d-*` classes is the default. If a token or utility from the [Dialtone docs](https://dialtone.dialpad.com/) is missing locally, add it to the files below, then use it. Do not invent spacing, color, or type values.
 
 ### CSS Tokens
 Use `--dt-*` custom properties defined in `src/assets/design-tokens.css`. Dialtone naming is preserved for familiarity — they're just sourced locally.
@@ -148,9 +159,28 @@ Never hardcode button heights. Use these tokens from `src/assets/design-tokens.c
 }
 ```
 
+## Adding Prototypes
+
+New work lives in **new folders** under `src/prototypes/`. Do not modify these four original prototype folders unless explicitly allowed:
+
+- `src/prototypes/analytics-gpt/`
+- `src/prototypes/launchpad/`
+- `src/prototypes/ai-chatbot/`
+- `src/prototypes/scorecards/`
+
+To register a prototype, add one `{ name, label }` entry to the `prototypes` array in `src/router.js`. The homepage reads that list automatically. The `name` must match the folder name (`src/prototypes/<name>/index.vue`).
+
+**Scorecards V1 - MVP** (`src/prototypes/scorecards-v1-mvp/`) is a copy of Scorecards, for iteration. Do not change the original Scorecards folder when working on this copy.
+
+When a Figma (or other design) is the reference, **only change `.builder-main`** in `BuilderView.vue`. Ignore differences in the left nav, admin sidebar, and other chrome — those files are often old. The chrome we have now is what we want going forward. Ask only if a chrome difference looks major.
+
+Inside `.builder-main`, keep the layout and intent of the file, but restyle to current Dialtone (match the cloned Scorecards prototype and [dialtone.dialpad.com](https://dialtone.dialpad.com/)). Do not implement older button colors/sizes, darker input borders, or other pre-Dialtone styling. If a faithful copy would look meaningfully older, ask first.
+
 ## Project Structure
 
 ```
+DESIGN.md                    # Dialtone lookup index (docs URLs, tokens, utilities)
+.cursor/rules/               # Agent rules (Dialtone + git workflow)
 src/
 ├── assets/
 │   ├── design-tokens.css   # All --dt-* custom properties (replaces @dialpad/dialtone)
@@ -164,6 +194,11 @@ src/
 │   ├── TopBar.vue          # Global top bar
 │   └── SidebarNav.vue      # Secondary sidebar navigation
 ├── prototypes/             # Individual prototype components
+│   ├── analytics-gpt/      # Frozen original
+│   ├── launchpad/          # Frozen original
+│   ├── ai-chatbot/         # Frozen original
+│   ├── scorecards/         # Frozen original
+│   └── scorecards-v1-mvp/  # Copy of Scorecards, for iteration
 └── main.js                 # Imports design-tokens.css and utilities.css
 ```
 

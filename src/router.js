@@ -6,6 +6,7 @@ const prototypes = [
   { name: 'launchpad', label: 'Launchpad' },
   { name: 'ai-chatbot', label: 'AI Chatbot' },
   { name: 'scorecards', label: 'Scorecards' },
+  { name: 'scorecards-v1-mvp', label: 'Scorecards V1 - MVP' },
 ]
 
 const routes = [
