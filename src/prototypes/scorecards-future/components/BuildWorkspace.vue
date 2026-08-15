@@ -3,31 +3,33 @@
     class="workspace"
     :class="{ 'workspace--split': layout === 'split' }"
   >
-    <div class="workspace-header">
-      <button class="header-icon-btn" type="button" aria-label="Past conversations">
-        <DtIcon name="past-conversations" :size="20" />
-      </button>
-      <template v-if="layout !== 'welcome'">
-        <span class="session-title">{{ sessionTitle }}</span>
-        <button class="header-icon-btn" type="button" aria-label="Options">
-          <DtIcon name="chevron-down" :size="16" />
-        </button>
-        <div class="header-spacer" />
-        <button class="new-chat-btn" type="button" @click="resetDemo">
-          <DtIcon name="plus" :size="16" />
-          <span>New Chat</span>
-        </button>
-      </template>
-    </div>
-
     <div class="workspace-body">
       <div class="chat-column">
+        <div class="workspace-header">
+          <button class="header-icon-btn" type="button" aria-label="Past conversations">
+            <DtIcon name="past-conversations" :size="20" />
+          </button>
+          <template v-if="layout !== 'welcome'">
+            <span class="session-title">{{ sessionTitle }}</span>
+            <button class="header-icon-btn" type="button" aria-label="Options">
+              <DtIcon name="chevron-down" :size="16" />
+            </button>
+            <div class="header-spacer" />
+            <button class="new-chat-btn" type="button" @click="resetDemo">
+              <DtIcon name="plus" :size="16" />
+              <span>New Chat</span>
+            </button>
+          </template>
+        </div>
+
         <!-- Welcome -->
         <div v-if="layout === 'welcome'" class="chat-body">
           <div class="chat-center">
             <div class="welcome-hero">
               <div class="bot-avatar">
-                <DtIcon name="sparkle" :size="24" />
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M14.9979 4.98108C15.7124 5.58347 16.412 6.22639 17.0927 6.90576C23.0191 12.8339 25.7471 19.8478 22.7975 22.799C21.0661 24.5291 17.945 24.3333 14.3481 22.5761C13.92 22.3667 13.7417 21.8481 13.9511 21.4199C14.1604 20.9904 14.6791 20.8135 15.1072 21.0228C18.1149 22.4924 20.5081 22.6423 21.5751 21.5766C23.5753 19.5749 21.1956 13.4539 15.8703 8.12938C15.2247 7.48376 14.5602 6.87328 13.8836 6.30331C13.5189 5.99672 13.473 5.45107 13.7796 5.08639C14.0875 4.72036 14.6333 4.67448 14.9979 4.98108ZM18.9132 13.7968C19.2778 14.1061 19.3224 14.6517 19.0131 15.015C18.4256 15.7079 17.7841 16.4022 17.0926 17.0937C11.1648 23.0205 4.15129 25.7486 1.20173 22.7989C-0.528355 21.0687 -0.333873 17.9502 1.42187 14.3545C1.63121 13.9264 2.14849 13.7481 2.5766 13.9574C3.00608 14.1668 3.18435 14.6841 2.975 15.1136C1.50692 18.1188 1.35836 20.5107 2.42395 21.5764C4.42416 23.5767 10.5449 21.1968 15.8704 15.8712C16.5295 15.2121 17.1386 14.553 17.695 13.8966C18.0043 13.5332 18.5486 13.4888 18.9132 13.7968ZM9.64405 1.42071C10.0722 1.63006 10.2505 2.14872 10.0411 2.57689C9.83177 3.0064 9.31449 3.18468 8.885 2.97531C5.87997 1.50715 3.48962 1.35857 2.42368 2.42423C0.422116 4.42456 2.80321 10.5456 8.1285 15.8715C8.77139 16.5157 9.43449 17.1235 10.1098 17.6921C10.4745 18.0001 10.5204 18.5458 10.2138 18.9104C9.90587 19.2751 9.36022 19.3224 8.9956 19.0144C8.28249 18.4147 7.58426 17.7718 6.9049 17.0938C0.97845 11.1656 -1.74949 4.15171 1.20146 1.20197C2.93019 -0.528216 6.04898 -0.333788 9.64405 1.42071ZM12.0454 8.99924C12.2223 9.04516 12.3573 9.18293 12.4006 9.35987L12.7585 10.8537C12.8206 11.1117 13.0178 11.317 13.2744 11.3886L14.5926 11.7586C14.8343 11.8262 14.9748 12.076 14.9072 12.3178C14.8627 12.4758 14.7357 12.5987 14.5763 12.6366L13.3271 12.9364C13.0529 13.0026 12.8422 13.2187 12.7814 13.4942L12.41 15.1974C12.3547 15.4567 12.0981 15.6215 11.8388 15.5648C11.6551 15.5243 11.5119 15.3811 11.4728 15.1974L11.1014 13.4969C11.0419 13.22 10.8272 13.0039 10.553 12.9391L9.25918 12.6339C9.01337 12.5771 8.86212 12.3313 8.92018 12.0855C8.958 11.9234 9.0809 11.7951 9.24027 11.7505L10.5409 11.3859C10.7921 11.3156 10.9879 11.1171 11.0527 10.8645L11.4471 9.35044C11.5146 9.08841 11.7833 8.93036 12.0454 8.99924ZM22.7974 1.20184C24.5288 2.93337 24.3344 6.06298 22.5759 9.6638C22.3666 10.0933 21.8479 10.2702 21.4198 10.0609C20.9903 9.85153 20.812 9.33422 21.0227 8.90471C22.4935 5.89276 22.6434 3.49275 21.5751 2.42433C19.5736 0.422651 13.4529 2.80388 8.1287 8.12949C7.48043 8.77646 6.86728 9.44369 6.29597 10.1231C5.98804 10.4891 5.44377 10.535 5.07776 10.2284C4.7131 9.92046 4.66584 9.37616 4.97377 9.01013C5.57613 8.29294 6.22306 7.58923 6.90508 6.90582C12.8329 0.979021 19.8465 -1.74929 22.7974 1.20184Z" fill="white"/>
+                </svg>
               </div>
               <h1 class="welcome-title">Hello</h1>
               <p class="welcome-subtitle">Let’s build a scorecard</p>
@@ -416,6 +418,7 @@ defineExpose({
   height: 56px;
   padding: 0 var(--dt-space-500);
   flex-shrink: 0;
+  border-bottom: 1px solid var(--dt-color-border-subtle);
 }
 
 .header-icon-btn {
@@ -439,6 +442,10 @@ defineExpose({
 .session-title {
   font: var(--dt-typography-headline-md);
   color: var(--dt-color-foreground-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .header-spacer {
