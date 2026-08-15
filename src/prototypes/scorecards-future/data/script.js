@@ -26,6 +26,11 @@ export const THINK_3 = [
   'Putting the scorecard together…',
 ]
 
+export const THINK_3_TOOLS = [
+  { label: 'Refund conversations', icon: 'search' },
+  { label: 'Drafted 6 questions', icon: 'sparkle' },
+]
+
 function yesNo(id, number, text, triggerChips = []) {
   return {
     id,

@@ -101,17 +101,65 @@
                       <span class="message-author">Scorecards Ai</span>
                       <span class="message-time">{{ msg.time }}</span>
                     </div>
-                    <p class="message-text">{{ msg.text }}</p>
+
+                    <div v-if="msg.thinkingLive || msg.thinking?.length" class="thinking-block">
+                      <button
+                        class="thinking-toggle"
+                        type="button"
+                        :aria-expanded="isThinkingOpen(msg)"
+                        @click="toggleThinking(msg)"
+                      >
+                        <span
+                          class="thinking-label"
+                          :class="{ 'thinking-label--live': msg.thinkingLive }"
+                        >
+                          {{ msg.thinkingLive ? 'Thinking' : 'Thought' }}
+                        </span>
+                        <span v-if="msg.thinking.length" class="thinking-count">
+                          {{ msg.thinking.length }}
+                          {{ msg.thinking.length === 1 ? 'step' : 'steps' }}
+                        </span>
+                        <DtIcon
+                          name="chevron-down"
+                          :size="12"
+                          class="thinking-chevron"
+                          :class="{ 'thinking-chevron--open': isThinkingOpen(msg) }"
+                        />
+                      </button>
+                      <div
+                        class="thinking-collapse"
+                        :class="{ 'thinking-collapse--open': isThinkingOpen(msg) }"
+                      >
+                        <div class="thinking-collapse-inner">
+                          <ul class="thinking-steps">
+                            <li
+                              v-for="(step, s) in msg.thinking"
+                              :key="`${step}-${s}`"
+                              class="thinking-step"
+                            >
+                              {{ step }}
+                            </li>
+                          </ul>
+                          <div v-if="msg.tools?.length" class="tool-chips">
+                            <span
+                              v-for="tool in msg.tools"
+                              :key="tool.label"
+                              class="tool-chip"
+                            >
+                              <DtIcon :name="tool.icon" :size="12" />
+                              {{ tool.label }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p v-if="msg.text || msg.streaming" class="message-text">
+                      {{ msg.text }}<span v-if="msg.streaming" class="stream-caret" aria-hidden="true" />
+                    </p>
                   </div>
                 </div>
               </template>
-
-              <div v-if="busy" class="processing-module">
-                <div class="processing-bar">
-                  <div class="processing-spinner" />
-                  <span class="processing-text">{{ busyText }}</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -184,12 +232,12 @@ let scrollTimer = null
 
 const layout = ref('welcome')
 const busy = ref(false)
-const busyText = ref('')
 const draft = ref('')
 const messages = ref([])
 const questions = ref([])
 const selectedQuestionId = ref(null)
 const sessionTitle = ref('')
+let pendingAiIndex = -1
 
 const hasInput = computed(() => draft.value.trim().length > 0)
 const selectedQuestion = computed(() =>
@@ -236,24 +284,73 @@ function submitDraft() {
   scrollToBottom()
 }
 
-function pushAi(text) {
-  messages.value.push({ role: 'ai', text, time: currentTime() })
-  scrollToBottom()
+function pendingAi() {
+  if (pendingAiIndex < 0) return null
+  return messages.value[pendingAiIndex] || null
 }
 
-function startBusy(text) {
+function isThinkingOpen(msg) {
+  return Boolean(msg.thinkingLive || !msg.thinkingCollapsed)
+}
+
+function toggleThinking(msg) {
+  if (msg.thinkingLive) return
+  msg.thinkingCollapsed = !msg.thinkingCollapsed
+}
+
+function startThink() {
   busy.value = true
-  busyText.value = text || ''
+  messages.value.push({
+    role: 'ai',
+    text: '',
+    thinking: [],
+    tools: [],
+    thinkingLive: true,
+    thinkingCollapsed: false,
+    streaming: false,
+    time: currentTime(),
+  })
+  pendingAiIndex = messages.value.length - 1
   scrollToBottom()
 }
 
-function setBusyText(text) {
-  busyText.value = text
+function addThinkStep(text) {
+  const msg = pendingAi()
+  if (!msg) return
+  msg.thinking = [...msg.thinking, text]
+  scrollToBottom()
 }
 
-function stopBusy() {
+function addToolChip(tool) {
+  const msg = pendingAi()
+  if (!msg || !tool) return
+  msg.tools = [...msg.tools, tool]
+  scrollToBottom()
+}
+
+function collapseThinking() {
+  const msg = pendingAi()
+  if (!msg) return
+  msg.thinkingLive = false
+  msg.thinkingCollapsed = true
+}
+
+async function streamAi(text, sleepFn) {
+  const msg = pendingAi()
+  if (!msg || !sleepFn) return
+  msg.streaming = true
+  const parts = text.split(/(\s+)/)
+  let out = ''
+  for (const part of parts) {
+    out += part
+    msg.text = out
+    scrollToBottom()
+    await sleepFn(part.trim() ? 38 : 12)
+  }
+  msg.text = text
+  msg.streaming = false
   busy.value = false
-  busyText.value = ''
+  pendingAiIndex = -1
 }
 
 function showPreview() {
@@ -270,12 +367,12 @@ function selectQuestion(id) {
 function resetDemo() {
   layout.value = 'welcome'
   busy.value = false
-  busyText.value = ''
   draft.value = ''
   messages.value = []
   questions.value = []
   selectedQuestionId.value = null
   sessionTitle.value = ''
+  pendingAiIndex = -1
   minuteOffset = 0
 }
 
@@ -293,10 +390,11 @@ defineExpose({
   typeReply: typePrompt,
   submitCreate: submitDraft,
   submitReply: submitDraft,
-  startBusy,
-  setBusyText,
-  stopBusy,
-  pushAi,
+  startThink,
+  addThinkStep,
+  addToolChip,
+  collapseThinking,
+  streamAi,
   showPreview,
   selectQuestion,
   resetDemo,
@@ -730,65 +828,134 @@ defineExpose({
   margin: 0;
 }
 
-.processing-module {
-  padding: var(--dt-space-200) 0 var(--dt-space-500);
+.thinking-block {
+  margin: var(--dt-space-200) 0 var(--dt-space-400);
 }
 
-.processing-bar {
-  display: flex;
+.thinking-toggle {
+  display: inline-flex;
   align-items: center;
-  gap: var(--dt-space-400);
-  padding: 10px var(--dt-space-450);
-  border-radius: var(--dt-space-400);
-  background-image: linear-gradient(
-    170deg,
-    rgba(71, 21, 113, 0.1) 0%,
-    rgba(85, 27, 132, 0.1) 3.08%,
-    rgba(124, 34, 158, 0.1) 14.48%,
-    rgba(144, 36, 164, 0.1) 23.67%,
-    rgba(176, 34, 144, 0.1) 35.5%,
-    rgba(211, 43, 134, 0.1) 48.3%,
-    rgba(233, 47, 111, 0.1) 60.29%,
-    rgba(246, 72, 79, 0.1) 70.08%,
-    rgba(251, 115, 40, 0.1) 90.02%,
-    rgba(243, 150, 15, 0.1) 97.29%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
+  gap: var(--dt-space-350);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--dt-color-foreground-secondary);
 }
 
-.processing-spinner {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 180deg,
-    transparent 0deg,
-    #471571 60deg,
-    #7c229e 120deg,
-    #b02290 180deg,
-    #e92f6f 240deg,
-    #fb7328 300deg,
-    transparent 360deg
-  );
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
-  animation: spin 1s linear infinite;
-  flex-shrink: 0;
+.thinking-label {
+  font: var(--dt-typography-label-sm-compact);
+  color: var(--dt-color-foreground-secondary);
 }
 
-.processing-text {
-  font: var(--dt-typography-label-md-compact);
-  color: var(--dt-color-foreground-primary);
+.thinking-label--live {
+  color: var(--dt-color-link-primary);
+  animation: think-pulse 1.2s ease-in-out infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.thinking-count {
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-muted);
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+.thinking-chevron {
+  color: var(--dt-color-foreground-muted);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.thinking-chevron--open {
+  transform: rotate(180deg);
+}
+
+.thinking-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.thinking-collapse--open {
+  grid-template-rows: 1fr;
+}
+
+.thinking-collapse-inner {
+  overflow: hidden;
+}
+
+.thinking-steps {
+  list-style: none;
+  margin: var(--dt-space-300) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-200);
+}
+
+.thinking-step {
+  font: var(--dt-typography-body-sm);
+  color: var(--dt-color-foreground-muted);
+  animation: step-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tool-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dt-space-300);
+  padding-top: var(--dt-space-400);
+}
+
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  padding: 4px var(--dt-space-400);
+  border-radius: 100px;
+  border: 1px solid var(--dt-color-border-subtle);
+  background: var(--dt-color-surface-brand-subtle);
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-secondary);
+  animation: chip-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 1px;
+  background: var(--dt-color-link-primary);
+  vertical-align: text-bottom;
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes think-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.42; }
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes chip-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thinking-label--live,
+  .stream-caret,
+  .thinking-step,
+  .tool-chip {
+    animation: none;
+  }
+
+  .thinking-collapse {
+    transition: none;
+  }
 }
 </style>

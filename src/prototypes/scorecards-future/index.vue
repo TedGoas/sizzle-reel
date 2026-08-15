@@ -38,6 +38,7 @@ import {
   THINK_1,
   THINK_2,
   THINK_3,
+  THINK_3_TOOLS,
 } from './data/script.js'
 
 const appRef = ref(null)
@@ -96,17 +97,30 @@ async function clickEl(el) {
   cursorClicking.value = false
 }
 
-async function think(phrases) {
+async function think(phrases, tools = []) {
   const workspace = workspaceRef.value
   if (!workspace || !running) return
-  workspace.startBusy(phrases[0])
+  workspace.startThink()
   await nextTick()
-  for (const phrase of phrases) {
+  for (let i = 0; i < phrases.length; i++) {
     if (!running) return
-    workspace.setBusyText(phrase)
-    await sleep(900)
+    workspace.addThinkStep(phrases[i])
+    await sleep(720)
+    if (tools[i]) {
+      workspace.addToolChip(tools[i])
+      await sleep(380)
+    }
   }
-  workspace.stopBusy()
+  await sleep(320)
+  if (!running) return
+  workspace.collapseThinking()
+  await sleep(280)
+}
+
+async function streamReply(text) {
+  const workspace = workspaceRef.value
+  if (!workspace || !running) return
+  await workspace.streamAi(text, sleep)
 }
 
 async function typeAndSend(text, sendSelector) {
@@ -160,10 +174,8 @@ async function runFilm() {
 
   await think(THINK_1)
   if (!running) return
-  await sleep(200)
-  workspace?.pushAi(AI_Q1)
-  await nextTick()
-  await sleep(700)
+  await streamReply(AI_Q1)
+  await sleep(500)
   if (!running) return
 
   await typeAndSend(USER_A1, '[data-autoplay="send"]')
@@ -173,10 +185,8 @@ async function runFilm() {
 
   await think(THINK_2)
   if (!running) return
-  await sleep(200)
-  workspace?.pushAi(AI_Q2)
-  await nextTick()
-  await sleep(700)
+  await streamReply(AI_Q2)
+  await sleep(500)
   if (!running) return
 
   await typeAndSend(USER_A2, '[data-autoplay="send"]')
@@ -184,12 +194,10 @@ async function runFilm() {
   await sleep(300)
   if (!running) return
 
-  await think(THINK_3)
+  await think(THINK_3, THINK_3_TOOLS)
   if (!running) return
-  await sleep(250)
-  workspace?.pushAi(AI_PREVIEW)
-  await nextTick()
-  await sleep(450)
+  await streamReply(AI_PREVIEW)
+  await sleep(400)
   if (!running) return
 
   workspace?.showPreview()
