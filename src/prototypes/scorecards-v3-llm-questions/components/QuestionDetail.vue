@@ -5,7 +5,10 @@
         <span class="question-detail-label">{{ question.isAi ? 'Ai ' : '' }}Question #{{ question.number }}</span>
       </div>
 
-      <div class="ai-question-input-wrapper">
+      <div
+        class="ai-question-input-wrapper"
+        :class="{ 'has-warning': question.validationWarning }"
+      >
         <input
           id="question-text"
           type="text"
@@ -19,7 +22,15 @@
         />
 
         <Transition name="compose-swap" mode="out-in">
-          <div v-if="rewriteState === 'idle'" key="idle" class="ai-question-actions">
+          <div
+            v-if="rewriteState === 'idle' && question.validationWarning"
+            key="warning"
+            class="ai-warning-banner"
+          >
+            <DtIcon name="alert-circle" :size="16" class="ai-warning-banner-icon" />
+            <span>{{ question.validationWarning }}</span>
+          </div>
+          <div v-else-if="rewriteState === 'idle'" key="idle" class="ai-question-actions">
             <button
               class="compose-action-btn compose-action-btn--rewrite"
               type="button"
@@ -198,7 +209,12 @@
     <div class="question-detail-footer">
       <div class="question-detail-footer-actions">
         <button class="footer-btn footer-btn--delete" type="button">Delete</button>
-        <button class="footer-btn footer-btn--save" type="button">Save</button>
+        <button
+          class="footer-btn footer-btn--save"
+          type="button"
+          data-autoplay="save-question"
+          @click="saveQuestion"
+        >Save</button>
       </div>
     </div>
   </div>
@@ -211,6 +227,8 @@ import DtIcon from '../../../components/icons/DtIcon.vue'
 const props = defineProps({
   question: { type: Object, default: null },
 })
+
+const emit = defineEmits(['saved'])
 
 const localText = ref('')
 const localResponseType = ref('')
@@ -354,6 +372,27 @@ function handleCancel() {
   streaming.value = false
 }
 
+function acronymWarning(text) {
+  const matches = text.match(/\b[A-Z]{2,}\b/g) || []
+  if (matches.length === 0) return null
+  const quoted = matches.map((m) => `"${m}"`)
+  if (quoted.length === 1) {
+    return `${quoted[0]} is unclear. Clarifying it will improve score accuracy.`
+  }
+  if (quoted.length === 2) {
+    return `${quoted[0]} and ${quoted[1]} are unclear. Clarifying it will improve score accuracy.`
+  }
+  const head = quoted.slice(0, -1).join(', ')
+  return `${head}, and ${quoted[quoted.length - 1]} are unclear. Clarifying it will improve score accuracy.`
+}
+
+function saveQuestion() {
+  if (!props.question) return
+  props.question.text = localText.value
+  props.question.validationWarning = acronymWarning(localText.value)
+  emit('saved')
+}
+
 function resetEditor() {
   rewriteGen += 1
   clearTimeout(rewriteTimer)
@@ -463,6 +502,7 @@ defineExpose({
   startRewrite,
   acceptSuggestion,
   resetEditor,
+  saveQuestion,
 })
 </script>
 
@@ -534,6 +574,12 @@ defineExpose({
   box-shadow: var(--dt-shadow-focus);
 }
 
+.ai-question-input-wrapper.has-warning,
+.ai-question-input-wrapper.has-warning:focus-within {
+  border-color: var(--dt-color-border-warning);
+  box-shadow: none;
+}
+
 .ai-question-input {
   width: 100%;
   border: none;
@@ -573,6 +619,22 @@ defineExpose({
   padding: 0 var(--dt-space-400);
   align-items: center;
   height: 46px;
+}
+
+.ai-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
+  min-height: 38px;
+  padding: 0 var(--dt-space-450);
+  background: var(--dt-color-surface-warning-subtle);
+  color: var(--dt-color-foreground-warning);
+  font: var(--dt-typography-body-sm-compact);
+}
+
+.ai-warning-banner-icon {
+  color: var(--dt-color-foreground-warning);
+  flex-shrink: 0;
 }
 
 .compose-action-btn {

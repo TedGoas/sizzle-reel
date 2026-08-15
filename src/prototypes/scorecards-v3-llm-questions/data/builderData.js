@@ -7,6 +7,7 @@ export const scorecardMeta = {
 
 export const DRAFT_QUESTION = 'Did the agent ask for the persons name?'
 export const REWRITE_SUGGESTION = "Did the agent confirm the customer's identity?"
+export const VIP_QUESTION = 'Did the agent confirm this is a VIP customer?'
 
 function yesNoQuestion(id, number, text, isAi = true, aiSuggestions = []) {
   return {
@@ -21,11 +22,12 @@ function yesNoQuestion(id, number, text, isAi = true, aiSuggestions = []) {
     triggerWords: '',
     isAi,
     aiSuggestions,
+    validationWarning: null,
   }
 }
 
-export function createBlankQuestion() {
-  return yesNoQuestion(3, 3, '', true, [REWRITE_SUGGESTION])
+export function createBlankQuestion(id = 3, number = 3, { aiSuggestions = [REWRITE_SUGGESTION] } = {}) {
+  return yesNoQuestion(id, number, '', true, aiSuggestions)
 }
 
 export function createInitialQuestions() {

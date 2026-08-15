@@ -84,12 +84,19 @@
               :questions="localQuestions"
               :selectedId="selectedQuestionId"
               @select="selectQuestion"
+              @create="createQuestion"
             />
           </div>
           <div class="builder-right">
-            <QuestionDetail ref="detailRef" :question="selectedQuestion" />
+            <QuestionDetail ref="detailRef" :question="selectedQuestion" @saved="showSaveNotice" />
           </div>
         </div>
+        <Transition name="save-notice">
+          <div v-if="saveNotice" class="save-notice" role="status">
+            <DtIcon name="check" :size="16" class="save-notice-icon" />
+            {{ saveNotice }}
+          </div>
+        </Transition>
     </div>
   </div>
 </template>
@@ -99,12 +106,14 @@ import { ref, computed } from 'vue'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 import QuestionList from './QuestionList.vue'
 import QuestionDetail from './QuestionDetail.vue'
-import { scorecardMeta, adminNavItems, createInitialQuestions } from '../data/builderData.js'
+import { scorecardMeta, adminNavItems, createInitialQuestions, createBlankQuestion } from '../data/builderData.js'
 
 const selectedCompany = ref('my-company')
 const detailRef = ref(null)
 const localQuestions = ref(createInitialQuestions())
 const selectedQuestionId = ref(3)
+const saveNotice = ref('')
+let saveNoticeTimer = null
 
 const selectedQuestion = computed(() =>
   localQuestions.value.find(q => q.id === selectedQuestionId.value) || null
@@ -116,7 +125,30 @@ function selectQuestion(id) {
   selectedQuestionId.value = id
 }
 
+function createQuestion() {
+  const next = Math.max(0, ...localQuestions.value.map((q) => q.id)) + 1
+  const question = createBlankQuestion(next, next, { aiSuggestions: [] })
+  localQuestions.value.push(question)
+  selectedQuestionId.value = question.id
+}
+
+function showSaveNotice() {
+  saveNotice.value = 'Question successfully updated'
+  clearTimeout(saveNoticeTimer)
+  saveNoticeTimer = setTimeout(() => {
+    saveNotice.value = ''
+    saveNoticeTimer = null
+  }, 2500)
+}
+
+function saveQuestion() {
+  detailRef.value?.saveQuestion()
+}
+
 function resetDemo() {
+  clearTimeout(saveNoticeTimer)
+  saveNoticeTimer = null
+  saveNotice.value = ''
   localQuestions.value = createInitialQuestions()
   selectedQuestionId.value = 3
   detailRef.value?.resetEditor()
@@ -139,6 +171,8 @@ defineExpose({
   typeQuestion,
   startRewrite,
   acceptSuggestion,
+  createQuestion,
+  saveQuestion,
 })
 </script>
 
@@ -412,5 +446,40 @@ defineExpose({
 .builder-right {
   flex: 3 3 0;
   min-width: 0;
+}
+
+.save-notice {
+  position: absolute;
+  top: var(--dt-space-500);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
+  padding: var(--dt-space-400) var(--dt-space-500);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-default);
+  border-radius: var(--dt-space-400);
+  box-shadow: var(--dt-shadow-small);
+  font: var(--dt-typography-body-md-compact);
+  color: var(--dt-color-foreground-primary);
+  white-space: nowrap;
+}
+
+.save-notice-icon {
+  color: var(--dt-color-foreground-success);
+  flex-shrink: 0;
+}
+
+.save-notice-enter-active,
+.save-notice-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.save-notice.save-notice-enter-from,
+.save-notice.save-notice-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(calc(-1 * var(--dt-space-400)));
 }
 </style>

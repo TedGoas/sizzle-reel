@@ -43,7 +43,7 @@ import { ref, computed, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import LeftBar from '@/components/LeftBar.vue'
 import BuilderView from './components/BuilderView.vue'
 import CallReviewView from './components/CallReviewView.vue'
-import { DRAFT_QUESTION } from './data/builderData.js'
+import { DRAFT_QUESTION, VIP_QUESTION } from './data/builderData.js'
 
 const appRef = ref(null)
 const builderRef = ref(null)
@@ -103,6 +103,7 @@ function sleep(ms) {
 
 async function moveTo(el, duration = 700) {
   if (!el || !running) return
+  el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   moveDuration.value = duration
   cursorMoving.value = true
   pointAt(el)
@@ -163,7 +164,34 @@ async function runFilm() {
   await moveTo(acceptBtn)
   await clickEl(acceptBtn)
   builderRef.value?.acceptSuggestion()
-  await sleep(550)
+  await sleep(800)
+  if (!running) return
+
+  const createBtn = queryEl('[data-autoplay="create-question"]')
+  await moveTo(createBtn)
+  await clickEl(createBtn)
+  builderRef.value?.createQuestion()
+  await nextTick()
+  await sleep(400)
+  if (!running) return
+
+  const vipInput = queryEl('#question-text')
+  await moveTo(vipInput)
+  vipInput?.focus()
+  await sleep(200)
+  if (!running) return
+
+  await builderRef.value?.typeQuestion(VIP_QUESTION, sleep)
+  await sleep(500)
+  if (!running) return
+
+  const saveBtn = queryEl('[data-autoplay="save-question"]')
+  await moveTo(saveBtn)
+  await clickEl(saveBtn)
+  builderRef.value?.saveQuestion()
+  await nextTick()
+  queryEl('.ai-question-input-wrapper')?.scrollIntoView({ block: 'center', inline: 'nearest' })
+  await sleep(2800)
 
   running = false
 }

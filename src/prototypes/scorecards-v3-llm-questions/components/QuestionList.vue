@@ -20,7 +20,10 @@
         <div class="question-item-content">
           <span class="question-item-number">{{ q.number }}.</span>
           <div class="question-item-body">
-            <span class="question-item-text">{{ q.text || 'Untitled question' }}</span>
+            <div class="question-item-title">
+              <DtIcon v-if="q.validationWarning" name="alert-triangle" :size="16" class="warning-icon" />
+              <span class="question-item-text">{{ q.text || 'Untitled question' }}</span>
+            </div>
             <div class="question-item-meta">
               <span>{{ q.responses[0]?.points || 10 }} points</span>
               <span>{{ q.responseType }}</span>
@@ -36,7 +39,12 @@
         <svg class="question-list-btn-icon" width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="currentColor"/></svg>
         Add Ai Questions
       </button>
-      <button class="question-list-btn question-list-btn--create">
+      <button
+        class="question-list-btn question-list-btn--create"
+        type="button"
+        data-autoplay="create-question"
+        @click="$emit('create')"
+      >
         <DtIcon name="ai-write" :size="16" class="question-list-btn-icon" />
         Create Question
       </button>
@@ -53,7 +61,7 @@ const props = defineProps({
   selectedId: { type: Number, default: null },
 })
 
-defineEmits(['select'])
+defineEmits(['select', 'create'])
 
 const totalPoints = computed(() =>
   props.questions.reduce((sum, q) => sum + (q.responses[0]?.points || 10), 0)
@@ -143,12 +151,25 @@ const totalPoints = computed(() =>
   min-width: 0;
 }
 
+.question-item-title {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  min-width: 0;
+}
+
+.warning-icon {
+  color: var(--dt-color-foreground-warning);
+  flex-shrink: 0;
+}
+
 .question-item-text {
   font: var(--dt-typography-body-md-compact);
   color: var(--dt-color-foreground-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .question-item-meta {
