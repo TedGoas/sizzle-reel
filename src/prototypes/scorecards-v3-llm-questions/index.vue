@@ -43,10 +43,7 @@ import { ref, computed, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import LeftBar from '@/components/LeftBar.vue'
 import BuilderView from './components/BuilderView.vue'
 import CallReviewView from './components/CallReviewView.vue'
-import { scorecardQuestions } from './data/callData.js'
-
-const VIEW_FADE_MS = 1000
-const AI_QUESTION_COUNT = scorecardQuestions.filter((q) => q.aiSuggest).length
+import { DRAFT_QUESTION } from './data/builderData.js'
 
 const appRef = ref(null)
 const builderRef = ref(null)
@@ -143,73 +140,30 @@ async function runFilm() {
   await sleep(1400)
   if (!running) return
 
-  const selectBtn = queryEl('[data-autoplay="select-ai-questions"]')
-  await moveTo(selectBtn)
-  await clickEl(selectBtn)
-  builderRef.value?.openAiPicker()
-  await nextTick()
-  await sleep(450)
-  if (!running) return
-
-  const firstQuestion = queryEl('[data-autoplay="ai-question-0"]')
-  await moveTo(firstQuestion, 800)
-  await clickEl(firstQuestion)
-  builderRef.value?.applyAiQuestion(0)
-  await nextTick()
-  await sleep(550)
-  if (!running) return
-
-  const triggerInput = queryEl('#trigger-words')
-  await moveTo(triggerInput)
-  triggerInput?.focus()
+  const questionInput = queryEl('#question-text')
+  await moveTo(questionInput)
+  questionInput?.focus()
   await sleep(200)
   if (!running) return
 
-  await builderRef.value?.typeTriggerPhrase('hello', sleep)
-  await sleep(400)
+  await builderRef.value?.typeQuestion(DRAFT_QUESTION, sleep)
+  await sleep(600)
   if (!running) return
 
-  await builderRef.value?.typeTriggerPhrase('how are you today', sleep)
-  await sleep(1000)
-  if (!running) return
-
-  const saveBtn = queryEl('[data-autoplay="save-question"]')
-  await moveTo(saveBtn)
-  await clickEl(saveBtn)
-
-  activeView.value = 'call-review'
-  await sleep(VIEW_FADE_MS)
-  await nextTick()
+  const rewriteBtn = queryEl('[data-autoplay="rewrite"]')
+  await moveTo(rewriteBtn)
+  await clickEl(rewriteBtn)
+  await builderRef.value?.startRewrite(sleep)
   if (!running) return
 
   await sleep(500)
   if (!running) return
 
-  for (let n = 1; n <= AI_QUESTION_COUNT; n++) {
-    aiRevealCount.value = n
-    await sleep(180)
-    if (!running) return
-  }
-
-  await sleep(400)
-  if (!running) return
-
-  const lastGradedIndex = 4
-
-  for (let i = 0; i <= lastGradedIndex; i++) {
-    const q = scorecardQuestions[i]
-    const choice = q.aiSuggest || q.answer
-    const radio = queryEl(`[data-autoplay="q-${i}-${choice}"]`)
-    if (i === lastGradedIndex) {
-      radio?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-      await nextTick()
-    }
-    await moveTo(radio, i === 0 ? 1000 : 700)
-    await clickEl(radio)
-    selections[i] = choice
-    await sleep(320)
-    if (!running) return
-  }
+  const acceptBtn = queryEl('[data-autoplay="accept"]')
+  await moveTo(acceptBtn)
+  await clickEl(acceptBtn)
+  builderRef.value?.acceptSuggestion()
+  await sleep(550)
 
   running = false
 }

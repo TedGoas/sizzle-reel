@@ -122,23 +122,23 @@ function resetDemo() {
   detailRef.value?.resetEditor()
 }
 
-function openAiPicker() {
-  detailRef.value?.openAiPicker()
+async function typeQuestion(text, sleepFn) {
+  await detailRef.value?.typeQuestion(text, sleepFn)
 }
 
-function applyAiQuestion(index) {
-  detailRef.value?.applyAiQuestion(index)
+async function startRewrite(sleepFn) {
+  await detailRef.value?.startRewrite(sleepFn)
 }
 
-async function typeTriggerPhrase(text, sleepFn) {
-  await detailRef.value?.typeTriggerPhrase(text, sleepFn)
+function acceptSuggestion() {
+  detailRef.value?.acceptSuggestion()
 }
 
 defineExpose({
   resetDemo,
-  openAiPicker,
-  applyAiQuestion,
-  typeTriggerPhrase,
+  typeQuestion,
+  startRewrite,
+  acceptSuggestion,
 })
 </script>
 

@@ -5,16 +5,10 @@ export const scorecardMeta = {
   breadcrumbs: ['Admin', 'Office', 'AI Scorecards', 'Ai Scorecard Example'],
 }
 
-export const aiQuestionCatalog = [
-  { text: 'Did the agent greet the customer?' },
-  { text: 'Did they confirm the account?' },
-  { text: 'Did they have a nice tone?' },
-  { text: 'Did they conclude the call properly?' },
-  { text: 'Did the agent verify the caller’s identity?' },
-  { text: 'Did they offer a next step?' },
-]
+export const DRAFT_QUESTION = 'Did the agent ask for the persons name?'
+export const REWRITE_SUGGESTION = "Did the agent confirm the customer's identity?"
 
-function yesNoQuestion(id, number, text, isAi = true) {
+function yesNoQuestion(id, number, text, isAi = true, aiSuggestions = []) {
   return {
     id,
     number,
@@ -25,14 +19,13 @@ function yesNoQuestion(id, number, text, isAi = true) {
       { label: 'No', points: 0 },
     ],
     triggerWords: '',
-    triggerChips: [],
     isAi,
-    aiSuggestions: [],
+    aiSuggestions,
   }
 }
 
 export function createBlankQuestion() {
-  return yesNoQuestion(3, 3, '', true)
+  return yesNoQuestion(3, 3, '', true, [REWRITE_SUGGESTION])
 }
 
 export function createInitialQuestions() {
