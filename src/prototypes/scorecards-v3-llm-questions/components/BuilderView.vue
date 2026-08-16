@@ -255,6 +255,18 @@ function acceptSuggestion() {
   detailRef.value?.acceptSuggestion()
 }
 
+function openSkipEditor() {
+  detailRef.value?.openSkipEditor()
+}
+
+async function typeSkip(text, sleepFn) {
+  await detailRef.value?.typeSkip(text, sleepFn)
+}
+
+function saveSkipEditor() {
+  detailRef.value?.saveSkipEditor()
+}
+
 defineExpose({
   resetDemo,
   typeQuestion,
@@ -265,6 +277,9 @@ defineExpose({
   openDefineModal,
   typeDefinition,
   saveDefinition,
+  openSkipEditor,
+  typeSkip,
+  saveSkipEditor,
 })
 </script>
 

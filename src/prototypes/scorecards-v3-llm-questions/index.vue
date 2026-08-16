@@ -43,7 +43,7 @@ import { ref, computed, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import LeftBar from '@/components/LeftBar.vue'
 import BuilderView from './components/BuilderView.vue'
 import CallReviewView from './components/CallReviewView.vue'
-import { DRAFT_QUESTION, VIP_QUESTION, VIP_DEFINITION } from './data/builderData.js'
+import { DRAFT_QUESTION, VIP_QUESTION, VIP_DEFINITION, SKIP_CONDITION } from './data/builderData.js'
 
 const appRef = ref(null)
 const builderRef = ref(null)
@@ -216,6 +216,31 @@ async function runFilm() {
   await moveTo(defineSave)
   await clickEl(defineSave)
   await builderRef.value?.saveDefinition(sleep)
+  await sleep(1000)
+  if (!running) return
+
+  const skipLink = queryEl('[data-autoplay="skip-when"]')
+  await moveTo(skipLink)
+  await clickEl(skipLink)
+  builderRef.value?.openSkipEditor()
+  await nextTick()
+  await sleep(400)
+  if (!running) return
+
+  const skipInput = queryEl('[data-autoplay="skip-input"]')
+  await moveTo(skipInput)
+  skipInput?.focus()
+  await sleep(200)
+  if (!running) return
+
+  await builderRef.value?.typeSkip(SKIP_CONDITION, sleep)
+  await sleep(400)
+  if (!running) return
+
+  const skipSave = queryEl('[data-autoplay="skip-save"]')
+  await moveTo(skipSave)
+  await clickEl(skipSave)
+  builderRef.value?.saveSkipEditor()
   await sleep(2500)
 
   running = false

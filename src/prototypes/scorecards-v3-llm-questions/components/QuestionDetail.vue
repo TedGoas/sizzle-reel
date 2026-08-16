@@ -184,7 +184,7 @@
               class="skip-preview-text"
               :class="{ 'skip-preview-saved': skipPreviewFlash }"
             >{{ skipSaved }}</span>
-            <button type="button" class="skip-link" @click="toggleSkipEditor">When to skip</button>
+            <button type="button" class="skip-link" data-autoplay="skip-when" @click="toggleSkipEditor">When to skip</button>
           </div>
           <Transition :css="false" @enter="onSkipEditorEnter" @leave="onSkipEditorLeave">
             <div v-if="skipEditorOpen" class="skip-inline-editor">
@@ -192,11 +192,12 @@
               <textarea
                 v-model="skipDraft"
                 class="skip-textarea"
+                data-autoplay="skip-input"
                 placeholder="Agents are required to confirm meeting dates and times when a meeting was discussed. If no meeting was discussed, this question can be skipped."
               />
               <div class="skip-inline-actions">
                 <button type="button" class="skip-btn skip-btn--cancel" @click="cancelSkipEditor">Cancel</button>
-                <button type="button" class="skip-btn skip-btn--save" @click="saveSkipEditor">Save</button>
+                <button type="button" class="skip-btn skip-btn--save" data-autoplay="skip-save" @click="saveSkipEditor">Save</button>
               </div>
             </div>
           </Transition>
@@ -441,6 +442,10 @@ function toggleSkipEditor() {
     skipEditorOpen.value = false
     return
   }
+  openSkipEditor()
+}
+
+function openSkipEditor() {
   skipDraft.value = skipSaved.value
   skipEditorOpen.value = true
 }
@@ -510,12 +515,24 @@ async function typeQuestion(text, sleepFn) {
   }
 }
 
+async function typeSkip(text, sleepFn) {
+  if (!sleepFn) return
+  skipDraft.value = ''
+  for (let i = 1; i <= text.length; i++) {
+    skipDraft.value = text.slice(0, i)
+    await sleepFn(18)
+  }
+}
+
 defineExpose({
   typeQuestion,
   startRewrite,
   acceptSuggestion,
   resetEditor,
   saveQuestion,
+  openSkipEditor,
+  typeSkip,
+  saveSkipEditor,
 })
 </script>
 

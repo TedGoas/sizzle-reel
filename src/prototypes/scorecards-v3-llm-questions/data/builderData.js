@@ -9,6 +9,7 @@ export const DRAFT_QUESTION = 'Did the agent ask for the persons name?'
 export const REWRITE_SUGGESTION = "Did the agent confirm the customer's identity?"
 export const VIP_QUESTION = 'Did the agent confirm this is a VIP customer?'
 export const VIP_DEFINITION = 'A customer in the company’s priority program: named accounts, high spenders, or anyone flagged as a priority in account records. Confirm this from the caller or from account notes.'
+export const SKIP_CONDITION = 'Skip this question if the caller has been a customer for six months or less.'
 
 function yesNoQuestion(id, number, text, isAi = true, aiSuggestions = []) {
   return {
