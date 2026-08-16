@@ -88,7 +88,7 @@
             />
           </div>
           <div class="builder-right">
-            <QuestionDetail ref="detailRef" :question="selectedQuestion" @saved="showSaveNotice" />
+            <QuestionDetail ref="detailRef" :question="selectedQuestion" @saved="showSaveNotice" @define="openDefineModal" />
           </div>
         </div>
         <Transition name="save-notice">
@@ -98,6 +98,16 @@
           </div>
         </Transition>
     </div>
+    <DefineTermModal
+      v-model="defineText"
+      :show="defineOpen"
+      :acronym="defineAcronym"
+      :busy="defineBusy"
+      :status="defineStatus"
+      :status-kind="defineStatusKind"
+      @close="closeDefineModal"
+      @save="() => saveDefinition()"
+    />
   </div>
 </template>
 
@@ -106,6 +116,7 @@ import { ref, computed } from 'vue'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 import QuestionList from './QuestionList.vue'
 import QuestionDetail from './QuestionDetail.vue'
+import DefineTermModal from './DefineTermModal.vue'
 import { scorecardMeta, adminNavItems, createInitialQuestions, createBlankQuestion } from '../data/builderData.js'
 
 const selectedCompany = ref('my-company')
@@ -114,6 +125,13 @@ const localQuestions = ref(createInitialQuestions())
 const selectedQuestionId = ref(3)
 const saveNotice = ref('')
 let saveNoticeTimer = null
+const defineOpen = ref(false)
+const defineAcronym = ref('')
+const defineText = ref('')
+const defineBusy = ref(false)
+const defineStatus = ref('')
+const defineStatusKind = ref('busy')
+let defineGen = 0
 
 const selectedQuestion = computed(() =>
   localQuestions.value.find(q => q.id === selectedQuestionId.value) || null
@@ -122,18 +140,22 @@ const selectedQuestion = computed(() =>
 const breadcrumbs = computed(() => scorecardMeta.breadcrumbs)
 
 function selectQuestion(id) {
+  closeDefineModal(true)
   selectedQuestionId.value = id
 }
 
 function createQuestion() {
+  closeDefineModal(true)
   const next = Math.max(0, ...localQuestions.value.map((q) => q.id)) + 1
   const question = createBlankQuestion(next, next, { aiSuggestions: [] })
   localQuestions.value.push(question)
   selectedQuestionId.value = question.id
 }
 
-function showSaveNotice() {
-  saveNotice.value = 'Question successfully updated'
+function showSaveNotice(message) {
+  saveNotice.value = typeof message === 'string' && message
+    ? message
+    : 'Question successfully updated'
   clearTimeout(saveNoticeTimer)
   saveNoticeTimer = setTimeout(() => {
     saveNotice.value = ''
@@ -145,7 +167,74 @@ function saveQuestion() {
   detailRef.value?.saveQuestion()
 }
 
+function openDefineModal() {
+  const question = selectedQuestion.value
+  const acronym = question?.validationWarning?.acronyms?.[0]
+    || (question?.text.match(/\b[A-Z]{2,}\b/) || [])[0]
+    || 'VIP'
+  defineAcronym.value = acronym
+  defineText.value = question?.definedTerms?.[acronym] || ''
+  defineBusy.value = false
+  defineStatus.value = ''
+  defineStatusKind.value = 'busy'
+  defineOpen.value = true
+}
+
+function closeDefineModal(instant = false) {
+  defineGen += 1
+  defineOpen.value = false
+  defineBusy.value = false
+  defineStatus.value = ''
+  defineStatusKind.value = 'busy'
+  if (instant === true) {
+    defineText.value = ''
+    defineAcronym.value = ''
+  }
+}
+
+async function typeDefinition(text, sleepFn) {
+  if (!sleepFn) return
+  defineText.value = ''
+  for (let i = 1; i <= text.length; i++) {
+    defineText.value = text.slice(0, i)
+    await sleepFn(18)
+  }
+}
+
+async function saveDefinition(sleepFn) {
+  const question = selectedQuestion.value
+  if (!question || defineBusy.value || !defineText.value.trim()) return
+  const acronym = defineAcronym.value
+  const gen = ++defineGen
+  defineBusy.value = true
+  const wait = typeof sleepFn === 'function'
+    ? sleepFn
+    : ((ms) => new Promise((resolve) => { setTimeout(resolve, ms) }))
+  const stages = [
+    { text: 'Analyzing this definition…', kind: 'busy', ms: 1200 },
+    { text: 'Matching it to the question…', kind: 'busy', ms: 1200 },
+    { text: `Looks good — the model understands ${acronym}.`, kind: 'success', ms: 1200 },
+  ]
+  for (const stage of stages) {
+    if (gen !== defineGen) return
+    defineStatus.value = stage.text
+    defineStatusKind.value = stage.kind
+    await wait(stage.ms)
+  }
+  if (gen !== defineGen) return
+  question.definedTerms = {
+    ...(question.definedTerms || {}),
+    [acronym]: defineText.value.trim(),
+  }
+  question.validationWarning = null
+  defineOpen.value = false
+  defineBusy.value = false
+  defineStatus.value = ''
+  showSaveNotice(`${acronym} is defined`)
+}
+
 function resetDemo() {
+  closeDefineModal(true)
   clearTimeout(saveNoticeTimer)
   saveNoticeTimer = null
   saveNotice.value = ''
@@ -173,6 +262,9 @@ defineExpose({
   acceptSuggestion,
   createQuestion,
   saveQuestion,
+  openDefineModal,
+  typeDefinition,
+  saveDefinition,
 })
 </script>
 
@@ -181,6 +273,7 @@ defineExpose({
   display: flex;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .builder-admin-nav {

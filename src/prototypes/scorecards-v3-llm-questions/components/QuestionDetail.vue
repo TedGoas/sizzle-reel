@@ -28,7 +28,16 @@
             class="ai-warning-banner"
           >
             <DtIcon name="alert-circle" :size="16" class="ai-warning-banner-icon" />
-            <span>{{ question.validationWarning }}</span>
+            <span>
+              {{ warningSubject }} {{ warningVerb }} unclear. Clarifying {{ warningPronoun }} or
+              <button
+                type="button"
+                class="warning-define-link"
+                data-autoplay="define-term"
+                @click="$emit('define')"
+              >defining {{ warningPronoun }}</button>
+              will help.
+            </span>
           </div>
           <div v-else-if="rewriteState === 'idle'" key="idle" class="ai-question-actions">
             <button
@@ -221,14 +230,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, watch, nextTick, computed } from 'vue'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 
 const props = defineProps({
   question: { type: Object, default: null },
 })
 
-const emit = defineEmits(['saved'])
+const emit = defineEmits(['saved', 'define'])
 
 const localText = ref('')
 const localResponseType = ref('')
@@ -254,6 +263,11 @@ let rewriteTimer = null
 let rewriteGen = 0
 let skipNextLeaveAnimation = false
 let skipFlashTimer = null
+
+const warningAcronyms = computed(() => props.question?.validationWarning?.acronyms || [])
+const warningSubject = computed(() => formatAcronymList(warningAcronyms.value))
+const warningVerb = computed(() => warningAcronyms.value.length === 1 ? 'is' : 'are')
+const warningPronoun = computed(() => warningAcronyms.value.length === 1 ? 'it' : 'them')
 
 watch(
   () => props.question,
@@ -372,24 +386,23 @@ function handleCancel() {
   streaming.value = false
 }
 
-function acronymWarning(text) {
-  const matches = text.match(/\b[A-Z]{2,}\b/g) || []
+function formatAcronymList(acronyms) {
+  const quoted = acronyms.map((m) => `"${m}"`)
+  if (quoted.length <= 1) return quoted[0] || ''
+  if (quoted.length === 2) return `${quoted[0]} and ${quoted[1]}`
+  return `${quoted.slice(0, -1).join(', ')}, and ${quoted[quoted.length - 1]}`
+}
+
+function acronymWarning(text, defined = {}) {
+  const matches = (text.match(/\b[A-Z]{2,}\b/g) || []).filter((m) => !defined[m])
   if (matches.length === 0) return null
-  const quoted = matches.map((m) => `"${m}"`)
-  if (quoted.length === 1) {
-    return `${quoted[0]} is unclear. Clarifying it will improve score accuracy.`
-  }
-  if (quoted.length === 2) {
-    return `${quoted[0]} and ${quoted[1]} are unclear. Clarifying it will improve score accuracy.`
-  }
-  const head = quoted.slice(0, -1).join(', ')
-  return `${head}, and ${quoted[quoted.length - 1]} are unclear. Clarifying it will improve score accuracy.`
+  return { acronyms: matches }
 }
 
 function saveQuestion() {
   if (!props.question) return
   props.question.text = localText.value
-  props.question.validationWarning = acronymWarning(localText.value)
+  props.question.validationWarning = acronymWarning(localText.value, props.question.definedTerms)
   emit('saved')
 }
 
@@ -626,7 +639,7 @@ defineExpose({
   align-items: center;
   gap: var(--dt-space-400);
   min-height: 38px;
-  padding: 0 var(--dt-space-450);
+  padding: var(--dt-space-400) var(--dt-space-450);
   background: var(--dt-color-surface-warning-subtle);
   color: var(--dt-color-foreground-warning);
   font: var(--dt-typography-body-sm-compact);
@@ -635,6 +648,22 @@ defineExpose({
 .ai-warning-banner-icon {
   color: var(--dt-color-foreground-warning);
   flex-shrink: 0;
+}
+
+.warning-define-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.warning-define-link:hover {
+  text-decoration: none;
 }
 
 .compose-action-btn {

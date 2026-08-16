@@ -1,5 +1,5 @@
 <template>
-  <div class="scorecards-app" ref="appRef">
+  <div class="scorecards-app" id="scorecards-app" ref="appRef">
     <LeftBar :activeItem="activeItem" @icon-click="handleIconClick" />
     <main class="scorecards-content">
       <div
@@ -43,7 +43,7 @@ import { ref, computed, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import LeftBar from '@/components/LeftBar.vue'
 import BuilderView from './components/BuilderView.vue'
 import CallReviewView from './components/CallReviewView.vue'
-import { DRAFT_QUESTION, VIP_QUESTION } from './data/builderData.js'
+import { DRAFT_QUESTION, VIP_QUESTION, VIP_DEFINITION } from './data/builderData.js'
 
 const appRef = ref(null)
 const builderRef = ref(null)
@@ -191,7 +191,32 @@ async function runFilm() {
   builderRef.value?.saveQuestion()
   await nextTick()
   queryEl('.ai-question-input-wrapper')?.scrollIntoView({ block: 'center', inline: 'nearest' })
-  await sleep(2800)
+  await sleep(1200)
+  if (!running) return
+
+  const defineLink = queryEl('[data-autoplay="define-term"]')
+  await moveTo(defineLink)
+  await clickEl(defineLink)
+  builderRef.value?.openDefineModal()
+  await nextTick()
+  await sleep(500)
+  if (!running) return
+
+  const defineInput = queryEl('[data-autoplay="define-term-input"]')
+  await moveTo(defineInput)
+  defineInput?.focus()
+  await sleep(200)
+  if (!running) return
+
+  await builderRef.value?.typeDefinition(VIP_DEFINITION, sleep)
+  await sleep(400)
+  if (!running) return
+
+  const defineSave = queryEl('[data-autoplay="define-save"]')
+  await moveTo(defineSave)
+  await clickEl(defineSave)
+  await builderRef.value?.saveDefinition(sleep)
+  await sleep(2500)
 
   running = false
 }
@@ -246,7 +271,7 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 30;
+  z-index: 40;
   width: 28px;
   height: 28px;
   pointer-events: none;
