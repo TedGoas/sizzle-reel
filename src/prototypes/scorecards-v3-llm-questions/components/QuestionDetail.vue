@@ -219,7 +219,7 @@
         </label>
         <div class="skip-item">
           <label class="checkbox-item">
-            <input type="checkbox" v-model="checkboxes.allowSkip" />
+            <input type="checkbox" v-model="checkboxes.allowSkip" data-autoplay="skip-allow" />
             <span>Allow question to be skipped</span>
           </label>
           <div class="skip-description">
@@ -508,6 +508,10 @@ function resetEditor() {
     localText.value = props.question.text
   }
   resetSkipEditor(true)
+  checkboxes.commentField = false
+  checkboxes.allowSkip = false
+  checkboxes.autoFail = false
+  checkboxes.saveTemplate = false
   composeAnim = 0
   const slot = composeSlotRef.value
   if (slot) {
@@ -544,6 +548,10 @@ function toggleSkipEditor() {
 function openSkipEditor() {
   skipDraft.value = skipSaved.value
   skipEditorOpen.value = true
+}
+
+function setAllowSkip(value = true) {
+  checkboxes.allowSkip = value
 }
 
 function cancelSkipEditor() {
@@ -627,6 +635,7 @@ defineExpose({
   resetEditor,
   saveQuestion,
   openSkipEditor,
+  setAllowSkip,
   typeSkip,
   saveSkipEditor,
 })

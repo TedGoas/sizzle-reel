@@ -259,6 +259,10 @@ function openSkipEditor() {
   detailRef.value?.openSkipEditor()
 }
 
+function setAllowSkip(value = true) {
+  detailRef.value?.setAllowSkip(value)
+}
+
 async function typeSkip(text, sleepFn) {
   await detailRef.value?.typeSkip(text, sleepFn)
 }
@@ -278,6 +282,7 @@ defineExpose({
   typeDefinition,
   saveDefinition,
   openSkipEditor,
+  setAllowSkip,
   typeSkip,
   saveSkipEditor,
 })

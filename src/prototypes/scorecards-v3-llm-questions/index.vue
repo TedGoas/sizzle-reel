@@ -52,6 +52,7 @@ import CallReviewView from './components/CallReviewView.vue'
 import AnalyticsView from './components/AnalyticsView.vue'
 import { DRAFT_QUESTION, VIP_QUESTION, VIP_DEFINITION, SKIP_CONDITION } from './data/builderData.js'
 import { scorecardQuestions } from './data/callData.js'
+import { HOVER_PATH } from './data/analyticsData.js'
 
 const VIEW_FADE_MS = 1000
 
@@ -228,6 +229,14 @@ async function runFilm() {
   await sleep(1000)
   if (!running) return
 
+  const skipAllow = queryEl('[data-autoplay="skip-allow"]')
+  await moveTo(skipAllow)
+  await clickEl(skipAllow)
+  builderRef.value?.setAllowSkip(true)
+  await nextTick()
+  await sleep(300)
+  if (!running) return
+
   const skipLink = queryEl('[data-autoplay="skip-when"]')
   await moveTo(skipLink)
   await clickEl(skipLink)
@@ -272,6 +281,24 @@ async function runFilm() {
   await nextTick()
   analyticsRef.value?.playReveal()
   await sleep(VIEW_FADE_MS)
+  await sleep(500)
+  if (!running) return
+
+  cursorHidden.value = false
+  await nextTick()
+
+  for (let i = 0; i < HOVER_PATH.length; i++) {
+    const index = HOVER_PATH[i]
+    const col = queryEl(`[data-autoplay="chart-col-${index}"]`)
+    const duration = i === 0 ? 900 : 700
+    const hoverAt = i === 0 ? duration * 0.75 : duration * 0.35
+    const moving = moveTo(col, duration)
+    await sleep(hoverAt)
+    analyticsRef.value?.showChartHover(index)
+    await moving
+    await sleep(400)
+    if (!running) return
+  }
 
   running = false
 }
