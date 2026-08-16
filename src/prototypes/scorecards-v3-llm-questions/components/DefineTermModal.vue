@@ -194,6 +194,7 @@ watch(
   resize: vertical;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
 .define-modal-textarea::placeholder {
@@ -201,8 +202,7 @@ watch(
 }
 
 .define-modal-textarea:focus {
-  border-color: var(--dt-color-link-primary);
-  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-border-moderate);
 }
 
 .define-modal-textarea:disabled {

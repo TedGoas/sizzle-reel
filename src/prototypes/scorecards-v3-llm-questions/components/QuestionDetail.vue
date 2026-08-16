@@ -7,7 +7,10 @@
 
       <div
         class="ai-question-input-wrapper"
-        :class="{ 'has-warning': question.validationWarning }"
+        :class="{
+          'has-warning': question.validationWarning,
+          'has-message-panel': rewriteState !== 'idle' || !!question.validationWarning,
+        }"
       >
         <input
           id="question-text"
@@ -21,13 +24,20 @@
           placeholder="Enter question text..."
         />
 
-        <Transition name="compose-swap" mode="out-in">
+        <div ref="composeSlotRef" class="ai-compose-slot">
+        <Transition
+          name="compose-swap"
+          @before-leave="onComposeBeforeLeave"
+          @enter="onComposeEnter"
+          @after-enter="onComposeAfterEnter"
+          @after-leave="onComposeAfterLeave"
+        >
           <div
             v-if="rewriteState === 'idle' && question.validationWarning"
             key="warning"
             class="ai-warning-banner"
           >
-            <DtIcon name="alert-circle" :size="16" class="ai-warning-banner-icon" />
+            <DtIcon name="alert-triangle" :size="16" class="ai-warning-banner-icon" />
             <span>
               {{ warningSubject }} {{ warningVerb }} unclear. Clarifying {{ warningPronoun }} or
               <button
@@ -41,7 +51,7 @@
           </div>
           <div v-else-if="rewriteState === 'idle'" key="idle" class="ai-question-actions">
             <button
-              class="compose-action-btn compose-action-btn--rewrite"
+              class="compose-action-btn"
               type="button"
               data-autoplay="rewrite"
               @click="handleRewrite"
@@ -59,7 +69,6 @@
             key="banner"
             ref="bannerRef"
             class="ai-rewrite-banner"
-            :class="{ 'ai-rewrite-banner--busy': rewriteState === 'busy' }"
           >
             <Transition
               name="banner-fade"
@@ -69,7 +78,24 @@
               @after-enter="onAfterEnter"
             >
               <div v-if="rewriteState === 'busy'" key="busy" class="banner-busy">
-                <DtIcon name="sparkle" :size="16" class="banner-sparkle" />
+                <svg class="banner-sparkle" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="url(#ai-gradient-busy)" />
+                  <defs>
+                    <linearGradient id="ai-gradient-busy" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#471571" />
+                      <stop offset=".031" stop-color="#551B84" />
+                      <stop offset=".145" stop-color="#7C229E" />
+                      <stop offset=".237" stop-color="#9024A4" />
+                      <stop offset=".355" stop-color="#B02290" />
+                      <stop offset=".483" stop-color="#D32B86" />
+                      <stop offset=".603" stop-color="#E92F6F" />
+                      <stop offset=".701" stop-color="#F6484F" />
+                      <stop offset=".9" stop-color="#FB7328" />
+                      <stop offset=".973" stop-color="#F3960F" />
+                      <stop offset="1" stop-color="#F3960F" />
+                    </linearGradient>
+                  </defs>
+                </svg>
                 <span class="thinking-label thinking-label--live">Thinking</span>
                 <span class="thinking-copy">to improve the wording on this question...</span>
               </div>
@@ -78,7 +104,24 @@
                   <DtIcon name="close" :size="16" />
                 </button>
                 <div class="banner-header">
-                  <DtIcon name="sparkle" :size="16" class="banner-sparkle" />
+                  <svg class="banner-sparkle" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19 2a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0V6h-1a1 1 0 1 1 0-2h1V3a1 1 0 0 1 1-1Zm-9 2a1 1 0 0 1 .91.586l2.033 4.471 4.47 2.033a1 1 0 0 1 0 1.82l-4.47 2.033-2.033 4.47a1 1 0 0 1-1.82 0l-2.033-4.47-4.47-2.033a1 1 0 0 1 0-1.82l4.47-2.033 2.033-4.47A1 1 0 0 1 10 4Zm0 3.417-1.277 2.81a1 1 0 0 1-.497.496L5.416 12l2.81 1.277a1 1 0 0 1 .497.497L10 16.584l1.277-2.81a1 1 0 0 1 .497-.497L14.584 12l-2.81-1.277a1 1 0 0 1-.497-.497L10 7.416ZM18 16a1 1 0 0 1 1 1v1h1a1 1 0 1 1 0 2h-1v1a1 1 0 1 1-2 0v-1h-1a1 1 0 1 1 0-2h1v-1a1 1 0 0 1 1-1Z" fill="url(#ai-gradient-banner)" />
+                    <defs>
+                      <linearGradient id="ai-gradient-banner" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#471571" />
+                        <stop offset=".031" stop-color="#551B84" />
+                        <stop offset=".145" stop-color="#7C229E" />
+                        <stop offset=".237" stop-color="#9024A4" />
+                        <stop offset=".355" stop-color="#B02290" />
+                        <stop offset=".483" stop-color="#D32B86" />
+                        <stop offset=".603" stop-color="#E92F6F" />
+                        <stop offset=".701" stop-color="#F6484F" />
+                        <stop offset=".9" stop-color="#FB7328" />
+                        <stop offset=".973" stop-color="#F3960F" />
+                        <stop offset="1" stop-color="#F3960F" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                   <span class="banner-title">Here’s a suggestion for better results when prompting a large language model:</span>
                 </div>
                 <p class="banner-suggestion-text">
@@ -100,6 +143,7 @@
             </Transition>
           </div>
         </Transition>
+        </div>
       </div>
 
       <div class="question-detail-row">
@@ -256,6 +300,8 @@ const currentSuggestion = ref('')
 const suggestionIndex = ref(0)
 const streaming = ref(false)
 const bannerRef = ref(null)
+const composeSlotRef = ref(null)
+let composeAnim = 0
 const skipEditorOpen = ref(false)
 const skipDraft = ref('')
 const skipSaved = ref('')
@@ -319,6 +365,49 @@ async function streamSuggestion(text, sleepFn, gen) {
 
 function handleRewrite() {
   startRewrite()
+}
+
+function composeDuration() {
+  return prefersReducedMotion() ? 0 : 280
+}
+
+function onComposeBeforeLeave() {
+  const slot = composeSlotRef.value
+  if (!slot) return
+  composeAnim += 1
+  slot.style.height = `${slot.offsetHeight}px`
+  slot.style.overflow = 'hidden'
+}
+
+function onComposeEnter(el) {
+  const slot = composeSlotRef.value
+  if (!slot) return
+  composeAnim += 1
+  const to = el.offsetHeight || el.scrollHeight
+  const ms = composeDuration()
+  slot.style.overflow = 'hidden'
+  requestAnimationFrame(() => {
+    slot.style.transition = `height ${ms}ms cubic-bezier(0.22, 1, 0.36, 1)`
+    slot.style.height = `${to}px`
+  })
+}
+
+function finishComposeAnim() {
+  composeAnim = Math.max(0, composeAnim - 1)
+  if (composeAnim > 0) return
+  const slot = composeSlotRef.value
+  if (!slot) return
+  slot.style.height = ''
+  slot.style.overflow = ''
+  slot.style.transition = ''
+}
+
+function onComposeAfterEnter() {
+  finishComposeAnim()
+}
+
+function onComposeAfterLeave() {
+  finishComposeAnim()
 }
 
 function onBeforeLeave() {
@@ -419,6 +508,13 @@ function resetEditor() {
     localText.value = props.question.text
   }
   resetSkipEditor(true)
+  composeAnim = 0
+  const slot = composeSlotRef.value
+  if (slot) {
+    slot.style.height = ''
+    slot.style.overflow = ''
+    slot.style.transition = ''
+  }
 }
 
 function prefersReducedMotion() {
@@ -542,7 +638,6 @@ defineExpose({
   background: var(--dt-color-surface-primary);
   border-radius: var(--dt-space-500);
   overflow: hidden;
-  box-shadow: var(--dt-shadow-small);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -558,15 +653,16 @@ defineExpose({
   background: linear-gradient(
     135deg,
     #471571 0%,
-    #551b84 3.08%,
-    #7c229e 14.48%,
-    #9024a4 23.67%,
-    #b02290 35.5%,
-    #d32b86 48.3%,
-    #e92f6f 60.29%,
-    #f6484f 70.08%,
-    #fb7328 90.02%,
-    #f3960f 100%
+    #551B84 3.08%,
+    #7C229E 14.48%,
+    #9024A4 23.67%,
+    #B02290 35.5%,
+    #D32B86 48.3%,
+    #E92F6F 60.29%,
+    #F6484F 70.08%,
+    #FB7328 90.02%,
+    #F3960F 97.29%,
+    #F3960F 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -597,17 +693,21 @@ defineExpose({
   border-radius: var(--dt-space-400);
   background: var(--dt-color-surface-primary);
   overflow: hidden;
+  transition: border-color 0.15s ease;
 }
 
 .ai-question-input-wrapper:focus-within {
-  border-color: var(--dt-color-link-primary);
-  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-border-moderate);
 }
 
 .ai-question-input-wrapper.has-warning,
 .ai-question-input-wrapper.has-warning:focus-within {
   border-color: var(--dt-color-border-warning);
   box-shadow: none;
+}
+
+.ai-question-input-wrapper.has-message-panel .ai-question-input {
+  border-bottom: 1px solid var(--dt-color-border-default);
 }
 
 .ai-question-input {
@@ -643,6 +743,15 @@ defineExpose({
   color: var(--dt-color-foreground-muted);
 }
 
+.ai-compose-slot {
+  display: grid;
+}
+
+.ai-compose-slot > * {
+  grid-area: 1 / 1;
+  width: 100%;
+}
+
 .ai-question-actions {
   display: flex;
   gap: var(--dt-space-400);
@@ -654,17 +763,20 @@ defineExpose({
 .ai-warning-banner {
   display: flex;
   align-items: center;
-  gap: var(--dt-space-400);
-  min-height: 38px;
-  padding: var(--dt-space-400) var(--dt-space-450);
+  gap: var(--dt-space-350);
+  height: 46px;
+  min-height: 46px;
+  padding: 0 var(--dt-space-450);
+  box-sizing: border-box;
   background: var(--dt-color-surface-warning-subtle);
   color: var(--dt-color-foreground-warning);
   font: var(--dt-typography-body-sm-compact);
 }
 
 .ai-warning-banner-icon {
-  color: var(--dt-color-foreground-warning);
+  color: var(--dt-color-border-warning);
   flex-shrink: 0;
+  display: block;
 }
 
 .warning-define-link {
@@ -690,7 +802,7 @@ defineExpose({
   height: var(--btn-height-sm);
   padding: 0 var(--dt-space-450);
   background: var(--dt-color-surface-primary);
-  border: 1px solid var(--dt-color-border-subtle);
+  border: none;
   color: var(--dt-color-foreground-secondary);
   font: var(--dt-typography-label-sm-compact);
   cursor: pointer;
@@ -701,20 +813,17 @@ defineExpose({
   background: var(--dt-color-surface-secondary);
 }
 
-.compose-action-btn--rewrite {
-  background: var(--dt-color-surface-brand-subtle);
-  border-color: var(--dt-color-border-brand);
-  color: var(--dt-color-link-primary);
-}
-
-.compose-action-btn--rewrite:hover {
-  background: var(--dt-color-surface-brand-subtle);
-  filter: brightness(0.97);
-}
-
 .compose-swap-enter-active,
 .compose-swap-leave-active {
-  transition: opacity 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.compose-swap-enter-active {
+  z-index: 1;
+}
+
+.compose-swap-leave-active {
+  pointer-events: none;
 }
 
 .compose-swap-enter-from,
@@ -724,23 +833,23 @@ defineExpose({
 
 .ai-rewrite-banner {
   padding: 0 var(--dt-space-450);
-  background: var(--dt-color-surface-brand-subtle);
-  border-top: 1px solid var(--dt-color-border-brand);
+  background: linear-gradient(
+    170.68deg,
+    rgba(71, 21, 113, 0.05) 0%,
+    rgba(85, 27, 132, 0.05) 3.08%,
+    rgba(124, 34, 158, 0.05) 14.48%,
+    rgba(144, 36, 164, 0.05) 23.67%,
+    rgba(176, 34, 144, 0.05) 35.5%,
+    rgba(211, 43, 134, 0.05) 48.3%,
+    rgba(233, 47, 111, 0.05) 60.29%,
+    rgba(246, 72, 79, 0.05) 70.08%,
+    rgba(251, 115, 40, 0.05) 90.02%,
+    rgba(243, 150, 15, 0.05) 97.29%,
+    rgba(243, 150, 15, 0.05) 100%
+  );
   overflow: hidden;
   box-sizing: border-box;
-  transition: height 0.15s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.ai-rewrite-banner--busy {
-  background-image: linear-gradient(
-    170deg,
-    rgba(71, 21, 113, 0.1) 0%,
-    rgba(124, 34, 158, 0.1) 14%,
-    rgba(233, 47, 111, 0.1) 60%,
-    rgba(251, 115, 40, 0.1) 100%
-  );
-  background-size: 200% 100%;
-  animation: banner-shimmer 1.5s infinite linear;
+  transition: height 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .banner-busy {
@@ -770,8 +879,8 @@ defineExpose({
 }
 
 .banner-sparkle {
-  color: var(--dt-color-link-primary);
   flex-shrink: 0;
+  display: block;
 }
 
 .thinking-label {
@@ -923,11 +1032,11 @@ defineExpose({
   color: var(--dt-color-foreground-secondary);
   cursor: pointer;
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
 .dt-select:focus {
-  border-color: var(--dt-color-link-primary);
-  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-border-moderate);
 }
 
 .dt-select-icon {
@@ -947,6 +1056,7 @@ defineExpose({
   color: var(--dt-color-foreground-secondary);
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
 .dt-input::placeholder {
@@ -954,8 +1064,7 @@ defineExpose({
 }
 
 .dt-input:focus {
-  border-color: var(--dt-color-link-primary);
-  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-border-moderate);
 }
 
 .dt-input--center {
@@ -1097,6 +1206,7 @@ defineExpose({
   resize: vertical;
   outline: none;
   box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
 .skip-textarea::placeholder {
@@ -1104,8 +1214,7 @@ defineExpose({
 }
 
 .skip-textarea:focus {
-  border-color: var(--dt-color-link-primary);
-  box-shadow: var(--dt-shadow-focus);
+  border-color: var(--dt-color-border-moderate);
 }
 
 .skip-inline-actions {
@@ -1188,11 +1297,6 @@ defineExpose({
   50% { opacity: 0.42; }
 }
 
-@keyframes banner-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
 @keyframes caret-blink {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0; }
@@ -1200,9 +1304,18 @@ defineExpose({
 
 @media (prefers-reduced-motion: reduce) {
   .thinking-label--live,
-  .stream-caret,
-  .ai-rewrite-banner--busy {
+  .stream-caret {
     animation: none;
+  }
+
+  .compose-swap-enter-active,
+  .compose-swap-leave-active,
+  .ai-rewrite-banner,
+  .ai-question-input-wrapper,
+  .dt-select,
+  .dt-input,
+  .skip-textarea {
+    transition: none;
   }
 
   .skip-preview-text,

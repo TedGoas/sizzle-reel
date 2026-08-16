@@ -35,7 +35,7 @@ export function createBlankQuestion(id = 3, number = 3, { aiSuggestions = [REWRI
 
 export function createInitialQuestions() {
   return [
-    yesNoQuestion(1, 1, 'Did the agent ask for the persons name?'),
+    yesNoQuestion(1, 1, 'Did the agent greet the customer?'),
     yesNoQuestion(2, 2, 'Did the agent restate the purpose of the conversation?'),
     createBlankQuestion(),
   ]

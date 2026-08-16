@@ -81,6 +81,7 @@
    * ----------------------------------------------------------------------- */
   --dt-color-border-default:  hsl(0 0% 11% / 0.17);
   --dt-color-border-subtle:   hsl(0 0% 11% / 0.10);
+  --dt-color-border-moderate: hsl(0 0% 11% / 0.30); /* Dialtone border.moderate */
   --dt-color-border-brand:    #D3BCFF;
   --dt-color-border-warning:  #FF9E0E; /* gold.400 */
 
