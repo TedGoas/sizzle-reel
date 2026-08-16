@@ -12,16 +12,22 @@
         class="view-layer"
         :class="{ 'view-layer--visible': activeView === 'call-review' }"
       >
-        <CallReviewView
-          :selections="selections"
-          :ai-reveal-count="aiRevealCount"
-        />
+        <CallReviewView :resolved-count="resolvedCount" />
+      </div>
+      <div
+        class="view-layer"
+        :class="{ 'view-layer--visible': activeView === 'analytics' }"
+      >
+        <AnalyticsView ref="analyticsRef" />
       </div>
     </main>
 
     <div
       class="autoplay-cursor"
-      :class="{ 'autoplay-cursor--clicking': cursorClicking }"
+      :class="{
+        'autoplay-cursor--clicking': cursorClicking,
+        'autoplay-cursor--hidden': cursorHidden,
+      }"
       :style="cursorStyle"
       aria-hidden="true"
     >
@@ -39,43 +45,51 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import LeftBar from '@/components/LeftBar.vue'
 import BuilderView from './components/BuilderView.vue'
 import CallReviewView from './components/CallReviewView.vue'
+import AnalyticsView from './components/AnalyticsView.vue'
 import { DRAFT_QUESTION, VIP_QUESTION, VIP_DEFINITION, SKIP_CONDITION } from './data/builderData.js'
+import { scorecardQuestions } from './data/callData.js'
+
+const VIEW_FADE_MS = 1000
 
 const appRef = ref(null)
 const builderRef = ref(null)
+const analyticsRef = ref(null)
 const activeView = ref('builder')
-const selections = reactive({})
-const aiRevealCount = ref(0)
+const resolvedCount = ref(0)
 
 const cursorX = ref(98)
 const cursorY = ref(80)
 const cursorClicking = ref(false)
 const cursorMoving = ref(false)
+const cursorHidden = ref(false)
 const moveDuration = ref(700)
 
 const activeItem = computed(() => {
   switch (activeView.value) {
     case 'builder': return 'settings'
     case 'call-review': return 'history'
+    case 'analytics': return 'trending-up'
     default: return 'settings'
   }
 })
 
 const cursorStyle = computed(() => ({
   transform: `translate(${cursorX.value}px, ${cursorY.value}px)`,
+  opacity: cursorHidden.value ? 0 : 1,
   transition: cursorMoving.value
-    ? `transform ${moveDuration.value}ms cubic-bezier(0.22, 1, 0.36, 1)`
-    : 'none',
+    ? `transform ${moveDuration.value}ms cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease`
+    : 'opacity 0.3s ease',
 }))
 
 function handleIconClick(iconName) {
   switch (iconName) {
     case 'settings': activeView.value = 'builder'; break
     case 'history': activeView.value = 'call-review'; break
+    case 'trending-up': activeView.value = 'analytics'; break
   }
 }
 
@@ -120,17 +134,12 @@ async function clickEl(el) {
   cursorClicking.value = false
 }
 
-function resetSelections() {
-  Object.keys(selections).forEach((key) => {
-    delete selections[key]
-  })
-}
-
 function resetFilm() {
+  analyticsRef.value?.clearChartHover()
   activeView.value = 'builder'
-  aiRevealCount.value = 0
-  resetSelections()
+  resolvedCount.value = 0
   cursorClicking.value = false
+  cursorHidden.value = false
   builderRef.value?.resetDemo()
 }
 
@@ -241,7 +250,28 @@ async function runFilm() {
   await moveTo(skipSave)
   await clickEl(skipSave)
   builderRef.value?.saveSkipEditor()
-  await sleep(2500)
+  await sleep(1000)
+  if (!running) return
+
+  cursorHidden.value = true
+  activeView.value = 'call-review'
+  await sleep(VIEW_FADE_MS)
+  await nextTick()
+  if (!running) return
+
+  for (let i = 0; i < scorecardQuestions.length; i++) {
+    resolvedCount.value = i + 1
+    await sleep(150)
+    if (!running) return
+  }
+
+  await sleep(1500)
+  if (!running) return
+
+  activeView.value = 'analytics'
+  await nextTick()
+  analyticsRef.value?.playReveal()
+  await sleep(VIEW_FADE_MS)
 
   running = false
 }
@@ -301,6 +331,11 @@ onUnmounted(() => {
   height: 28px;
   pointer-events: none;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.28));
+  transition: opacity 0.3s ease;
+}
+
+.autoplay-cursor--hidden {
+  opacity: 0;
 }
 
 .autoplay-cursor svg {

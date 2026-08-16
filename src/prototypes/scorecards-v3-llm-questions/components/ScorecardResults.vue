@@ -16,7 +16,6 @@
         v-for="(q, i) in scorecardQuestions"
         :key="i"
         class="scorecard-question"
-        :data-autoplay="`q-group-${i}`"
       >
         <div class="scorecard-question-text">
           <span class="scorecard-question-label">{{ q.text }}</span>
@@ -24,30 +23,28 @@
         </div>
 
         <div class="scorecard-question-answers">
-          <button
-            v-for="option in q.options"
+          <Transition name="answer-resolve" mode="out-in">
+            <div v-if="i < resolvedCount" key="resolved" class="scorecard-answer scorecard-answer--selected">
+              <DtIcon name="check" :size="12" class="scorecard-answer-check" />
+              <span class="scorecard-answer-label">{{ q.answer }}</span>
+              <span class="scorecard-ai-badge">
+                <DtIcon name="sparkle" :size="12" class="scorecard-ai-badge-icon" />
+                Graded by Ai
+              </span>
+            </div>
+            <div v-else key="unresolved" class="scorecard-answer">
+              <span class="scorecard-answer-radio"></span>
+              <span class="scorecard-answer-label">{{ q.answer }}</span>
+            </div>
+          </Transition>
+          <div
+            v-for="option in otherOptions(q)"
             :key="option"
-            type="button"
             class="scorecard-answer"
-            :class="{
-              'scorecard-answer--on': selections[i] === option,
-              'scorecard-answer--ai': isAiHighlighted(i, option),
-            }"
           >
-            <span
-              class="dt-radio"
-              :class="{ 'dt-radio--selected': selections[i] === option }"
-              :data-autoplay="`q-${i}-${option}`"
-            />
-            <span class="scorecard-answer-label">{{ option }}</span>
-            <span
-              v-if="isAiHighlighted(i, option)"
-              class="ai-suggest-badge"
-            >
-              Suggested by
-              <DtIcon name="sparkle" :size="12" class="ai-suggest-sparkle" />
-            </span>
-          </button>
+            <span class="scorecard-answer-radio"></span>
+            <span class="scorecard-answer-label scorecard-answer-label--muted">{{ option }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -55,26 +52,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { scorecardQuestions } from '../data/callData.js'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 
-const props = defineProps({
-  selections: { type: Object, default: () => ({}) },
-  aiRevealCount: { type: Number, default: 0 },
+defineProps({
+  resolvedCount: { type: Number, default: 0 },
 })
 
-const aiQuestionIndexes = computed(() =>
-  scorecardQuestions
-    .map((q, i) => (q.aiSuggest ? i : null))
-    .filter((i) => i != null)
-)
-
-function isAiHighlighted(questionIndex, option) {
-  const q = scorecardQuestions[questionIndex]
-  if (!q?.aiSuggest || q.aiSuggest !== option) return false
-  const order = aiQuestionIndexes.value.indexOf(questionIndex)
-  return order !== -1 && order < props.aiRevealCount
+function otherOptions(q) {
+  return (q.options || []).filter((option) => option !== q.answer)
 }
 </script>
 
@@ -152,54 +138,37 @@ function isAiHighlighted(questionIndex, option) {
 .scorecard-question-answers {
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-200);
+  gap: 0;
 }
 
 .scorecard-answer {
   display: flex;
   align-items: center;
   gap: var(--dt-space-400);
-  min-height: 24px;
-  width: fit-content;
-  max-width: 100%;
-  padding: 2px var(--dt-space-300) 2px 2px;
-  border: 1px solid transparent;
+  height: 24px;
+}
+
+.scorecard-answer--selected {
+  background: linear-gradient(171deg, rgba(249, 0, 142, 0.1) 10%, rgba(124, 82, 255, 0.1) 90%);
   border-radius: var(--dt-space-400);
-  background: none;
-  text-align: left;
-  cursor: default;
-  transition: transform 0.12s ease, filter 0.12s ease, background 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+  padding: 0 var(--dt-space-200) 0 var(--dt-space-300);
+  width: fit-content;
 }
 
-.scorecard-answer--ai {
-  background: var(--dt-color-surface-brand-subtle);
-  border-color: var(--dt-color-border-brand);
-}
-
-.dt-radio {
-  width: 16px;
-  height: 16px;
-  box-sizing: border-box;
-  border: 2px solid var(--dt-color-border-default);
-  border-radius: 50%;
-  background: var(--dt-color-surface-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.scorecard-answer-check {
+  color: var(--dt-color-foreground-primary);
   flex-shrink: 0;
-  transition: border-color 0.15s ease, transform 0.12s ease, filter 0.12s ease;
+  display: block;
 }
 
-.dt-radio--selected {
-  border-color: var(--dt-color-link-primary);
-}
-
-.dt-radio--selected::after {
-  content: '';
-  width: 8px;
-  height: 8px;
+.scorecard-answer-radio {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--dt-color-border-default);
   border-radius: 50%;
-  background: var(--dt-color-link-primary);
+  margin: 0 3px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .scorecard-answer-label {
@@ -207,27 +176,43 @@ function isAiHighlighted(questionIndex, option) {
   color: var(--dt-color-foreground-primary);
 }
 
-.ai-suggest-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-300);
-  padding: 2px var(--dt-space-300);
-  margin-left: var(--dt-space-200);
-  background: var(--dt-color-surface-primary);
-  border: 1px solid var(--dt-color-border-subtle);
-  border-radius: var(--dt-space-400);
-  font: var(--dt-typography-body-sm-compact);
-  color: var(--dt-color-foreground-secondary);
-  animation: ai-badge-in 0.25s ease;
+.scorecard-answer-label--muted {
+  color: var(--dt-color-foreground-muted);
 }
 
-.ai-suggest-sparkle {
+.scorecard-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-primary);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-subtle);
+  padding: 3px var(--dt-space-350) 3px var(--dt-space-300);
+  border-radius: var(--dt-space-350);
+  white-space: nowrap;
+}
+
+.scorecard-ai-badge-icon {
   color: var(--dt-color-link-primary);
   flex-shrink: 0;
 }
 
-@keyframes ai-badge-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.answer-resolve-enter-active {
+  transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+}
+
+.answer-resolve-leave-active {
+  transition: opacity 0.12s ease;
+}
+
+.answer-resolve-enter-from {
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(0.95);
+}
+
+.answer-resolve-leave-to {
+  opacity: 0;
 }
 </style>

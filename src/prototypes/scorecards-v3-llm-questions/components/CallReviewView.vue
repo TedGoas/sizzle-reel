@@ -27,10 +27,7 @@
         <Transcript ref="transcriptRef" />
       </div>
 
-      <ScorecardResults
-        :selections="selections"
-        :ai-reveal-count="aiRevealCount"
-      />
+      <ScorecardResults :resolved-count="resolvedCount" />
     </div>
   </div>
 </template>
@@ -44,8 +41,7 @@ import ScorecardResults from './ScorecardResults.vue'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 
 defineProps({
-  selections: { type: Object, default: () => ({}) },
-  aiRevealCount: { type: Number, default: 0 },
+  resolvedCount: { type: Number, default: 0 },
 })
 
 const selectedCompany = ref('my-company')
