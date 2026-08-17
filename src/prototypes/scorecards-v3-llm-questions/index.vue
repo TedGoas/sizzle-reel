@@ -95,7 +95,9 @@ function handleIconClick(iconName) {
 }
 
 function queryEl(selector) {
-  return appRef.value?.querySelector(selector) || null
+  return appRef.value?.querySelector(selector)
+    || document.querySelector(selector)
+    || null
 }
 
 function pointAt(el) {

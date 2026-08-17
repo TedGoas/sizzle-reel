@@ -92,7 +92,7 @@
           </div>
         </div>
     </div>
-    <Teleport to="#scorecards-app">
+    <Teleport to="body">
       <Transition name="save-notice">
         <div v-if="saveNotice" class="save-notice" role="status">
           <div class="save-notice-body">
