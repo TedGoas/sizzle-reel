@@ -493,7 +493,7 @@ function saveQuestion() {
   if (!props.question) return
   props.question.text = localText.value
   props.question.validationWarning = acronymWarning(localText.value, props.question.definedTerms)
-  emit('saved')
+  emit('saved', 'Question successfully updated')
 }
 
 function resetEditor() {

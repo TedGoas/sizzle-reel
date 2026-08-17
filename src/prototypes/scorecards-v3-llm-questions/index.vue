@@ -179,6 +179,13 @@ async function runFilm() {
   await sleep(800)
   if (!running) return
 
+  const firstSaveBtn = queryEl('[data-autoplay="save-question"]')
+  await moveTo(firstSaveBtn)
+  await clickEl(firstSaveBtn)
+  builderRef.value?.saveQuestion()
+  await sleep(1800)
+  if (!running) return
+
   const createBtn = queryEl('[data-autoplay="create-question"]')
   await moveTo(createBtn)
   await clickEl(createBtn)

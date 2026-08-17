@@ -581,7 +581,7 @@ defineExpose({
 
 .save-notice {
   position: fixed;
-  top: 50%;
+  top: var(--dt-space-625);
   left: 50%;
   z-index: 35;
   display: flex;
@@ -642,12 +642,12 @@ defineExpose({
 .save-notice.save-notice-enter-from,
 .save-notice.save-notice-leave-to {
   opacity: 0;
-  transform: translate(-50%, calc(-50% - var(--dt-space-400)));
+  transform: translate(-50%, calc(-1 * var(--dt-space-400)));
 }
 
 .save-notice.save-notice-enter-to,
 .save-notice.save-notice-leave-from,
 .save-notice {
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
 }
 </style>
