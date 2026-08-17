@@ -277,6 +277,9 @@ async function runFilm() {
   await nextTick()
   if (!running) return
 
+  await sleep(1000)
+  if (!running) return
+
   for (let i = 0; i < scorecardQuestions.length; i++) {
     resolvedCount.value = i + 1
     await sleep(150)
