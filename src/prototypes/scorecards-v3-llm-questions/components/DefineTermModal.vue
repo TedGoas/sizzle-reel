@@ -108,7 +108,7 @@ watch(
 
 <style scoped>
 .define-modal {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 30;
   display: flex;

@@ -91,23 +91,35 @@
             <QuestionDetail ref="detailRef" :question="selectedQuestion" @saved="showSaveNotice" @define="openDefineModal" />
           </div>
         </div>
-        <Transition name="save-notice">
-          <div v-if="saveNotice" class="save-notice" role="status">
-            <DtIcon name="check" :size="16" class="save-notice-icon" />
-            {{ saveNotice }}
-          </div>
-        </Transition>
     </div>
-    <DefineTermModal
-      v-model="defineText"
-      :show="defineOpen"
-      :acronym="defineAcronym"
-      :busy="defineBusy"
-      :status="defineStatus"
-      :status-kind="defineStatusKind"
-      @close="closeDefineModal"
-      @save="() => saveDefinition()"
-    />
+    <Teleport to="#scorecards-app">
+      <Transition name="save-notice">
+        <div v-if="saveNotice" class="save-notice" role="status">
+          <div class="save-notice-body">
+            <DtIcon name="check-circle" :size="20" class="save-notice-icon" />
+            <span class="save-notice-title">{{ saveNotice }}</span>
+          </div>
+          <button
+            type="button"
+            class="save-notice-close"
+            aria-label="Dismiss"
+            @click="dismissSaveNotice"
+          >
+            <DtIcon name="close" :size="16" />
+          </button>
+        </div>
+      </Transition>
+      <DefineTermModal
+        v-model="defineText"
+        :show="defineOpen"
+        :acronym="defineAcronym"
+        :busy="defineBusy"
+        :status="defineStatus"
+        :status-kind="defineStatusKind"
+        @close="closeDefineModal"
+        @save="() => saveDefinition()"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -161,6 +173,12 @@ function showSaveNotice(message) {
     saveNotice.value = ''
     saveNoticeTimer = null
   }, 2500)
+}
+
+function dismissSaveNotice() {
+  clearTimeout(saveNoticeTimer)
+  saveNoticeTimer = null
+  saveNotice.value = ''
 }
 
 function saveQuestion() {
@@ -562,27 +580,58 @@ defineExpose({
 }
 
 .save-notice {
-  position: absolute;
-  top: var(--dt-space-500);
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
+  z-index: 35;
   display: flex;
   align-items: center;
-  gap: var(--dt-space-400);
-  padding: var(--dt-space-400) var(--dt-space-500);
-  background: var(--dt-color-surface-primary);
+  gap: var(--dt-space-500);
+  padding: var(--dt-space-500);
+  background: var(--dt-color-surface-success);
   border: 1px solid var(--dt-color-border-default);
-  border-radius: var(--dt-space-400);
-  box-shadow: var(--dt-shadow-small);
-  font: var(--dt-typography-body-md-compact);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-medium);
   color: var(--dt-color-foreground-primary);
   white-space: nowrap;
+}
+
+.save-notice-body {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-450);
+  min-width: 0;
 }
 
 .save-notice-icon {
   color: var(--dt-color-foreground-success);
   flex-shrink: 0;
+  display: block;
+}
+
+.save-notice-title {
+  font: var(--dt-typography-body-md-compact);
+  font-weight: 700;
+  color: var(--dt-color-foreground-primary);
+}
+
+.save-notice-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height-icon);
+  height: var(--btn-height-icon);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--dt-color-foreground-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.save-notice-close:hover {
+  background: var(--dt-color-surface-moderate);
 }
 
 .save-notice-enter-active,
@@ -593,6 +642,12 @@ defineExpose({
 .save-notice.save-notice-enter-from,
 .save-notice.save-notice-leave-to {
   opacity: 0;
-  transform: translateX(-50%) translateY(calc(-1 * var(--dt-space-400)));
+  transform: translate(-50%, calc(-50% - var(--dt-space-400)));
+}
+
+.save-notice.save-notice-enter-to,
+.save-notice.save-notice-leave-from,
+.save-notice {
+  transform: translate(-50%, -50%);
 }
 </style>
