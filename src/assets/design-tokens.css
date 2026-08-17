@@ -28,6 +28,8 @@
   --dt-space-525: 20px;
   --dt-space-550: 24px;
   --dt-space-600: 32px;
+  --dt-space-625: 42px;
+  --dt-space-800: 128px;
 
   /* -------------------------------------------------------------------------
    * Typography — font sizes
@@ -61,6 +63,9 @@
   --dt-color-surface-moderate:       #E9E9E9;   /* tertiary, more prominent */
   --dt-color-surface-brand:          #7C52FF;
   --dt-color-surface-brand-subtle:   #F5F0FF;
+  --dt-color-surface-warning-subtle: #FFFAE5; /* gold.50 */
+  --dt-color-surface-success:        #EDF9EB; /* green.50 */
+  --dt-color-surface-backdrop:       hsl(0 0% 0% / 0.65); /* neutral.black @ 65% */
 
   /* -------------------------------------------------------------------------
    * Colors — foreground
@@ -70,6 +75,7 @@
   --dt-color-foreground-tertiary:  #6B6B6B;
   --dt-color-foreground-muted:     #808080;
   --dt-color-foreground-success:   #1AA340;
+  --dt-color-foreground-warning:   #815008; /* gold.600 */
   --dt-color-foreground-critical:  #EC0E0E;
 
   /* -------------------------------------------------------------------------
@@ -77,7 +83,9 @@
    * ----------------------------------------------------------------------- */
   --dt-color-border-default:  hsl(0 0% 11% / 0.17);
   --dt-color-border-subtle:   hsl(0 0% 11% / 0.10);
+  --dt-color-border-moderate: hsl(0 0% 11% / 0.30); /* Dialtone border.moderate */
   --dt-color-border-brand:    #D3BCFF;
+  --dt-color-border-warning:  #FF9E0E; /* gold.400 */
 
   /* -------------------------------------------------------------------------
    * Colors — links
@@ -89,6 +97,7 @@
    * Colors — data viz (Dialtone green-300)
    * ----------------------------------------------------------------------- */
   --dt-color-green-300: #52C926;
+  --dt-color-gold-200:  #FFE89C;
 
   /* -------------------------------------------------------------------------
    * Button heights
@@ -103,6 +112,7 @@
    * ----------------------------------------------------------------------- */
   --dt-shadow-focus: 0 0 0 3px rgba(124, 82, 255, 0.35);
   --dt-shadow-small: 0 3px 8px rgba(0, 0, 0, 0.12);
+  --dt-shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* -------------------------------------------------------------------------
