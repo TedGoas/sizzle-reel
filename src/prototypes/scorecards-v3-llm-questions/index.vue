@@ -282,9 +282,13 @@ async function runFilm() {
   await sleep(1000)
   if (!running) return
 
-  resolvedCount.value = 1
-  await nextTick()
-  await sleep(300)
+  for (let i = 0; i < scorecardQuestions.length; i++) {
+    resolvedCount.value = i + 1
+    await sleep(150)
+    if (!running) return
+  }
+
+  await sleep(400)
   if (!running) return
 
   cursorHidden.value = false
@@ -294,16 +298,6 @@ async function runFilm() {
   await clickEl(evidenceBadge)
   callReviewRef.value?.showEvidence('greet')
   await sleep(1600)
-  if (!running) return
-
-  cursorHidden.value = true
-  for (let i = 1; i < scorecardQuestions.length; i++) {
-    resolvedCount.value = i + 1
-    await sleep(150)
-    if (!running) return
-  }
-
-  await sleep(1500)
   if (!running) return
 
   activeView.value = 'analytics'
