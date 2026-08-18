@@ -194,9 +194,9 @@ const totalPoints = computed(() =>
   border-radius: var(--dt-space-400);
   font: var(--dt-typography-label-sm-compact);
   cursor: pointer;
-  background: var(--dt-color-surface-primary);
+  background: none;
   color: var(--dt-color-link-primary);
-  border: 1px solid var(--dt-color-link-primary);
+  border: none;
 }
 
 .question-list-btn:hover {

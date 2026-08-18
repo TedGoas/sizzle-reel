@@ -1252,8 +1252,8 @@ defineExpose({
 }
 
 .skip-btn--save {
-  background: var(--dt-color-surface-primary);
-  border: 1px solid var(--dt-color-border-default);
+  background: none;
+  border: none;
   color: var(--dt-color-link-primary);
 }
 
