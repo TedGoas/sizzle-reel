@@ -26,7 +26,12 @@
         v-for="(msg, i) in getChapterMessages(chapter.id)"
         :key="`${chapter.id}-${i}`"
         class="transcript-message"
-        :class="`transcript-message--${msg.speaker}`"
+        :class="[
+          `transcript-message--${msg.speaker}`,
+          { 'transcript-message--evidence': msg.id && msg.id === evidenceId },
+        ]"
+        :id="msg.id ? `transcript-${msg.id}` : undefined"
+        :data-autoplay="msg.id ? `transcript-${msg.id}` : undefined"
       >
         <div
           v-if="msg.speaker === 'customer'"
@@ -49,7 +54,7 @@
             <span class="transcript-message-name">{{ msg.name }}</span>
             <span class="transcript-message-time">{{ msg.time }}</span>
           </div>
-          <p class="transcript-message-text" v-html="highlightText(msg.text)"></p>
+          <p class="transcript-message-text" v-html="highlightText(msg.text, msg)"></p>
         </div>
       </div>
     </template>
@@ -70,6 +75,7 @@ import DtIcon from '../../../components/icons/DtIcon.vue'
 import { transcript, chapters } from '../data/callData.js'
 
 const transcriptRef = ref(null)
+const evidenceId = ref(null)
 
 function getChapterMessages(chapterId) {
   return transcript.filter(m => m.chapter === chapterId)
@@ -83,11 +89,18 @@ const highlights = [
   { phrase: 'factory reset', color: '#D5E5FF' },
 ]
 
-function highlightText(text) {
+function highlightText(text, msg = null) {
   let result = text
   for (const { phrase, color } of highlights) {
     const regex = new RegExp(`(${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i')
     result = result.replace(regex, `<mark style="background:${color}; border-radius:4px; padding: 1px 2px">$1</mark>`)
+  }
+  if (msg?.id && msg.id === evidenceId.value && msg.evidencePhrase) {
+    const phrase = msg.evidencePhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    result = result.replace(
+      new RegExp(`(${phrase})`, 'i'),
+      '<mark class="transcript-evidence-mark">$1</mark>',
+    )
   }
   return result
 }
@@ -115,6 +128,23 @@ function scrollToChapter(chapterId) {
   }
 }
 
+function scrollToEvidence(id) {
+  evidenceId.value = id
+  nextTick(() => {
+    const el = document.getElementById(`transcript-${id}`)
+    if (el && transcriptRef.value) {
+      transcriptRef.value.scrollTo({
+        top: el.offsetTop - transcriptRef.value.offsetTop - 20,
+        behavior: 'smooth',
+      })
+    }
+  })
+}
+
+function clearEvidence() {
+  evidenceId.value = null
+}
+
 // Auto-scroll to bottom on mount
 onMounted(() => {
   nextTick(() => {
@@ -129,7 +159,7 @@ onMounted(() => {
   })
 })
 
-defineExpose({ scrollToChapter })
+defineExpose({ scrollToChapter, scrollToEvidence, clearEvidence })
 </script>
 
 <style scoped>
@@ -205,6 +235,17 @@ defineExpose({ scrollToChapter })
   display: flex;
   gap: 10px;
   padding: 8px 16px;
+}
+
+.transcript-message--evidence {
+  background: var(--dt-color-surface-brand-subtle);
+  border-radius: var(--dt-space-400);
+}
+
+.transcript-message-text :deep(.transcript-evidence-mark) {
+  background: var(--dt-color-gold-200);
+  border-radius: var(--dt-space-300);
+  padding: 1px 2px;
 }
 
 .transcript-message-avatar {

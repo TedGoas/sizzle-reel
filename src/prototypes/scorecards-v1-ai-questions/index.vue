@@ -13,6 +13,7 @@
         :class="{ 'view-layer--visible': activeView === 'call-review' }"
       >
         <CallReviewView
+          ref="callReviewRef"
           :selections="selections"
           :ai-reveal-count="aiRevealCount"
         />
@@ -50,6 +51,7 @@ const AI_QUESTION_COUNT = scorecardQuestions.filter((q) => q.aiSuggest).length
 
 const appRef = ref(null)
 const builderRef = ref(null)
+const callReviewRef = ref(null)
 const activeView = ref('builder')
 const selections = reactive({})
 const aiRevealCount = ref(0)
@@ -133,6 +135,7 @@ function resetFilm() {
   aiRevealCount.value = 0
   resetSelections()
   cursorClicking.value = false
+  callReviewRef.value?.clearEvidence()
   builderRef.value?.resetDemo()
 }
 
@@ -192,6 +195,13 @@ async function runFilm() {
   }
 
   await sleep(400)
+  if (!running) return
+
+  const evidenceBadge = queryEl('[data-autoplay="ai-badge-0"]')
+  await moveTo(evidenceBadge)
+  await clickEl(evidenceBadge)
+  callReviewRef.value?.showEvidence('greet')
+  await sleep(1600)
   if (!running) return
 
   const lastGradedIndex = 4
