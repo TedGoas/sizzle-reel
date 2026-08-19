@@ -96,8 +96,7 @@
                     </linearGradient>
                   </defs>
                 </svg>
-                <span class="thinking-label thinking-label--live">Thinking</span>
-                <span class="thinking-copy">to improve the wording on this question...</span>
+                <span class="thinking-copy thinking-copy--shimmer">Thinking to improve the wording on this question...</span>
               </div>
               <div v-else key="confirming" class="banner-confirming">
                 <button class="banner-close-btn" type="button" aria-label="Dismiss" @click="handleCancel">
@@ -892,19 +891,28 @@ defineExpose({
   display: block;
 }
 
-.thinking-label {
-  font: var(--dt-typography-label-sm-compact);
-  color: var(--dt-color-foreground-secondary);
-}
-
-.thinking-label--live {
-  color: var(--dt-color-link-primary);
-  animation: think-pulse 1.2s ease-in-out infinite;
-}
-
 .thinking-copy {
   font: var(--dt-typography-body-sm);
-  color: var(--dt-color-foreground-secondary);
+  color: var(--dt-color-foreground-muted);
+}
+
+.thinking-copy--shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--dt-color-foreground-muted) 0%,
+    var(--dt-color-foreground-muted) 15%,
+    var(--dt-color-surface-primary) 25%,
+    var(--dt-color-foreground-muted) 35%,
+    var(--dt-color-foreground-muted) 65%,
+    var(--dt-color-surface-primary) 75%,
+    var(--dt-color-foreground-muted) 85%,
+    var(--dt-color-foreground-muted) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: thinking-shimmer 2s linear infinite;
 }
 
 .banner-close-btn {
@@ -1301,9 +1309,9 @@ defineExpose({
   background: var(--dt-color-link-primary-hover);
 }
 
-@keyframes think-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.42; }
+@keyframes thinking-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes caret-blink {
@@ -1312,7 +1320,13 @@ defineExpose({
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .thinking-label--live,
+  .thinking-copy--shimmer {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: var(--dt-color-foreground-muted);
+    color: var(--dt-color-foreground-muted);
+  }
+
   .stream-caret {
     animation: none;
   }
