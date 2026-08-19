@@ -231,7 +231,7 @@ async function saveDefinition(sleepFn) {
   const stages = [
     { text: 'Analyzing this definition…', kind: 'busy', ms: 1200 },
     { text: 'Matching it to the question…', kind: 'busy', ms: 1200 },
-    { text: `Looks good — the model understands ${acronym}.`, kind: 'success', ms: 1200 },
+    { text: `Looks good. The model understands ${acronym}.`, kind: 'success', ms: 1200 },
   ]
   for (const stage of stages) {
     if (gen !== defineGen) return
