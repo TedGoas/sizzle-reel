@@ -47,10 +47,6 @@
         <ComboChart ref="comboRef" />
 
         <div class="analytics-bottom">
-          <div class="analytics-table-heading">
-            <h2 class="analytics-table-title">All Teams & Groups</h2>
-            <span class="analytics-link">View scored calls</span>
-          </div>
           <div class="analytics-tables">
             <AgentTable />
             <aside class="graders-panel">
@@ -248,26 +244,6 @@ defineExpose({
 .analytics-bottom {
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-500);
-}
-
-.analytics-table-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--dt-space-400);
-}
-
-.analytics-table-title {
-  margin: 0;
-  font: var(--dt-typography-headline-lg);
-  color: var(--dt-color-foreground-primary);
-}
-
-.analytics-link {
-  font: var(--dt-typography-body-md);
-  color: var(--dt-color-link-primary);
-  cursor: default;
 }
 
 .analytics-tables {
@@ -284,17 +260,18 @@ defineExpose({
 .graders-panel {
   width: 275px;
   flex-shrink: 0;
-  border: 1px solid var(--dt-color-border-default);
-  border-radius: var(--dt-space-300);
-  padding: var(--dt-space-400) var(--dt-space-500);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-400);
+  overflow: hidden;
 }
 
 .graders-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: var(--dt-space-400);
-  border-bottom: 1px solid var(--dt-color-border-default);
+  padding: var(--dt-space-500);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
   font: var(--dt-typography-label-sm-compact);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -306,13 +283,12 @@ defineExpose({
   align-items: center;
   justify-content: space-between;
   gap: var(--dt-space-400);
-  padding: var(--dt-space-400) 0;
+  padding: var(--dt-space-500);
   border-bottom: 1px solid var(--dt-color-border-subtle);
 }
 
 .grader-row:last-child {
   border-bottom: none;
-  padding-bottom: 0;
 }
 
 .grader-person {
