@@ -71,7 +71,9 @@ import {
 
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, LineController, BarController)
 
-const LINE_COLOR = '#52C926'
+function dtColor(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
 
 const chartRef = ref(null)
 const activeIndex = ref(null)
@@ -142,80 +144,86 @@ function playReveal() {
 
 defineExpose({ showHover, clearHover, playReveal })
 
-const chartDataConfig = computed(() => ({
-  labels: chartLabels,
-  datasets: [
-    {
-      type: 'bar',
-      label: 'Calls graded',
-      data: callsGraded,
-      backgroundColor: '#E9E9E9',
-      borderRadius: 0,
-      barPercentage: 0.92,
-      categoryPercentage: 1,
-      yAxisID: 'y',
-      order: 2,
-    },
-    {
-      type: 'line',
-      label: 'Average grade',
-      data: lineData,
-      borderColor: LINE_COLOR,
-      borderWidth: 3,
-      pointRadius: lineData.map((_, i) => (i === activeIndex.value ? 5 : 0)),
-      pointHoverRadius: 5,
-      pointBackgroundColor: LINE_COLOR,
-      pointHoverBackgroundColor: LINE_COLOR,
-      tension: 0.3,
-      fill: false,
-      yAxisID: 'y1',
-      order: 1,
-    },
-  ],
-}))
+const chartDataConfig = computed(() => {
+  const lineColor = dtColor('--dt-color-chart-positive')
+  return {
+    labels: chartLabels,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Calls graded',
+        data: callsGraded,
+        backgroundColor: dtColor('--dt-color-chart-neutral'),
+        borderRadius: 0,
+        barPercentage: 0.92,
+        categoryPercentage: 1,
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        type: 'line',
+        label: 'Average grade',
+        data: lineData,
+        borderColor: lineColor,
+        borderWidth: 3,
+        pointRadius: lineData.map((_, i) => (i === activeIndex.value ? 5 : 0)),
+        pointHoverRadius: 5,
+        pointBackgroundColor: lineColor,
+        pointHoverBackgroundColor: lineColor,
+        tension: 0.3,
+        fill: false,
+        yAxisID: 'y1',
+        order: 1,
+      },
+    ],
+  }
+})
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: { duration: 0 },
-  events: [],
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-  plugins: {
-    legend: { display: false },
-    tooltip: { enabled: false },
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-      ticks: { font: { size: 12 }, color: '#6B6B6B' },
+const chartOptions = computed(() => {
+  const tickColor = dtColor('--dt-color-foreground-tertiary')
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 0 },
+    events: [],
+    interaction: {
+      mode: 'index',
+      intersect: false,
     },
-    y: {
-      position: 'left',
-      display: false,
-      min: 0,
-      max: 80,
-      grid: { display: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: false },
     },
-    y1: {
-      position: 'left',
-      min: 0,
-      max: 100,
-      grid: {
-        color: 'rgba(0,0,0,0.06)',
-        drawBorder: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 12 }, color: tickColor },
       },
-      ticks: {
-        font: { size: 12 },
-        color: '#6B6B6B',
-        callback: (v) => `${v}%`,
-        stepSize: 25,
+      y: {
+        position: 'left',
+        display: false,
+        min: 0,
+        max: 80,
+        grid: { display: false },
+      },
+      y1: {
+        position: 'left',
+        min: 0,
+        max: 100,
+        grid: {
+          color: dtColor('--dt-color-border-subtle'),
+          drawBorder: false,
+        },
+        ticks: {
+          font: { size: 12 },
+          color: tickColor,
+          callback: (v) => `${v}%`,
+          stepSize: 25,
+        },
       },
     },
-  },
-}
+  }
+})
 
 const tooltipPos = computed(() => {
   if (activeIndex.value === null) return {}
@@ -268,7 +276,7 @@ const hoverPlugin = {
     ctx.save()
     ctx.beginPath()
     ctx.setLineDash([4, 4])
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'
+    ctx.strokeStyle = dtColor('--dt-color-border-default')
     ctx.lineWidth = 1
     ctx.moveTo(x, yAxis.top)
     ctx.lineTo(x, yAxis.bottom)
@@ -355,19 +363,19 @@ onMounted(() => {
   width: 20px;
   height: 4px;
   border-radius: 3px;
-  background: var(--dt-color-green-300);
+  background: var(--dt-color-chart-positive);
 }
 
 .combo-chart-legend-box {
   width: 10px;
   height: 10px;
   border-radius: var(--dt-space-200);
-  background: var(--dt-color-surface-moderate);
+  background: var(--dt-color-chart-neutral);
 }
 
 .combo-chart-canvas {
   position: relative;
-  height: 185px;
+  height: 370px;
   pointer-events: none;
 }
 
