@@ -35,11 +35,22 @@
       <transition name="tooltip-fade">
         <div v-if="activeIndex !== null" class="combo-chart-tooltip" :style="tooltipPos">
           <div class="combo-chart-tooltip-body">
-            <div class="combo-chart-tooltip-value">
-              <span>{{ lineData[activeIndex] }}%</span>
-              <span class="combo-chart-tooltip-muted">({{ callsGraded[activeIndex] }} grades)</span>
+            <div class="combo-chart-tooltip-date">{{ chartLabels[activeIndex] }}</div>
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-chip combo-chart-tooltip-chip--positive" aria-hidden="true" />
+              <span class="combo-chart-tooltip-label">Average grade</span>
+              <span class="combo-chart-tooltip-metric">{{ lineData[activeIndex] }}%</span>
             </div>
-            <div class="combo-chart-tooltip-date">{{ ordinalLabel(chartLabels[activeIndex]) }}</div>
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-chip combo-chart-tooltip-chip--neutral" aria-hidden="true" />
+              <span class="combo-chart-tooltip-label">Calls graded</span>
+              <span class="combo-chart-tooltip-metric">{{ callsGraded[activeIndex] }}</span>
+            </div>
+            <div class="combo-chart-tooltip-divider" />
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-label">Average</span>
+              <span class="combo-chart-tooltip-metric">{{ summaryStats.averageGrade }}</span>
+            </div>
           </div>
         </div>
       </transition>
@@ -78,15 +89,6 @@ function dtColor(name) {
 const chartRef = ref(null)
 const activeIndex = ref(null)
 const columnHits = ref([])
-
-function ordinalLabel(label) {
-  const [month, day] = label.split(' ')
-  const n = Number(day)
-  const suffixes = ['th', 'st', 'nd', 'rd']
-  const v = n % 100
-  const suffix = suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]
-  return `${month} ${n}${suffix}`
-}
 
 function updateColumnHits() {
   const chart = chartRef.value?.chart
@@ -235,11 +237,18 @@ const tooltipPos = computed(() => {
   if (!pt) return {}
 
   const { x, y } = pt.getProps(['x', 'y'], true)
-  let tipX = x + 14
-  const tipY = Math.max(8, y - 12)
+  const tipW = 220
+  const tipH = 148
+  let tipX = x + 16
+  let tipY = y - 28
 
-  if (tipX + 160 > chart.width) {
-    tipX = x - 170
+  if (tipX + tipW > chart.width - 8) {
+    tipX = x - tipW - 8
+  }
+  if (tipX < 8) tipX = 8
+  if (tipY < 8) tipY = 8
+  if (tipY + tipH > chart.height - 8) {
+    tipY = Math.max(8, chart.height - tipH - 8)
   }
 
   return { top: `${tipY}px`, left: `${tipX}px` }
@@ -400,28 +409,61 @@ onMounted(() => {
 }
 
 .combo-chart-tooltip-body {
-  background: var(--dt-color-surface-primary);
-  border-radius: var(--dt-space-300);
-  box-shadow: var(--dt-shadow-small);
+  min-width: 200px;
   padding: var(--dt-space-400) var(--dt-space-450);
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-200);
-  min-width: 120px;
+  gap: var(--dt-space-400);
+  background: color-mix(in srgb, var(--dt-color-surface-primary) 75%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-small);
   white-space: nowrap;
 }
 
-.combo-chart-tooltip-value {
-  display: flex;
-  align-items: baseline;
-  gap: var(--dt-space-300);
-  font: var(--dt-typography-label-md-compact);
+.combo-chart-tooltip-date {
+  font: var(--dt-typography-label-sm-compact);
   color: var(--dt-color-foreground-primary);
 }
 
-.combo-chart-tooltip-muted,
-.combo-chart-tooltip-date {
+.combo-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
   font: var(--dt-typography-body-sm);
-  color: var(--dt-color-foreground-tertiary);
+  color: var(--dt-color-foreground-secondary);
+}
+
+.combo-chart-tooltip-chip {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--dt-space-300);
+  flex-shrink: 0;
+}
+
+.combo-chart-tooltip-chip--positive {
+  background: var(--dt-color-chart-positive);
+}
+
+.combo-chart-tooltip-chip--neutral {
+  background: var(--dt-color-chart-neutral);
+}
+
+.combo-chart-tooltip-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-chart-tooltip-metric {
+  font: var(--dt-typography-label-sm-compact);
+  color: var(--dt-color-foreground-primary);
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+}
+
+.combo-chart-tooltip-divider {
+  height: 1px;
+  background: var(--dt-color-border-subtle);
 }
 </style>
