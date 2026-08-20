@@ -30,6 +30,7 @@
       <ScorecardResults
         :selections="selections"
         :ai-reveal-count="aiRevealCount"
+        @evidence="showEvidence"
       />
     </div>
   </div>
@@ -54,6 +55,16 @@ const transcriptRef = ref(null)
 function scrollToChapter(chapterId) {
   transcriptRef.value?.scrollToChapter(chapterId)
 }
+
+function showEvidence(id) {
+  transcriptRef.value?.scrollToEvidence(id)
+}
+
+function clearEvidence() {
+  transcriptRef.value?.clearEvidence()
+}
+
+defineExpose({ showEvidence, clearEvidence })
 </script>
 
 <style scoped>

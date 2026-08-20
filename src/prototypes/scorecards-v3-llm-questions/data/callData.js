@@ -27,7 +27,7 @@ export const aiInsight = "The conversation is about a person's experience with t
 
 export const transcript = [
   // Welcome
-  { chapter: 'welcome', speaker: 'agent', name: 'Don', time: '00:02', text: "Thank you for calling Fitbit support. My name is Don, how can I help you today?" },
+  { chapter: 'welcome', speaker: 'agent', name: 'Don', time: '00:02', id: 'greet', evidencePhrase: 'Thank you for calling Fitbit support', text: "Thank you for calling Fitbit support. My name is Don, how can I help you today?" },
   { chapter: 'welcome', speaker: 'customer', name: 'Evan', time: '00:08', text: "Hi Don, I'm Evan. I'm having some issues with my Fitbit Charge 5." },
   // Confirm account
   { chapter: 'confirm-account', speaker: 'agent', name: 'Don', time: '00:10', text: "I'd be happy to help you with that, Evan. Can I get your account email to pull up your information?" },
@@ -69,6 +69,7 @@ export const scorecardQuestions = [
     options: YES_NO_OPTIONS,
     aiSuggest: 'Yes',
     answer: 'Yes',
+    evidenceId: 'greet',
   },
   {
     text: 'Did the agent confirm the account information?',

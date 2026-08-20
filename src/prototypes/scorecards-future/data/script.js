@@ -7,7 +7,7 @@ export const SUGGESTION_CHIPS = [
 ]
 
 export const AI_Q1 = 'Is this for a specific team, or anyone who handles refunds?'
-export const USER_A1 = 'Billing and support — anyone who processes refunds.'
+export const USER_A1 = 'Billing and support, anyone who processes refunds.'
 export const AI_Q2 = 'Should it cover just the refund decision, or also policy and next steps?'
 export const USER_A2 = 'The whole refund: confirm the order, explain the policy, and close the request.'
 

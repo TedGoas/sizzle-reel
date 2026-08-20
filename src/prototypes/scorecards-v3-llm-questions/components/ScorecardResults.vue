@@ -27,10 +27,15 @@
             <div v-if="i < resolvedCount" key="resolved" class="scorecard-answer scorecard-answer--selected">
               <DtIcon name="check" :size="12" class="scorecard-answer-check" />
               <span class="scorecard-answer-label">{{ q.answer }}</span>
-              <span class="scorecard-ai-badge">
+              <button
+                type="button"
+                class="scorecard-ai-badge"
+                :data-autoplay="q.evidenceId ? 'ai-badge-0' : undefined"
+                @click="emitEvidence(q)"
+              >
                 <DtIcon name="sparkle" :size="12" class="scorecard-ai-badge-icon" />
                 Graded by Ai
-              </span>
+              </button>
             </div>
             <div v-else key="unresolved" class="scorecard-answer">
               <span class="scorecard-answer-radio"></span>
@@ -55,12 +60,18 @@
 import { scorecardQuestions } from '../data/callData.js'
 import DtIcon from '../../../components/icons/DtIcon.vue'
 
+const emit = defineEmits(['evidence'])
+
 defineProps({
   resolvedCount: { type: Number, default: 0 },
 })
 
 function otherOptions(q) {
   return (q.options || []).filter((option) => option !== q.answer)
+}
+
+function emitEvidence(question) {
+  if (question?.evidenceId) emit('evidence', question.evidenceId)
 }
 </script>
 
@@ -185,12 +196,14 @@ function otherOptions(q) {
   align-items: center;
   gap: var(--dt-space-200);
   font: var(--dt-typography-body-sm-compact);
+  font-family: inherit;
   color: var(--dt-color-foreground-primary);
   background: var(--dt-color-surface-primary);
   border: 1px solid var(--dt-color-border-subtle);
   padding: 3px var(--dt-space-350) 3px var(--dt-space-300);
   border-radius: var(--dt-space-350);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .scorecard-ai-badge-icon {

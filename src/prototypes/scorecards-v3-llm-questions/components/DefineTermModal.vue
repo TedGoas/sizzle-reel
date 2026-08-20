@@ -41,10 +41,10 @@
 
           <div class="define-modal-footer">
             <div class="define-modal-status" aria-live="polite">
-              <Transition name="define-status" mode="out-in">
+              <Transition name="define-status">
                 <span
                   v-if="status"
-                  :key="status"
+                  :key="statusKind"
                   class="define-modal-status-text"
                   :class="{
                     'define-modal-status-text--live': statusKind === 'busy',
@@ -217,18 +217,32 @@ watch(
 }
 
 .define-modal-status {
+  position: relative;
   min-height: 1.2em;
   flex: 1;
   min-width: 0;
 }
 
 .define-modal-status-text {
+  display: block;
   font: var(--dt-typography-body-sm-compact);
-  color: var(--dt-color-foreground-secondary);
+  color: var(--dt-color-foreground-muted);
 }
 
 .define-modal-status-text--live {
-  animation: define-status-pulse 1.2s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--dt-color-foreground-muted) 0%,
+    var(--dt-color-foreground-muted) 40%,
+    var(--dt-color-surface-primary) 50%,
+    var(--dt-color-foreground-muted) 60%,
+    var(--dt-color-foreground-muted) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: define-status-shimmer 1s linear infinite;
 }
 
 .define-modal-status-text--success {
@@ -305,14 +319,21 @@ watch(
   transition: opacity 0.18s ease;
 }
 
+.define-status-leave-active {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
 .define-status-enter-from,
 .define-status-leave-to {
   opacity: 0;
 }
 
-@keyframes define-status-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.42; }
+@keyframes define-status-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -322,6 +343,9 @@ watch(
 
   .define-modal-status-text--live {
     animation: none;
+    background: none;
+    -webkit-text-fill-color: var(--dt-color-foreground-muted);
+    color: var(--dt-color-foreground-muted);
   }
 
   .define-modal-spinner {

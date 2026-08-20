@@ -35,11 +35,22 @@
       <transition name="tooltip-fade">
         <div v-if="activeIndex !== null" class="combo-chart-tooltip" :style="tooltipPos">
           <div class="combo-chart-tooltip-body">
-            <div class="combo-chart-tooltip-value">
-              <span>{{ lineData[activeIndex] }}%</span>
-              <span class="combo-chart-tooltip-muted">({{ callsGraded[activeIndex] }} grades)</span>
+            <div class="combo-chart-tooltip-date">{{ chartLabels[activeIndex] }}</div>
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-chip combo-chart-tooltip-chip--positive" aria-hidden="true" />
+              <span class="combo-chart-tooltip-label">Average grade</span>
+              <span class="combo-chart-tooltip-metric">{{ lineData[activeIndex] }}%</span>
             </div>
-            <div class="combo-chart-tooltip-date">{{ ordinalLabel(chartLabels[activeIndex]) }}</div>
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-chip combo-chart-tooltip-chip--neutral" aria-hidden="true" />
+              <span class="combo-chart-tooltip-label">Calls graded</span>
+              <span class="combo-chart-tooltip-metric">{{ callsGraded[activeIndex] }}</span>
+            </div>
+            <div class="combo-chart-tooltip-divider" />
+            <div class="combo-chart-tooltip-row">
+              <span class="combo-chart-tooltip-label">Average</span>
+              <span class="combo-chart-tooltip-metric">{{ summaryStats.averageGrade }}</span>
+            </div>
           </div>
         </div>
       </transition>
@@ -71,20 +82,13 @@ import {
 
 ChartJS.register(BarElement, LineElement, PointElement, CategoryScale, LinearScale, LineController, BarController)
 
-const LINE_COLOR = '#52C926'
+function dtColor(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
 
 const chartRef = ref(null)
 const activeIndex = ref(null)
 const columnHits = ref([])
-
-function ordinalLabel(label) {
-  const [month, day] = label.split(' ')
-  const n = Number(day)
-  const suffixes = ['th', 'st', 'nd', 'rd']
-  const v = n % 100
-  const suffix = suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]
-  return `${month} ${n}${suffix}`
-}
 
 function updateColumnHits() {
   const chart = chartRef.value?.chart
@@ -142,80 +146,86 @@ function playReveal() {
 
 defineExpose({ showHover, clearHover, playReveal })
 
-const chartDataConfig = computed(() => ({
-  labels: chartLabels,
-  datasets: [
-    {
-      type: 'bar',
-      label: 'Calls graded',
-      data: callsGraded,
-      backgroundColor: '#E9E9E9',
-      borderRadius: 0,
-      barPercentage: 0.92,
-      categoryPercentage: 1,
-      yAxisID: 'y',
-      order: 2,
-    },
-    {
-      type: 'line',
-      label: 'Average grade',
-      data: lineData,
-      borderColor: LINE_COLOR,
-      borderWidth: 3,
-      pointRadius: lineData.map((_, i) => (i === activeIndex.value ? 5 : 0)),
-      pointHoverRadius: 5,
-      pointBackgroundColor: LINE_COLOR,
-      pointHoverBackgroundColor: LINE_COLOR,
-      tension: 0.3,
-      fill: false,
-      yAxisID: 'y1',
-      order: 1,
-    },
-  ],
-}))
+const chartDataConfig = computed(() => {
+  const lineColor = dtColor('--dt-color-chart-positive')
+  return {
+    labels: chartLabels,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Calls graded',
+        data: callsGraded,
+        backgroundColor: dtColor('--dt-color-chart-neutral'),
+        borderRadius: 0,
+        barPercentage: 0.92,
+        categoryPercentage: 1,
+        yAxisID: 'y',
+        order: 2,
+      },
+      {
+        type: 'line',
+        label: 'Average grade',
+        data: lineData,
+        borderColor: lineColor,
+        borderWidth: 3,
+        pointRadius: lineData.map((_, i) => (i === activeIndex.value ? 5 : 0)),
+        pointHoverRadius: 5,
+        pointBackgroundColor: lineColor,
+        pointHoverBackgroundColor: lineColor,
+        tension: 0.3,
+        fill: false,
+        yAxisID: 'y1',
+        order: 1,
+      },
+    ],
+  }
+})
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: { duration: 0 },
-  events: [],
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-  plugins: {
-    legend: { display: false },
-    tooltip: { enabled: false },
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-      ticks: { font: { size: 12 }, color: '#6B6B6B' },
+const chartOptions = computed(() => {
+  const tickColor = dtColor('--dt-color-foreground-tertiary')
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 0 },
+    events: [],
+    interaction: {
+      mode: 'index',
+      intersect: false,
     },
-    y: {
-      position: 'left',
-      display: false,
-      min: 0,
-      max: 80,
-      grid: { display: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: false },
     },
-    y1: {
-      position: 'left',
-      min: 0,
-      max: 100,
-      grid: {
-        color: 'rgba(0,0,0,0.06)',
-        drawBorder: false,
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 12 }, color: tickColor },
       },
-      ticks: {
-        font: { size: 12 },
-        color: '#6B6B6B',
-        callback: (v) => `${v}%`,
-        stepSize: 25,
+      y: {
+        position: 'left',
+        display: false,
+        min: 0,
+        max: 80,
+        grid: { display: false },
+      },
+      y1: {
+        position: 'left',
+        min: 0,
+        max: 100,
+        grid: {
+          color: dtColor('--dt-color-border-subtle'),
+          drawBorder: false,
+        },
+        ticks: {
+          font: { size: 12 },
+          color: tickColor,
+          callback: (v) => `${v}%`,
+          stepSize: 25,
+        },
       },
     },
-  },
-}
+  }
+})
 
 const tooltipPos = computed(() => {
   if (activeIndex.value === null) return {}
@@ -227,12 +237,16 @@ const tooltipPos = computed(() => {
   if (!pt) return {}
 
   const { x, y } = pt.getProps(['x', 'y'], true)
-  let tipX = x + 14
-  const tipY = Math.max(8, y - 12)
+  const tipW = 220
+  const tipH = 148
+  let tipX = x + 16
+  let tipY = y - tipH - 12
 
-  if (tipX + 160 > chart.width) {
-    tipX = x - 170
+  if (tipX + tipW > chart.width - 8) {
+    tipX = x - tipW - 8
   }
+  tipX = Math.max(8, tipX)
+  tipY = Math.max(8, Math.min(tipY, chart.height - tipH - 8))
 
   return { top: `${tipY}px`, left: `${tipX}px` }
 })
@@ -268,7 +282,7 @@ const hoverPlugin = {
     ctx.save()
     ctx.beginPath()
     ctx.setLineDash([4, 4])
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'
+    ctx.strokeStyle = dtColor('--dt-color-border-default')
     ctx.lineWidth = 1
     ctx.moveTo(x, yAxis.top)
     ctx.lineTo(x, yAxis.bottom)
@@ -355,19 +369,20 @@ onMounted(() => {
   width: 20px;
   height: 4px;
   border-radius: 3px;
-  background: var(--dt-color-green-300);
+  background: var(--dt-color-chart-positive);
 }
 
 .combo-chart-legend-box {
   width: 10px;
   height: 10px;
   border-radius: var(--dt-space-200);
-  background: var(--dt-color-surface-moderate);
+  background: var(--dt-color-chart-neutral);
 }
 
 .combo-chart-canvas {
   position: relative;
-  height: 185px;
+  height: 370px;
+  overflow: visible;
   pointer-events: none;
 }
 
@@ -392,28 +407,61 @@ onMounted(() => {
 }
 
 .combo-chart-tooltip-body {
-  background: var(--dt-color-surface-primary);
-  border-radius: var(--dt-space-300);
-  box-shadow: var(--dt-shadow-small);
+  min-width: 200px;
   padding: var(--dt-space-400) var(--dt-space-450);
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-200);
-  min-width: 120px;
+  gap: var(--dt-space-400);
+  background: var(--dt-color-surface-glass);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-small);
   white-space: nowrap;
 }
 
-.combo-chart-tooltip-value {
-  display: flex;
-  align-items: baseline;
-  gap: var(--dt-space-300);
-  font: var(--dt-typography-label-md-compact);
+.combo-chart-tooltip-date {
+  font: var(--dt-typography-label-sm-compact);
   color: var(--dt-color-foreground-primary);
 }
 
-.combo-chart-tooltip-muted,
-.combo-chart-tooltip-date {
+.combo-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
   font: var(--dt-typography-body-sm);
-  color: var(--dt-color-foreground-tertiary);
+  color: var(--dt-color-foreground-secondary);
+}
+
+.combo-chart-tooltip-chip {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--dt-space-300);
+  flex-shrink: 0;
+}
+
+.combo-chart-tooltip-chip--positive {
+  background: var(--dt-color-chart-positive);
+}
+
+.combo-chart-tooltip-chip--neutral {
+  background: var(--dt-color-chart-neutral);
+}
+
+.combo-chart-tooltip-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-chart-tooltip-metric {
+  font: var(--dt-typography-label-sm-compact);
+  color: var(--dt-color-foreground-primary);
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+}
+
+.combo-chart-tooltip-divider {
+  height: 1px;
+  background: var(--dt-color-border-subtle);
 }
 </style>

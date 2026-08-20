@@ -12,7 +12,7 @@
         class="view-layer"
         :class="{ 'view-layer--visible': activeView === 'call-review' }"
       >
-        <CallReviewView :resolved-count="resolvedCount" />
+        <CallReviewView ref="callReviewRef" :resolved-count="resolvedCount" />
       </div>
       <div
         class="view-layer"
@@ -58,6 +58,7 @@ const VIEW_FADE_MS = 1000
 
 const appRef = ref(null)
 const builderRef = ref(null)
+const callReviewRef = ref(null)
 const analyticsRef = ref(null)
 const activeView = ref('builder')
 const resolvedCount = ref(0)
@@ -139,6 +140,7 @@ async function clickEl(el) {
 
 function resetFilm() {
   analyticsRef.value?.clearChartHover()
+  callReviewRef.value?.clearEvidence()
   activeView.value = 'builder'
   resolvedCount.value = 0
   cursorClicking.value = false
@@ -286,7 +288,16 @@ async function runFilm() {
     if (!running) return
   }
 
-  await sleep(1500)
+  await sleep(400)
+  if (!running) return
+
+  cursorHidden.value = false
+  await nextTick()
+  const evidenceBadge = queryEl('[data-autoplay="ai-badge-0"]')
+  await moveTo(evidenceBadge)
+  await clickEl(evidenceBadge)
+  callReviewRef.value?.showEvidence('greet')
+  await sleep(1600)
   if (!running) return
 
   activeView.value = 'analytics'

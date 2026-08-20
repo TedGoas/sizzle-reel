@@ -66,6 +66,7 @@
   --dt-color-surface-warning-subtle: #FFFAE5; /* gold.50 */
   --dt-color-surface-success:        #EDF9EB; /* green.50 */
   --dt-color-surface-backdrop:       hsl(0 0% 0% / 0.65); /* neutral.black @ 65% */
+  --dt-color-surface-glass:          rgba(249, 249, 249, 0.75); /* frosted overlay — surface-secondary @ 75% */
 
   /* -------------------------------------------------------------------------
    * Colors — foreground
@@ -94,10 +95,12 @@
   --dt-color-link-primary-hover: #5023DD;
 
   /* -------------------------------------------------------------------------
-   * Colors — data viz (Dialtone green-300)
+   * Colors — data viz (Dialtone chart + palette)
    * ----------------------------------------------------------------------- */
   --dt-color-green-300: #52C926;
   --dt-color-gold-200:  #FFE89C;
+  --dt-color-chart-positive: #52C926; /* green.425 */
+  --dt-color-chart-neutral:  #CEC8C4; /* tan.300 */
 
   /* -------------------------------------------------------------------------
    * Button heights

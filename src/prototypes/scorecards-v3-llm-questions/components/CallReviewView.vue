@@ -27,7 +27,7 @@
         <Transcript ref="transcriptRef" />
       </div>
 
-      <ScorecardResults :resolved-count="resolvedCount" />
+      <ScorecardResults :resolved-count="resolvedCount" @evidence="showEvidence" />
     </div>
   </div>
 </template>
@@ -50,6 +50,16 @@ const transcriptRef = ref(null)
 function scrollToChapter(chapterId) {
   transcriptRef.value?.scrollToChapter(chapterId)
 }
+
+function showEvidence(id) {
+  transcriptRef.value?.scrollToEvidence(id)
+}
+
+function clearEvidence() {
+  transcriptRef.value?.clearEvidence()
+}
+
+defineExpose({ showEvidence, clearEvidence })
 </script>
 
 <style scoped>

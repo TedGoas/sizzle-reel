@@ -24,10 +24,9 @@
         </div>
 
         <div class="scorecard-question-answers">
-          <button
+          <div
             v-for="option in q.options"
             :key="option"
-            type="button"
             class="scorecard-answer"
             :class="{
               'scorecard-answer--on': selections[i] === option,
@@ -40,14 +39,17 @@
               :data-autoplay="`q-${i}-${option}`"
             />
             <span class="scorecard-answer-label">{{ option }}</span>
-            <span
+            <button
               v-if="isAiHighlighted(i, option)"
+              type="button"
               class="ai-suggest-badge"
+              :data-autoplay="q.evidenceId ? 'ai-badge-0' : undefined"
+              @click.stop="emitEvidence(q)"
             >
               Suggested by
               <DtIcon name="sparkle" :size="12" class="ai-suggest-sparkle" />
-            </span>
-          </button>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -64,6 +66,8 @@ const props = defineProps({
   aiRevealCount: { type: Number, default: 0 },
 })
 
+const emit = defineEmits(['evidence'])
+
 const aiQuestionIndexes = computed(() =>
   scorecardQuestions
     .map((q, i) => (q.aiSuggest ? i : null))
@@ -75,6 +79,10 @@ function isAiHighlighted(questionIndex, option) {
   if (!q?.aiSuggest || q.aiSuggest !== option) return false
   const order = aiQuestionIndexes.value.indexOf(questionIndex)
   return order !== -1 && order < props.aiRevealCount
+}
+
+function emitEvidence(question) {
+  if (question?.evidenceId) emit('evidence', question.evidenceId)
 }
 </script>
 
@@ -217,7 +225,9 @@ function isAiHighlighted(questionIndex, option) {
   border: 1px solid var(--dt-color-border-subtle);
   border-radius: var(--dt-space-400);
   font: var(--dt-typography-body-sm-compact);
+  font-family: inherit;
   color: var(--dt-color-foreground-secondary);
+  cursor: pointer;
   animation: ai-badge-in 0.25s ease;
 }
 

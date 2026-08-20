@@ -26,7 +26,12 @@
         v-for="(msg, i) in getChapterMessages(chapter.id)"
         :key="`${chapter.id}-${i}`"
         class="transcript-message"
-        :class="`transcript-message--${msg.speaker}`"
+        :class="[
+          `transcript-message--${msg.speaker}`,
+          { 'transcript-message--evidence': msg.id && msg.id === evidenceId },
+        ]"
+        :id="msg.id ? `transcript-${msg.id}` : undefined"
+        :data-autoplay="msg.id ? `transcript-${msg.id}` : undefined"
       >
         <div
           v-if="msg.speaker === 'customer'"
@@ -49,8 +54,20 @@
             <span class="transcript-message-name">{{ msg.name }}</span>
             <span class="transcript-message-time">{{ msg.time }}</span>
           </div>
-          <p class="transcript-message-text" v-html="highlightText(msg.text)"></p>
+          <p v-if="isEvidenceMessage(msg)" class="transcript-message-text">
+            <span v-html="highlightText(evidenceParts(msg).before)"></span>
+            <mark class="transcript-evidence-mark">{{ evidenceParts(msg).phrase }}</mark>
+            <span v-html="highlightText(evidenceParts(msg).after)"></span>
+          </p>
+          <p v-else class="transcript-message-text" v-html="highlightText(msg.text)"></p>
         </div>
+        <span
+          v-if="isEvidenceMessage(msg)"
+          class="transcript-evidence-chip"
+        >
+          <DtIcon name="sparkle" :size="12" class="transcript-evidence-chip-icon" />
+          Evidence
+        </span>
       </div>
     </template>
 
@@ -70,6 +87,7 @@ import DtIcon from '../../../components/icons/DtIcon.vue'
 import { transcript, chapters } from '../data/callData.js'
 
 const transcriptRef = ref(null)
+const evidenceId = ref(null)
 
 function getChapterMessages(chapterId) {
   return transcript.filter(m => m.chapter === chapterId)
@@ -90,6 +108,23 @@ function highlightText(text) {
     result = result.replace(regex, `<mark style="background:${color}; border-radius:4px; padding: 1px 2px">$1</mark>`)
   }
   return result
+}
+
+function isEvidenceMessage(msg) {
+  return Boolean(msg?.id && msg.id === evidenceId.value && msg.evidencePhrase)
+}
+
+function evidenceParts(msg) {
+  const phrase = msg.evidencePhrase || ''
+  const index = msg.text.indexOf(phrase)
+  if (index === -1) {
+    return { before: msg.text, phrase: '', after: '' }
+  }
+  return {
+    before: msg.text.slice(0, index),
+    phrase,
+    after: msg.text.slice(index + phrase.length),
+  }
 }
 
 function getInitials(name) {
@@ -115,6 +150,23 @@ function scrollToChapter(chapterId) {
   }
 }
 
+function scrollToEvidence(id) {
+  evidenceId.value = id
+  nextTick(() => {
+    const el = document.getElementById(`transcript-${id}`)
+    if (el && transcriptRef.value) {
+      transcriptRef.value.scrollTo({
+        top: el.offsetTop - transcriptRef.value.offsetTop - 36,
+        behavior: 'smooth',
+      })
+    }
+  })
+}
+
+function clearEvidence() {
+  evidenceId.value = null
+}
+
 // Auto-scroll to bottom on mount
 onMounted(() => {
   nextTick(() => {
@@ -129,7 +181,7 @@ onMounted(() => {
   })
 })
 
-defineExpose({ scrollToChapter })
+defineExpose({ scrollToChapter, scrollToEvidence, clearEvidence })
 </script>
 
 <style scoped>
@@ -202,9 +254,41 @@ defineExpose({ scrollToChapter })
 }
 
 .transcript-message {
+  position: relative;
   display: flex;
   gap: 10px;
   padding: 8px 16px;
+}
+
+.transcript-message--evidence {
+  background: var(--dt-color-surface-brand-subtle);
+  border-radius: var(--dt-space-400);
+  overflow: visible;
+}
+
+.transcript-message-text :deep(.transcript-evidence-mark),
+.transcript-evidence-mark {
+  background: var(--dt-color-gold-200);
+  border-radius: var(--dt-space-300);
+  padding: 1px 2px;
+}
+
+.transcript-evidence-chip {
+  position: absolute;
+  top: 0;
+  right: var(--dt-space-500);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  padding: 2px var(--dt-space-300);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-space-400);
+  font: var(--dt-typography-body-sm-compact);
+  color: var(--dt-color-foreground-secondary);
+  white-space: nowrap;
+  transform: translateY(-50%);
 }
 
 .transcript-message-avatar {
@@ -246,6 +330,11 @@ defineExpose({ scrollToChapter })
   align-items: center;
   gap: 8px;
   margin-bottom: 2px;
+}
+
+.transcript-evidence-chip-icon {
+  color: var(--dt-color-link-primary);
+  flex-shrink: 0;
 }
 
 .transcript-message-name {
