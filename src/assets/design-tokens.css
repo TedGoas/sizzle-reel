@@ -66,6 +66,7 @@
   --dt-color-surface-warning-subtle: #FFFAE5; /* gold.50 */
   --dt-color-surface-success:        #EDF9EB; /* green.50 */
   --dt-color-surface-backdrop:       hsl(0 0% 0% / 0.65); /* neutral.black @ 65% */
+  --dt-color-surface-glass:          rgba(249, 249, 249, 0.75); /* frosted overlay — surface-secondary @ 75% */
 
   /* -------------------------------------------------------------------------
    * Colors — foreground

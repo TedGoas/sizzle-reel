@@ -240,16 +240,13 @@ const tooltipPos = computed(() => {
   const tipW = 220
   const tipH = 148
   let tipX = x + 16
-  let tipY = y - 28
+  let tipY = y - tipH - 12
 
   if (tipX + tipW > chart.width - 8) {
     tipX = x - tipW - 8
   }
-  if (tipX < 8) tipX = 8
-  if (tipY < 8) tipY = 8
-  if (tipY + tipH > chart.height - 8) {
-    tipY = Math.max(8, chart.height - tipH - 8)
-  }
+  tipX = Math.max(8, tipX)
+  tipY = Math.max(8, Math.min(tipY, chart.height - tipH - 8))
 
   return { top: `${tipY}px`, left: `${tipX}px` }
 })
@@ -385,6 +382,7 @@ onMounted(() => {
 .combo-chart-canvas {
   position: relative;
   height: 370px;
+  overflow: visible;
   pointer-events: none;
 }
 
@@ -414,9 +412,9 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: var(--dt-space-400);
-  background: color-mix(in srgb, var(--dt-color-surface-primary) 75%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--dt-color-surface-glass);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--dt-color-border-subtle);
   border-radius: var(--dt-space-300);
   box-shadow: var(--dt-shadow-small);
