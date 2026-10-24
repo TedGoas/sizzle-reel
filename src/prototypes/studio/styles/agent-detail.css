@@ -1,0 +1,55 @@
+/* Agent Detail Layout */
+
+.agent-detail-container {
+  background: white;
+}
+
+.agent-detail-header {
+  padding: 24px 24px 16px 24px;
+  background: white;
+}
+
+.agent-detail-body {
+  display: flex;
+  background: white;
+}
+
+.agent-detail-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 0 16px 16px 16px;
+  background: white;
+  position: sticky;
+  top: 16px;
+  align-self: flex-start;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+.agent-detail-main-content {
+  flex: 1;
+  padding: 0 24px 24px 24px;
+  background: white;
+}
+
+/* Canvas tab fills available vertical space */
+.agent-editor-tab {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px - 80px - 48px);
+  position: relative;
+}
+
+/* Overview tab should not stretch, only take content height */
+.overview-tab {
+  display: block;
+}
+
+/* Drawer state */
+.main-content-wrapper {
+  transition: margin-right 0.3s ease;
+}
+
+.main-content-wrapper.drawer-open {
+  margin-right: 400px;
+}

@@ -10,6 +10,7 @@ const prototypes = [
   { name: 'scorecards-v1-ai-questions', label: 'Scorecards V2 - AI Questions' },
   { name: 'scorecards-v3-llm-questions', label: 'Scorecards V3 - LLM Questions' },
   { name: 'scorecards-future', label: 'Scorecards V4 - Future' },
+  { name: 'studio', label: 'Studio' },
 ]
 
 const routes = [

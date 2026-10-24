@@ -1,0 +1,168 @@
+/* Chart and UI Animations */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawBar {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes drawLine {
+  from {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes growBar {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--bar-width);
+  }
+}
+
+@keyframes drawDonutSegment1 {
+  from {
+    stroke-dasharray: 0 440;
+  }
+  to {
+    stroke-dasharray: 118 440;
+  }
+}
+
+@keyframes drawDonutSegment2 {
+  from {
+    stroke-dasharray: 0 440;
+  }
+  to {
+    stroke-dasharray: 38 440;
+  }
+}
+
+@keyframes drawDonutSegment3 {
+  from {
+    stroke-dasharray: 0 440;
+  }
+  to {
+    stroke-dasharray: 31 440;
+  }
+}
+
+@keyframes drawDonutSegment4 {
+  from {
+    stroke-dasharray: 0 440;
+  }
+  to {
+    stroke-dasharray: 21 440;
+  }
+}
+
+@keyframes drawDonutSegment5 {
+  from {
+    stroke-dasharray: 0 440;
+  }
+  to {
+    stroke-dasharray: 142 440;
+  }
+}
+
+/* Set initial states to prevent jitter — namespaced to prevent leaking to other prototypes */
+.agentic-studio-root .chart-card svg rect {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.agentic-studio-root .chart-card svg polyline {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+.agentic-studio-root .chart-card .skill-usage-bar {
+  width: 0;
+}
+
+.agentic-studio-root .chart-card .donut-segment {
+  stroke-dasharray: 0 440;
+}
+
+/* Apply animations to chart elements with delays */
+.chart-card-1 svg rect {
+  animation: drawBar 0.6s ease-out forwards;
+  animation-delay: 0s;
+}
+
+.chart-card-1 svg polyline {
+  animation: drawLine 1s ease-out forwards;
+  animation-delay: 0s;
+}
+
+.chart-card-2 svg rect {
+  animation: drawBar 0.6s ease-out forwards;
+  animation-delay: 0.15s;
+}
+
+.chart-card-2 svg polyline {
+  animation: drawLine 1s ease-out forwards;
+  animation-delay: 0.15s;
+}
+
+.chart-card-3 svg rect {
+  animation: drawBar 0.6s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.chart-card-3 svg polyline {
+  animation: drawLine 1s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+.chart-card-4 .skill-usage-bar {
+  animation: growBar 0.8s ease-out forwards;
+  animation-delay: 0.45s;
+}
+
+.chart-card-5 .donut-segment-1 {
+  animation: drawDonutSegment1 0.4s ease-out forwards;
+  animation-delay: 0.6s;
+}
+
+.chart-card-5 .donut-segment-2 {
+  animation: drawDonutSegment2 0.3s ease-out forwards;
+  animation-delay: 1.0s;
+}
+
+.chart-card-5 .donut-segment-3 {
+  animation: drawDonutSegment3 0.3s ease-out forwards;
+  animation-delay: 1.3s;
+}
+
+.chart-card-5 .donut-segment-4 {
+  animation: drawDonutSegment4 0.3s ease-out forwards;
+  animation-delay: 1.6s;
+}
+
+.chart-card-5 .donut-segment-5 {
+  animation: drawDonutSegment5 0.5s ease-out forwards;
+  animation-delay: 1.9s;
+}

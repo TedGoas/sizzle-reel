@@ -1,0 +1,950 @@
+/* Agent Editor Canvas Preview */
+/* Note: sizing handled by agent-detail.css flex rules */
+
+.canvas-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* During transition, inline styles handle positioning */
+.canvas-preview-container.transitioning-to-fullscreen,
+.canvas-preview-container.transitioning-to-preview {
+  /* Inline styles will set position, dimensions, border, etc. */
+  /* Just ensure proper z-index here */
+  z-index: 1000;
+}
+
+.canvas-preview-container.is-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 50px;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  border: none;
+  z-index: 1000;
+}
+
+.maximize-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: auto;
+  height: auto;
+  opacity: 1;
+}
+
+.maximize-button:hover {
+  background: #f5f5f5;
+}
+
+.maximize-button.transition-button {
+  transition: opacity 0.3s ease, background 0.2s ease;
+}
+
+.maximize-button.transitioning {
+  position: fixed;
+  top: 16px;
+  left: 66px;
+  z-index: 1001;
+}
+
+.canvas-area {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0;
+  overflow: hidden;
+  user-select: none;
+}
+
+.canvas-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  will-change: transform;
+}
+
+/* Smooth transition for button-triggered zoom/pan */
+.canvas-content.smooth-transition {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.connection-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Animated connection line drawing */
+.connection-line-new {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawConnectionLine 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes drawConnectionLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Smooth transitions for connection lines (when not dragging) */
+.connection-line-smooth {
+  transition: d 0.15s ease-out;
+}
+
+/* Hover effect on connection lines */
+.connection-line-hover {
+  stroke: #9358FF !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 4px rgba(147, 88, 255, 0.4));
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+}
+
+/* Fade out connection line when node is being deleted */
+.connection-line-deleting {
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.canvas-node {
+  position: absolute;
+  width: 280px;
+  background: white;
+  border-radius: 16px;
+  padding: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-node:hover:not(.is-dragging) {
+  box-shadow: 0px 4px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.canvas-node-agent {
+  outline: 2px solid rgba(71, 21, 113, 0.30);
+}
+
+.canvas-node-agent:hover {
+  box-shadow: 0px 4px 24px rgba(71, 21, 113, 0.2);
+}
+
+.canvas-node-skill {
+  outline: 2px solid rgba(255, 152, 0, 0.30);
+}
+
+.canvas-node-skill:hover {
+  box-shadow: 0px 4px 24px rgba(255, 152, 0, 0.2);
+}
+
+.canvas-node-workflow {
+  outline: 2px solid rgba(76, 175, 80, 0.30);
+}
+
+.canvas-node-workflow:hover {
+  box-shadow: 0px 4px 24px rgba(76, 175, 80, 0.2);
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F9F9F9;
+  border-radius: 12px;
+  padding: 3px 4px;
+  margin-bottom: 0;
+}
+
+.node-header > div:first-child {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 6px;
+}
+
+.node-type {
+  color: black;
+  font-size: 15px;
+  font-weight: var(--dt-typography-label-md-font-weight);
+  line-height: 24px;
+}
+
+.node-content {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.node-title {
+  font-size: 15px;
+  font-weight: var(--dt-typography-label-md-font-weight);
+  color: black;
+  line-height: 24px;
+}
+
+.node-greeting-label {
+  font-size: 15px;
+  font-weight: 400;
+  color: #999;
+  margin-left: 4px;
+}
+
+.node-description {
+  font-size: 12px;
+  color: #535353;
+  line-height: 14.4px;
+  max-height: 42px;
+  overflow: hidden;
+}
+
+.node-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Shimmer effect for skill creation with color gradient */
+.node-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.node-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(147, 88, 255, 0.08) 20%,
+    rgba(147, 88, 255, 0.2) 35%,
+    rgba(236, 72, 153, 0.15) 45%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(236, 72, 153, 0.15) 55%,
+    rgba(147, 88, 255, 0.2) 65%,
+    rgba(147, 88, 255, 0.08) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: node-shimmer 1.5s ease-in-out infinite;
+  pointer-events: none;
+  filter: blur(8px);
+}
+
+@keyframes node-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Fade-in animation for new nodes with spring bounce */
+.node-fade-in {
+  animation: fadeInSpring 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+@keyframes fadeInSpring {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Stagger animation for node elements */
+.node-fade-in .node-header {
+  animation: fadeInElement 0.3s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.node-fade-in .node-content {
+  animation: fadeInElement 0.3s ease-out forwards;
+  animation-delay: 0.35s;
+  opacity: 0;
+}
+
+.node-fade-in .node-badge {
+  animation: fadeInElement 0.3s ease-out forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+@keyframes fadeInElement {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Delete animation - fade out and scale down */
+.node-deleting {
+  animation: fadeOutScale 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes fadeOutScale {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+/* Success pulse animation when creation completes */
+.node-success-pulse {
+  animation: successPulse 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes successPulse {
+  0% {
+    box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.08),
+                0 0 0 0 rgba(147, 88, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0px 4px 24px rgba(147, 88, 255, 0.3),
+                0 0 0 8px rgba(147, 88, 255, 0);
+  }
+  100% {
+    box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.08),
+                0 0 0 0 rgba(147, 88, 255, 0);
+  }
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  gap: 6px;
+  background: white;
+  border: 1px solid rgba(28, 28, 28, 0.11);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.zoom-controls button {
+  background: transparent;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  width: 24px;
+  height: 24px;
+}
+
+.zoom-controls button:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.zoom-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Full Screen Agent Builder */
+/* Hide dpadmin navigation elements when in builder mode, but keep primary nav */
+.builder-fullscreen-mode .dt-root-layout__header,
+.builder-fullscreen-mode .dt-root-layout__secondary-nav {
+  display: none !important;
+}
+
+.builder-fullscreen-mode .dt-root-layout__content {
+  margin-left: 50px !important;
+}
+
+.full-screen-builder {
+  position: fixed;
+  top: 0;
+  left: 50px; /* Leave space for skinny left nav */
+  right: 0;
+  bottom: 0;
+  background: white;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.builder-header {
+  height: 56px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: white;
+  flex-shrink: 0;
+}
+
+.builder-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.minimize-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.minimize-button:hover {
+  background: #f5f5f5;
+}
+
+.agent-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.builder-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.builder-main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Floating Controls - matching maximize-button styling */
+.floating-control {
+  position: absolute;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.floating-control.control-visible {
+  opacity: 1;
+}
+
+/* Fade out for preview controls when transitioning to fullscreen */
+.fade-out {
+  opacity: 0 !important;
+  transition: opacity 0.2s ease;
+}
+
+.floating-control.top-left {
+  top: 16px;
+  left: 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.floating-control.top-right {
+  top: 16px;
+  right: 16px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-control.top-right.panel-shifted {
+  right: 492px; /* 16px original + 476px panel space (16px margin + 460px width) */
+}
+
+.control-divider {
+  width: 1px;
+  height: 24px;
+  background: #e0e0e0;
+  margin: 0 4px;
+}
+
+.floating-control.bottom-left-assist {
+  bottom: 16px;
+  left: 16px;
+}
+
+.floating-control.bottom-left-zoom {
+  bottom: 16px;
+  left: 88px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  padding: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  gap: 0;
+}
+
+.floating-control.bottom-left-zoom button {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.floating-control.bottom-left-zoom button svg {
+  width: 20px;
+  height: 20px;
+  color: #666;
+}
+
+.floating-control.bottom-left-zoom button:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.floating-control.bottom-left-zoom button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.floating-control.bottom-right {
+  bottom: 16px;
+  right: 16px;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-control.bottom-right.panel-shifted {
+  right: 492px; /* 16px original + 476px panel space (16px margin + 460px width) */
+}
+
+.floating-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  color: #666;
+}
+
+.floating-icon-button:hover {
+  background: #f5f5f5;
+}
+
+.floating-agent-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 8px;
+  border-left: 1px solid #e0e0e0;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.floating-control:not(.control-visible) .floating-agent-info {
+  opacity: 0;
+}
+
+.floating-agent-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.agent-assist-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #f97316 100%);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.agent-assist-button:hover {
+  box-shadow: 0 6px 16px rgba(147, 51, 234, 0.4);
+  transform: scale(1.05);
+}
+
+.floating-add-button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #9358ff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(147, 88, 255, 0.3);
+  transition: all 0.2s ease;
+  color: white;
+}
+
+.floating-add-button:hover {
+  background: #7c3aed;
+  box-shadow: 0 6px 16px rgba(147, 88, 255, 0.4);
+  transform: scale(1.05);
+}
+
+/* Mining active state with spinning gradient border */
+.floating-add-button {
+  position: relative;
+}
+
+.floating-add-button::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  padding: 4px;
+  background: linear-gradient(
+    45deg,
+    #9358ff,
+    var(--dt-color-brand-purple),
+    #5ecfff,
+    var(--dt-color-brand-purple),
+    #9358ff
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+  pointer-events: none;
+}
+
+.floating-add-button.mining-active::before {
+  opacity: 1;
+  animation: mining-spin 2s linear infinite;
+}
+
+.floating-add-button.mining-active {
+  animation: mining-pulse 2s ease-in-out infinite;
+}
+
+@keyframes mining-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mining-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(147, 88, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(147, 88, 255, 0.6), 0 0 30px rgba(94, 207, 255, 0.3);
+  }
+}
+
+.builder-toolbar {
+  width: 56px;
+  background: #fafafa;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 0;
+  flex-shrink: 0;
+}
+
+.toolbar-top,
+.toolbar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar-button {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  color: #666;
+}
+
+.toolbar-button:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.toolbar-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbar-button.active {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: #9358ff;
+}
+
+.toolbar-divider {
+  width: 32px;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 8px 0;
+}
+
+.zoom-display {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+  padding: 4px 0;
+  min-width: 40px;
+  text-align: center;
+}
+
+.builder-canvas {
+  flex: 1;
+  position: relative;
+  background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0;
+  overflow: hidden;
+}
+
+.editable-node {
+  user-select: none;
+  cursor: grab;
+  transition: box-shadow 0.2s ease, transform 0.05s ease;
+}
+
+.editable-node:active {
+  cursor: grabbing;
+}
+
+.editable-node.is-dragging {
+  cursor: grabbing !important;
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.16) !important;
+  z-index: 10 !important;
+}
+
+.node-menu-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px 2px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  color: #1c1c1c;
+}
+
+.node-menu-button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Node Menu Dropdown */
+.node-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 998;
+  background: transparent;
+}
+
+.node-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #f9f9f9;
+  border: 1px solid rgba(28, 28, 28, 0.11);
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+  min-width: 160px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.node-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #1c1c1c;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.node-menu-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.node-menu-item-delete {
+  color: #d90a45;
+}
+
+.node-menu-item-delete:hover {
+  background: rgba(217, 10, 69, 0.08);
+}
+
+/* Delete Confirmation Modal */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.delete-modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.12);
+  width: 90%;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.delete-modal-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid rgba(28, 28, 28, 0.08);
+}
+
+.delete-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1c1c1c;
+}
+
+.delete-modal-body {
+  padding: 20px 24px;
+}
+
+.delete-modal-body p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+  color: #535353;
+}
+
+.delete-modal-footer {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid rgba(28, 28, 28, 0.08);
+}
