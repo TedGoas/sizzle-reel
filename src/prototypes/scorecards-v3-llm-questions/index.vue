@@ -109,6 +109,40 @@ function pointAt(el) {
   cursorY.value = box.top + box.height / 2 - origin.top - 3
 }
 
+function isScrollableY(el) {
+  const overflowY = getComputedStyle(el).overflowY
+  return (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')
+    && el.scrollHeight > el.clientHeight + 1
+}
+
+/** Keep autoplay scroll inside the embed — never scroll the host case-study page. */
+function scrollElementIntoView(el, { block = 'nearest' } = {}) {
+  if (!el || !appRef.value) return
+  const scrollers = []
+  let node = el.parentElement
+  while (node && appRef.value.contains(node)) {
+    if (isScrollableY(node)) scrollers.push(node)
+    node = node.parentElement
+  }
+  for (const scroller of scrollers) {
+    const scrollerBox = scroller.getBoundingClientRect()
+    const elBox = el.getBoundingClientRect()
+    let delta = 0
+    if (block === 'center') {
+      delta = elBox.top + elBox.height / 2 - (scrollerBox.top + scrollerBox.height / 2)
+    } else if (elBox.top < scrollerBox.top) {
+      delta = elBox.top - scrollerBox.top
+    } else if (elBox.bottom > scrollerBox.bottom) {
+      delta = elBox.bottom - scrollerBox.bottom
+    }
+    if (delta !== 0) scroller.scrollTop += delta
+  }
+}
+
+function focusWithoutScroll(el) {
+  el?.focus?.({ preventScroll: true })
+}
+
 let running = false
 const pending = []
 
@@ -121,7 +155,7 @@ function sleep(ms) {
 
 async function moveTo(el, duration = 700) {
   if (!el || !running) return
-  el.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  scrollElementIntoView(el, { block: 'nearest' })
   moveDuration.value = duration
   cursorMoving.value = true
   pointAt(el)
@@ -157,7 +191,7 @@ async function runFilm() {
 
   const questionInput = queryEl('#question-text')
   await moveTo(questionInput)
-  questionInput?.focus()
+  focusWithoutScroll(questionInput)
   await sleep(200)
   if (!running) return
 
@@ -198,7 +232,7 @@ async function runFilm() {
 
   const vipInput = queryEl('#question-text')
   await moveTo(vipInput)
-  vipInput?.focus()
+  focusWithoutScroll(vipInput)
   await sleep(200)
   if (!running) return
 
@@ -211,7 +245,7 @@ async function runFilm() {
   await clickEl(saveBtn)
   builderRef.value?.saveQuestion()
   await nextTick()
-  queryEl('.ai-question-input-wrapper')?.scrollIntoView({ block: 'center', inline: 'nearest' })
+  scrollElementIntoView(queryEl('.ai-question-input-wrapper'), { block: 'center' })
   await sleep(1200)
   if (!running) return
 
@@ -225,7 +259,7 @@ async function runFilm() {
 
   const defineInput = queryEl('[data-autoplay="define-term-input"]')
   await moveTo(defineInput)
-  defineInput?.focus()
+  focusWithoutScroll(defineInput)
   await sleep(200)
   if (!running) return
 
@@ -258,7 +292,7 @@ async function runFilm() {
 
   const skipInput = queryEl('[data-autoplay="skip-input"]')
   await moveTo(skipInput)
-  skipInput?.focus()
+  focusWithoutScroll(skipInput)
   await sleep(200)
   if (!running) return
 

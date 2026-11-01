@@ -96,6 +96,40 @@ function pointAt(el) {
   cursorY.value = box.top + box.height / 2 - origin.top - 3
 }
 
+function isScrollableY(el) {
+  const overflowY = getComputedStyle(el).overflowY
+  return (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')
+    && el.scrollHeight > el.clientHeight + 1
+}
+
+/** Keep autoplay scroll inside the embed — never scroll the host case-study page. */
+function scrollElementIntoView(el, { block = 'nearest' } = {}) {
+  if (!el || !appRef.value) return
+  const scrollers = []
+  let node = el.parentElement
+  while (node && appRef.value.contains(node)) {
+    if (isScrollableY(node)) scrollers.push(node)
+    node = node.parentElement
+  }
+  for (const scroller of scrollers) {
+    const scrollerBox = scroller.getBoundingClientRect()
+    const elBox = el.getBoundingClientRect()
+    let delta = 0
+    if (block === 'center') {
+      delta = elBox.top + elBox.height / 2 - (scrollerBox.top + scrollerBox.height / 2)
+    } else if (elBox.top < scrollerBox.top) {
+      delta = elBox.top - scrollerBox.top
+    } else if (elBox.bottom > scrollerBox.bottom) {
+      delta = elBox.bottom - scrollerBox.bottom
+    }
+    if (delta !== 0) scroller.scrollTop += delta
+  }
+}
+
+function focusWithoutScroll(el) {
+  el?.focus?.({ preventScroll: true })
+}
+
 let running = false
 const pending = []
 
@@ -108,6 +142,7 @@ function sleep(ms) {
 
 async function moveTo(el, duration = 700) {
   if (!el || !running) return
+  scrollElementIntoView(el, { block: 'nearest' })
   moveDuration.value = duration
   cursorMoving.value = true
   pointAt(el)
@@ -164,7 +199,7 @@ async function runFilm() {
 
   const triggerInput = queryEl('#trigger-words')
   await moveTo(triggerInput)
-  triggerInput?.focus()
+  focusWithoutScroll(triggerInput)
   await sleep(200)
   if (!running) return
 
@@ -211,7 +246,7 @@ async function runFilm() {
     const choice = q.aiSuggest || q.answer
     const radio = queryEl(`[data-autoplay="q-${i}-${choice}"]`)
     if (i === lastGradedIndex) {
-      radio?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      scrollElementIntoView(radio, { block: 'nearest' })
       await nextTick()
     }
     await moveTo(radio, i === 0 ? 1000 : 700)

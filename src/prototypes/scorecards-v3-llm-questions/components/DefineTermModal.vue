@@ -101,7 +101,7 @@ watch(
   async (open) => {
     if (!open) return
     await nextTick()
-    inputRef.value?.focus()
+    inputRef.value?.focus({ preventScroll: true })
   }
 )
 </script>
