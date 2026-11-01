@@ -78,6 +78,8 @@
         :entering="entering"
       />
 
+      <AssistantChat v-if="chat.open" :chat="chat" />
+
       <div v-if="phase === 'canvas'" class="dock">
         <span class="assist" aria-hidden="true">
           <svg viewBox="0 0 16 16">
@@ -105,6 +107,7 @@ import { computed } from 'vue'
 import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
+import AssistantChat from './AssistantChat.vue'
 import { chipPrompts, suggestionChips } from '../agents.js'
 
 const props = defineProps({
@@ -120,6 +123,7 @@ const props = defineProps({
   revealedCount: { type: Number, default: 0 },
   shimmering: { type: Array, default: () => [] },
   entering: { type: Array, default: () => [] },
+  chat: { type: Object, default: () => ({ open: false, slide: 0, reply: '' }) },
 })
 
 function chipSentence(index) {

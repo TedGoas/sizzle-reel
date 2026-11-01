@@ -1,5 +1,18 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { duration, cursorKeys, sceneSwitchAt, skillAppearAt, shimmerMs, enterMs } from './script.js'
+import {
+  duration,
+  cursorKeys,
+  sceneSwitchAt,
+  skillAppearAt,
+  shimmerMs,
+  enterMs,
+  chatOpenAt,
+  chatThoughtAt,
+  chatReplyAt,
+  chatSlideMs,
+  chatTypeMs,
+  chatReply,
+} from './script.js'
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n))
@@ -7,6 +20,12 @@ function clamp(n, min, max) {
 
 function easeOutCubic(t) {
   return 1 - Math.pow(1 - t, 3)
+}
+
+function easeSlide(t) {
+  const c1 = 1.15
+  const c3 = c1 + 1
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2)
 }
 
 // Hotspots are the pixel the cursor "points" with, inside each svg.
@@ -28,6 +47,14 @@ export function useDirector(stageRef) {
   const revealedCount = ref(0)
   const shimmering = ref([false, false, false])
   const entering = ref([false, false, false])
+  const chat = ref({
+    open: false,
+    slide: 0,
+    showThought: false,
+    typing: false,
+    thoughtSeconds: 0,
+    reply: '',
+  })
 
   let raf = 0
   let lastTs = null
@@ -95,6 +122,21 @@ export function useDirector(stageRef) {
     revealedCount.value = onCanvas ? skillAppearAt.filter((t0) => t >= t0).length : 0
     shimmering.value = skillAppearAt.map((t0) => onCanvas && t >= t0 && t < t0 + shimmerMs)
     entering.value = skillAppearAt.map((t0) => onCanvas && t >= t0 && t < t0 + enterMs)
+    const chatOpen = onCanvas && t >= chatOpenAt
+    const slide = chatOpen ? Math.min(easeSlide(clamp((t - chatOpenAt) / chatSlideMs, 0, 1)), 1.04) : 0
+    const replyCount = onCanvas && t >= chatReplyAt
+      ? Math.min(chatReply.length, Math.floor((t - chatReplyAt) / chatTypeMs))
+      : 0
+    chat.value = {
+      open: chatOpen,
+      slide,
+      showThought: onCanvas && t >= chatThoughtAt,
+      typing: onCanvas && t >= chatThoughtAt && t < chatReplyAt,
+      thoughtSeconds: onCanvas && t >= chatThoughtAt
+        ? Math.floor((Math.min(t, chatReplyAt) - chatThoughtAt) / 300)
+        : 0,
+      reply: chatReply.slice(0, replyCount),
+    }
     clicking.value = Boolean(from.press)
     const stage = stageRef.value
     stage?.querySelectorAll('.is-pressed').forEach((el) => {
@@ -214,6 +256,7 @@ export function useDirector(stageRef) {
     revealedCount,
     shimmering,
     entering,
+    chat,
     toggle,
     seekBy,
   }

@@ -1,7 +1,7 @@
 // Timed beats for the demo clock. Times are milliseconds from the start.
 // Append later scenes by extending cursorKeys and moving `duration`.
 
-export const duration = 15000
+export const duration = 20000
 
 // List stays up through the click. The canvas appears as the click releases.
 export const sceneSwitchAt = 1880
@@ -11,6 +11,16 @@ export const sceneSwitchAt = 1880
 export const skillAppearAt = [11450, 12150, 12850]
 export const shimmerMs = 1200
 export const enterMs = 900
+
+// Assistant chat opens after the canvas has settled. Timings match the
+// original: the prompt appears immediately, a thought starts 400ms later,
+// and the reply begins 800ms after that because the nodes are already built.
+export const chatOpenAt = 15000
+export const chatThoughtAt = 15400
+export const chatReplyAt = 16200
+export const chatSlideMs = 450
+export const chatTypeMs = 8
+export const chatReply = "All set! I've created AI Receptionist with 3 skills to handle your request. Let me know if you'd like to adjust anything."
 
 // Cursor keyframes. `nx`/`ny` are fractions of the stage.
 // `selector` aims the cursor tip at the center of that element.
@@ -43,4 +53,6 @@ export const cursorKeys = [
   { t: 10700, selector: '[data-autoplay="send"]', phase: 'building', commit: 0 },
   { t: 11100, phase: 'canvas', nx: 0.1, ny: 0.42 },
   { t: 15000, phase: 'canvas', nx: 0.1, ny: 0.42 },
+  { t: 15800, phase: 'canvas', nx: 0.7, ny: 0.46 },
+  { t: 20000, phase: 'canvas', nx: 0.7, ny: 0.46 },
 ]

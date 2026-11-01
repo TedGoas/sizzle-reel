@@ -14,6 +14,7 @@
           :revealed-count="revealedCount"
           :shimmering="shimmering"
           :entering="entering"
+          :chat="chat"
         />
       </div>
       <div
@@ -72,6 +73,7 @@ const {
   revealedCount,
   shimmering,
   entering,
+  chat,
   toggle,
   seekBy,
 } = useDirector(stageRef)
