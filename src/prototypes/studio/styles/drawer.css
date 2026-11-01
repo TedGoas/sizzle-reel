@@ -1,0 +1,60 @@
+/* Drawer Styles */
+
+.drawer-container {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  bottom: 0;
+  width: 480px;
+  z-index: 1000;
+}
+
+.drawer-content {
+  width: 100%;
+  background: white;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-left: 1px solid #e0e0e0;
+}
+
+/* Drawer Animations */
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: all 0.3s ease;
+}
+
+.drawer-enter-active .drawer-content {
+  animation: slideInRight 0.3s ease;
+}
+
+.drawer-leave-active .drawer-content {
+  animation: slideOutRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Container Queries for Responsive Layout */
+@container main-content (max-width: 900px) {
+  /* Further adjustments for very narrow viewports */
+  .agentic-studio-root .chart-card {
+    min-width: 0;
+  }
+}

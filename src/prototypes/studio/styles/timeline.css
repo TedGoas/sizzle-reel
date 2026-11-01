@@ -1,0 +1,56 @@
+/* Timeline Styles */
+
+.timeline {
+  position: relative;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+
+.timeline-item:not(.timeline-item--last)::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background-color: #e0e0e0;
+}
+
+.timeline-dot {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background-color: white;
+  margin-top: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Test Result Cards */
+.test-result-card {
+  padding: 20px;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  max-width: 840px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.test-result-card:hover {
+  background-color: #fafafa;
+}
