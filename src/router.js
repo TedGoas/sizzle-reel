@@ -11,6 +11,7 @@ const prototypes = [
   { name: 'scorecards-v3-llm-questions', label: 'Scorecards V3 - LLM Questions' },
   { name: 'scorecards-future', label: 'Scorecards V4 - Future' },
   { name: 'studio', label: 'Studio' },
+  { name: 'studio-demo', label: 'Studio Demo' },
 ]
 
 const routes = [
