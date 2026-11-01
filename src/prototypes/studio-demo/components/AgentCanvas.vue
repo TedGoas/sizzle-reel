@@ -22,8 +22,8 @@
           <span class="node-menu"><Icon name="more-vertical" :size="14" /></span>
         </header>
         <div class="node-body">
-          <h2>AI Receptionist</h2>
-          <p>Greets callers professionally, routes to the right team, and captures messages when agents are unavailable.</p>
+          <h2>{{ agentName }}</h2>
+          <p>{{ agentDescription }}</p>
         </div>
       </article>
 
@@ -69,6 +69,11 @@ const props = defineProps({
   count: { type: Number, default: 0 },
   shimmering: { type: Array, default: () => [] },
   entering: { type: Array, default: () => [] },
+  agentName: { type: String, default: 'AI Receptionist' },
+  agentDescription: {
+    type: String,
+    default: 'Greets callers professionally, routes to the right team, and captures messages when agents are unavailable.',
+  },
 })
 
 // Tops are the Studio layout shifted down so the first skill stays on canvas.

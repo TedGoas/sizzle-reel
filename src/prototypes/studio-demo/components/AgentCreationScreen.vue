@@ -6,10 +6,10 @@
       <div class="ambient-glow-2" :class="{ 'is-faded': phase === 'canvas' }" />
 
       <div class="float float--left">
-        <span class="icon-btn" aria-hidden="true">
+        <button type="button" class="icon-btn" aria-label="Back to AI Agents" @click="emit('back')">
           <Icon name="arrow-left" :size="16" />
-        </span>
-        <span class="agent-name">{{ phase === 'canvas' ? 'AI Receptionist' : 'New AI Agent' }}</span>
+        </button>
+        <span class="agent-name">{{ phase === 'canvas' ? agentName : 'New AI Agent' }}</span>
         <span class="draft">Draft</span>
       </div>
 
@@ -35,31 +35,35 @@
         <Transition name="heading" mode="out-in">
           <p :key="subtext">{{ subtext }}</p>
         </Transition>
-        <div class="prompt" data-autoplay="prompt">
+        <div class="prompt">
           <span class="prompt-placeholder" :class="{ 'is-value': inputText }">{{ inputText || previewText || 'Describe your AI agent in a conversational manner...' }}</span>
-          <span class="send" :class="{ 'is-ready': inputText }" data-autoplay="send" aria-hidden="true">
+          <button type="button" class="send" :class="{ 'is-ready': inputText }" :aria-disabled="!inputText || phase !== 'edit'" @click="submit">
             <span v-if="phase === 'building'" class="spinner" />
             <Icon v-else name="send" :size="16" />
-          </span>
+          </button>
         </div>
         <div class="chips" :class="{ 'is-hidden': phase === 'building' || phase === 'canvas' }">
           <div class="chip-row">
-            <span
+            <button
               v-for="(chip, i) in suggestionChips.slice(0, 3)"
               :key="chip"
+              type="button"
               class="chip"
-              :class="{ 'chip--hover': previewIndex === i }"
-              :data-autoplay="`chip-${i}`"
-            >{{ chip }}</span>
+              @mouseenter="hoverChip(i)"
+              @mouseleave="leaveChip(i)"
+              @click="chooseChip(i)"
+            >{{ chip }}</button>
           </div>
           <div class="chip-row">
-            <span
+            <button
               v-for="(chip, i) in suggestionChips.slice(3)"
               :key="chip"
+              type="button"
               class="chip"
-              :class="{ 'chip--hover': previewIndex === i + 3 }"
-              :data-autoplay="`chip-${i + 3}`"
-            >{{ chip }}</span>
+              @mouseenter="hoverChip(i + 3)"
+              @mouseleave="leaveChip(i + 3)"
+              @click="chooseChip(i + 3)"
+            >{{ chip }}</button>
           </div>
           <div class="chip-row">
             <span class="chip chip--quiet">
@@ -73,12 +77,20 @@
 
       <AgentCanvas
         v-if="phase === 'canvas'"
-        :count="revealedCount"
+        :count="showSkills ? revealedCount : 0"
         :shimmering="shimmering"
         :entering="entering"
+        :agent-name="agentName"
+        :agent-description="canvasDescriptions[agentName]"
       />
 
-      <AssistantChat v-if="chat.open" :chat="chat" />
+      <AssistantChat
+        v-if="chatOpen"
+        :user-text="inputText"
+        :agent-name="agentName"
+        :skills="showSkills ? receptionistSkills : []"
+        @close="chatOpen = false"
+      />
 
       <div v-if="phase === 'canvas'" class="dock">
         <span class="assist" aria-hidden="true">
@@ -103,27 +115,30 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onUnmounted, ref } from 'vue'
 import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
-import { chipPrompts, suggestionChips } from '../agents.js'
+import { canvasDescriptions, chipPrompts, receptionistSkills, suggestionChips } from '../agents.js'
 
-const props = defineProps({
-  previewIndex: {
-    default: null,
-    validator: (value) => value == null || Number.isInteger(value),
-  },
-  inputIndex: {
-    default: null,
-    validator: (value) => value == null || Number.isInteger(value),
-  },
-  phase: { type: String, default: 'edit' },
-  revealedCount: { type: Number, default: 0 },
-  shimmering: { type: Array, default: () => [] },
-  entering: { type: Array, default: () => [] },
-  chat: { type: Object, default: () => ({ open: false, slide: 0, reply: '' }) },
+const emit = defineEmits(['back'])
+
+const hoveredChip = ref(null)
+const selectedChip = ref(null)
+const phase = ref('edit')
+const revealedCount = ref(0)
+const shimmering = ref([false, false, false])
+const entering = ref([false, false, false])
+const chatOpen = ref(false)
+const timers = []
+
+function later(fn, ms) {
+  timers.push(setTimeout(fn, ms))
+}
+
+onUnmounted(() => {
+  timers.forEach(clearTimeout)
 })
 
 function chipSentence(index) {
@@ -131,14 +146,62 @@ function chipSentence(index) {
   return chipPrompts[suggestionChips[index]] || ''
 }
 
-const previewText = computed(() => chipSentence(props.previewIndex))
-const inputText = computed(() => chipSentence(props.inputIndex))
-const heading = computed(() => (props.phase === 'building' ? 'Building your agent...' : "Let's get started"))
+const inputText = computed(() => chipSentence(selectedChip.value))
+const previewText = computed(() => (selectedChip.value == null ? chipSentence(hoveredChip.value) : ''))
+const agentName = computed(() => (
+  Number.isInteger(selectedChip.value) ? suggestionChips[selectedChip.value] : 'New AI Agent'
+))
+const showSkills = computed(() => agentName.value === 'AI Receptionist')
+const heading = computed(() => (phase.value === 'building' ? 'Building your agent...' : "Let's get started"))
 const subtext = computed(() => (
-  props.phase === 'building'
+  phase.value === 'building'
     ? "Great description! We'll take it from here. Hang tight."
     : 'Describe what you want this agent to do.'
 ))
+
+function hoverChip(index) {
+  if (phase.value !== 'edit') return
+  hoveredChip.value = index
+}
+
+function leaveChip(index) {
+  if (hoveredChip.value === index) hoveredChip.value = null
+}
+
+function chooseChip(index) {
+  if (phase.value !== 'edit') return
+  selectedChip.value = index
+  hoveredChip.value = null
+}
+
+function submit() {
+  if (!inputText.value || phase.value !== 'edit') return
+  phase.value = 'building'
+  later(revealCanvas, 1060)
+}
+
+function revealCanvas() {
+  phase.value = 'canvas'
+  if (!showSkills.value) {
+    later(() => { chatOpen.value = true }, 800)
+    return
+  }
+  ;[0, 1, 2].forEach((i) => {
+    const t0 = 350 + i * 700
+    later(() => {
+      revealedCount.value = i + 1
+      shimmering.value = shimmering.value.map((on, idx) => idx === i || on)
+      entering.value = entering.value.map((on, idx) => (idx === i ? true : on))
+    }, t0)
+    later(() => {
+      entering.value = entering.value.map((on, idx) => (idx === i ? false : on))
+    }, t0 + 900)
+    later(() => {
+      shimmering.value = shimmering.value.map((on, idx) => (idx === i ? false : on))
+    }, t0 + 1200)
+  })
+  later(() => { chatOpen.value = true }, 3900)
+}
 </script>
 
 <style scoped>
@@ -332,13 +395,14 @@ const subtext = computed(() => (
   width: 100%;
   max-width: 620px;
   padding: 0 24px;
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
 }
 
 .panel.is-gone {
   opacity: 0;
   transform: scale(0.97);
   pointer-events: none;
+  visibility: hidden;
 }
 
 .heading-enter-active,
@@ -403,12 +467,21 @@ p {
   color: #c4c4c4;
 }
 
+.send {
+  cursor: default;
+}
+
 .send.is-ready {
   background: #7c52ff;
   color: #fff;
+  cursor: pointer;
 }
 
-.send.is-pressed {
+.send.is-ready[aria-disabled='true'] {
+  cursor: default;
+}
+
+.send.is-ready:active:not([aria-disabled='true']) {
   transform: scale(0.92);
 }
 
@@ -462,12 +535,12 @@ p {
   white-space: nowrap;
 }
 
-.chip--hover {
+.chip:hover {
   background: #f9f9f9;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.chip.is-pressed {
+.chip:active {
   background: #f3f3f3;
   transform: scale(0.98);
 }

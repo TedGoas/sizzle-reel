@@ -58,6 +58,21 @@ export const suggestionChips = [
   'Sales Support Agent',
 ]
 
+export const canvasDescriptions = {
+  'AI Receptionist': 'Greets callers professionally, routes to the right team, and captures messages when agents are unavailable.',
+  'Scheduling Assistant': 'Books and manages appointments, sends reminders, and handles rescheduling requests automatically.',
+  'Recruiting Agent': 'Screens candidates, schedules interviews, and keeps applicants informed throughout the hiring process.',
+  'Account Manager': 'Handles account inquiries, processes service requests, and escalates complex issues to human agents.',
+  'CRM Buddy': 'Keeps CRM data accurate by logging every interaction and syncing record updates in real time.',
+  'Sales Support Agent': 'Qualifies inbound leads, delivers product information, and seamlessly hands off to human sales reps.',
+}
+
+export const receptionistSkills = [
+  'Route Incoming Calls',
+  'Take Messages',
+  'Schedule Callbacks',
+]
+
 export const chipPrompts = {
   'AI Receptionist': 'An AI receptionist that answers incoming calls, greets callers professionally, routes them to the right department, and takes messages when no agents are available.',
   'Scheduling Assistant': 'A scheduling assistant that books appointments, sends automated reminders to customers, and handles rescheduling or cancellation requests.',

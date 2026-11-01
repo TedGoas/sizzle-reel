@@ -8,7 +8,7 @@
           <a href="#" @click.prevent>Need help?</a>
         </p>
       </div>
-      <button type="button" class="btn btn--primary" data-autoplay="create-agent">
+      <button type="button" class="btn btn--primary" @click="emit('create')">
         Create AI Agent
       </button>
     </div>
@@ -80,6 +80,8 @@
 <script setup>
 import Icon from './Icon.vue'
 import { agents } from '../agents.js'
+
+const emit = defineEmits(['create'])
 
 function areaPoints(sparkline) {
   const points = sparkline.trim().split(' ')
@@ -161,11 +163,11 @@ a {
 .btn--primary {
   background: #7c52ff;
   color: #fff;
+  cursor: pointer;
 }
 
-.btn--primary.is-pressed {
-  filter: brightness(0.9);
-  transform: scale(0.98);
+.btn--primary:active {
+  filter: brightness(0.92);
 }
 
 .btn--outlined {

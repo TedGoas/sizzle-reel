@@ -1,5 +1,5 @@
 <template>
-  <aside class="assistant" :style="panelStyle">
+  <aside class="assistant" :class="{ 'is-in': entered }">
     <header class="assistant-header">
       <span class="assistant-title">
         <svg class="spark" viewBox="0 0 12 12" aria-hidden="true">
@@ -14,9 +14,9 @@
         </svg>
         Assistant
       </span>
-      <span class="close" aria-hidden="true">
+      <button type="button" class="close" aria-label="Close assistant" @click="emit('close')">
         <svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3 3 9" /></svg>
-      </span>
+      </button>
     </header>
 
     <div class="messages">
@@ -24,23 +24,23 @@
         <div class="bubble">{{ userText }}</div>
       </div>
 
-      <div v-if="chat.showThought" class="thought">
+      <div v-if="showThought" class="thought">
         <svg viewBox="0 0 12 12" aria-hidden="true">
           <path d="M6 1.2 6.7 4.2 9.8 4.8 6.7 5.5 6 8.5 5.3 5.5 2.2 4.8 5.3 4.2 6 1.2Z" />
         </svg>
-        Thought for {{ chat.thoughtSeconds }}s
+        Thought for {{ thoughtSeconds }}s
         <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6 4.5 9.5" /></svg>
       </div>
 
-      <div v-if="chat.reply" class="message message--ai">
-        <p>{{ chat.reply }}</p>
-        <ul>
+      <div v-if="reply" class="message message--ai">
+        <p>{{ reply }}</p>
+        <ul v-if="skills.length">
           <li v-for="skill in skills" :key="skill">{{ skill }}</li>
         </ul>
-        <span class="summary">Hide summary</span>
+        <span v-if="skills.length" class="summary">Hide summary</span>
       </div>
 
-      <div v-if="chat.typing" class="typing" aria-hidden="true">
+      <div v-if="typing" class="typing" aria-hidden="true">
         <span></span><span></span><span></span>
       </div>
     </div>
@@ -55,23 +55,63 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import Icon from './Icon.vue'
-import { chipPrompts } from '../agents.js'
 
 const props = defineProps({
-  chat: { type: Object, required: true },
+  userText: { type: String, required: true },
+  agentName: { type: String, required: true },
+  skills: { type: Array, default: () => [] },
 })
 
-const userText = chipPrompts['AI Receptionist']
-const skills = ['Route Incoming Calls', 'Take Messages', 'Schedule Callbacks']
+const emit = defineEmits(['close'])
 
-const panelStyle = computed(() => {
-  const slide = props.chat.slide || 0
-  return {
-    transform: `translateX(${(1 - slide) * -100}%)`,
-    opacity: Math.max(0, Math.min(1, slide)),
+const entered = ref(false)
+const showThought = ref(false)
+const typing = ref(false)
+const thoughtSeconds = ref(0)
+const reply = ref('')
+const timers = []
+let ticker = 0
+
+const fullReply = computed(() => {
+  const count = props.skills.length
+  if (count > 0) {
+    const noun = count === 1 ? 'skill' : 'skills'
+    return `All set! I've created ${props.agentName} with ${count} ${noun} to handle your request. Let me know if you'd like to adjust anything.`
   }
+  return `I'm setting up ${props.agentName} now. The skills will appear on the canvas shortly. Let me know if you'd like to adjust anything.`
+})
+
+onMounted(() => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { entered.value = true })
+  })
+  timers.push(setTimeout(() => {
+    showThought.value = true
+    typing.value = true
+    ticker = setInterval(() => { thoughtSeconds.value += 1 }, 300)
+  }, 400))
+  timers.push(setTimeout(() => {
+    clearInterval(ticker)
+    typing.value = false
+    const text = fullReply.value
+    let i = 0
+    const typer = setInterval(() => {
+      i += 1
+      reply.value = text.slice(0, i)
+      if (i >= text.length) clearInterval(typer)
+    }, 8)
+    timers.push(typer)
+  }, 1200))
+})
+
+onUnmounted(() => {
+  timers.forEach((id) => {
+    clearTimeout(id)
+    clearInterval(id)
+  })
+  clearInterval(ticker)
 })
 </script>
 
@@ -92,6 +132,14 @@ const panelStyle = computed(() => {
     0 2px 16px rgba(0, 0, 0, 0.08),
     0 2px 4px rgba(0, 0, 0, 0.04),
     0 1px 2px rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.35s ease;
+}
+
+.assistant.is-in {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .assistant-header {
@@ -138,6 +186,7 @@ const panelStyle = computed(() => {
   width: 28px;
   height: 28px;
   color: #666;
+  cursor: pointer;
 }
 
 .close svg {
