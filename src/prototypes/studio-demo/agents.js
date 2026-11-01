@@ -57,3 +57,12 @@ export const suggestionChips = [
   'CRM Buddy',
   'Sales Support Agent',
 ]
+
+export const chipPrompts = {
+  'AI Receptionist': 'An AI receptionist that answers incoming calls, greets callers professionally, routes them to the right department, and takes messages when no agents are available.',
+  'Scheduling Assistant': 'A scheduling assistant that books appointments, sends automated reminders to customers, and handles rescheduling or cancellation requests.',
+  'Recruiting Agent': 'A recruiting agent that pre-screens job applicants with qualifying questions and schedules interviews with the hiring team.',
+  'Account Manager': 'An account manager that handles customer inquiries, processes account changes, and escalates complex issues to the right team.',
+  'CRM Buddy': 'A CRM assistant that logs every customer interaction automatically and keeps contact records and deal stages up to date.',
+  'Sales Support Agent': 'A sales support agent that qualifies inbound leads, answers product questions, and hands off warm prospects to a human sales rep.',
+}

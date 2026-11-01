@@ -7,7 +7,7 @@
         </AppShell>
       </div>
       <div class="studio-demo-scene" :class="scene === 'creation' ? 'is-active' : 'is-hidden'">
-        <AgentCreationScreen />
+        <AgentCreationScreen :preview-index="previewIndex" :input-index="inputIndex" />
       </div>
       <div
         v-show="ready"
@@ -41,5 +41,5 @@ import { useDirector } from './useDirector.js'
 import './studio-demo.css'
 
 const stageRef = ref(null)
-const { playing, ready, scene, cursorX, cursorY, clicking, toggle, seekBy } = useDirector(stageRef)
+const { playing, ready, scene, cursorX, cursorY, clicking, previewIndex, inputIndex, toggle, seekBy } = useDirector(stageRef)
 </script>

@@ -29,17 +29,29 @@
         <h1>Let's get started</h1>
         <p>Describe what you want this agent to do.</p>
         <div class="prompt" data-autoplay="prompt">
-          <span class="prompt-placeholder">Describe your AI agent in a conversational manner...</span>
-          <span class="send" aria-hidden="true">
+          <span class="prompt-placeholder" :class="{ 'is-value': inputText }">{{ inputText || previewText || 'Describe your AI agent in a conversational manner...' }}</span>
+          <span class="send" :class="{ 'is-ready': inputText }" aria-hidden="true">
             <Icon name="send" :size="16" />
           </span>
         </div>
         <div class="chips">
           <div class="chip-row">
-            <span v-for="chip in suggestionChips.slice(0, 3)" :key="chip" class="chip">{{ chip }}</span>
+            <span
+              v-for="(chip, i) in suggestionChips.slice(0, 3)"
+              :key="chip"
+              class="chip"
+              :class="{ 'chip--hover': previewIndex === i }"
+              :data-autoplay="`chip-${i}`"
+            >{{ chip }}</span>
           </div>
           <div class="chip-row">
-            <span v-for="chip in suggestionChips.slice(3)" :key="chip" class="chip">{{ chip }}</span>
+            <span
+              v-for="(chip, i) in suggestionChips.slice(3)"
+              :key="chip"
+              class="chip"
+              :class="{ 'chip--hover': previewIndex === i + 3 }"
+              :data-autoplay="`chip-${i + 3}`"
+            >{{ chip }}</span>
           </div>
           <div class="chip-row">
             <span class="chip chip--quiet">
@@ -55,9 +67,29 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
-import { suggestionChips } from '../agents.js'
+import { chipPrompts, suggestionChips } from '../agents.js'
+
+const props = defineProps({
+  previewIndex: {
+    default: null,
+    validator: (value) => value == null || Number.isInteger(value),
+  },
+  inputIndex: {
+    default: null,
+    validator: (value) => value == null || Number.isInteger(value),
+  },
+})
+
+function chipSentence(index) {
+  if (!Number.isInteger(index)) return ''
+  return chipPrompts[suggestionChips[index]] || ''
+}
+
+const previewText = computed(() => chipSentence(props.previewIndex))
+const inputText = computed(() => chipSentence(props.inputIndex))
 </script>
 
 <style scoped>
@@ -275,6 +307,10 @@ p {
   line-height: 1.4;
 }
 
+.prompt-placeholder.is-value {
+  color: #1c1c1c;
+}
+
 .send {
   position: absolute;
   right: 10px;
@@ -286,6 +322,11 @@ p {
   height: 32px;
   border-radius: 50%;
   color: #c4c4c4;
+}
+
+.send.is-ready {
+  background: #7c52ff;
+  color: #fff;
 }
 
 .chips {
@@ -314,6 +355,16 @@ p {
   color: #1c1c1c;
   font-size: 12px;
   white-space: nowrap;
+}
+
+.chip--hover {
+  background: #f9f9f9;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.chip.is-pressed {
+  background: #f3f3f3;
+  transform: scale(0.98);
 }
 
 .chip--quiet {

@@ -1,5 +1,5 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { duration, cursorKeys, sceneSwitchAt, clickStart, clickEnd } from './script.js'
+import { duration, cursorKeys, sceneSwitchAt } from './script.js'
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n))
@@ -17,6 +17,8 @@ export function useDirector(stageRef) {
   const cursorX = ref(0)
   const cursorY = ref(0)
   const clicking = ref(false)
+  const previewIndex = ref(null)
+  const inputIndex = ref(null)
 
   let raf = 0
   let lastTs = null
@@ -43,15 +45,23 @@ export function useDirector(stageRef) {
 
   function apply(t) {
     scene.value = t >= sceneSwitchAt ? 'creation' : 'list'
-    clicking.value = t >= clickStart && t < clickEnd
-
-    const button = stageRef.value?.querySelector('[data-autoplay="create-agent"]')
-    button?.classList.toggle('is-pressed', clicking.value)
 
     let index = 0
     while (index < cursorKeys.length - 1 && cursorKeys[index + 1].t <= t) index += 1
     const from = cursorKeys[index]
+    let committed = null
+    for (let i = 0; i <= index; i += 1) {
+      if (Number.isInteger(cursorKeys[i].commit)) committed = cursorKeys[i].commit
+    }
+    inputIndex.value = committed
+    clicking.value = Boolean(from.press)
+    const stage = stageRef.value
+    stage?.querySelectorAll('.is-pressed').forEach((el) => {
+      if (el.getAttribute('data-autoplay') !== from.press) el.classList.remove('is-pressed')
+    })
+    if (from.press) stage?.querySelector(`[data-autoplay="${from.press}"]`)?.classList.add('is-pressed')
     const to = cursorKeys[Math.min(index + 1, cursorKeys.length - 1)]
+    previewIndex.value = Number.isInteger(from.preview) ? from.preview : null
     const start = pointFor(from)
     const end = pointFor(to)
     if (!start) return
@@ -143,6 +153,8 @@ export function useDirector(stageRef) {
     cursorX,
     cursorY,
     clicking,
+    previewIndex,
+    inputIndex,
     toggle,
     seekBy,
   }
