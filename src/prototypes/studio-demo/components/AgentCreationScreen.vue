@@ -2,14 +2,14 @@
   <div class="creation">
     <LeftRail />
     <div class="canvas">
-      <div class="ambient-glow" />
-      <div class="ambient-glow-2" />
+      <div class="ambient-glow" :class="{ 'is-faded': phase === 'canvas' }" />
+      <div class="ambient-glow-2" :class="{ 'is-faded': phase === 'canvas' }" />
 
       <div class="float float--left">
         <span class="icon-btn" aria-hidden="true">
           <Icon name="arrow-left" :size="16" />
         </span>
-        <span class="agent-name">New AI Agent</span>
+        <span class="agent-name">{{ phase === 'canvas' ? 'AI Receptionist' : 'New AI Agent' }}</span>
         <span class="draft">Draft</span>
       </div>
 
@@ -17,24 +17,32 @@
         <span class="icon-btn"><Icon name="more-vertical" :size="16" /></span>
         <span class="icon-btn"><Icon name="settings" :size="16" /></span>
         <span class="divider" />
-        <span class="text-btn is-disabled">
+        <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">
           <Icon name="play" :size="12" />
           Test
         </span>
-        <span class="text-btn is-disabled">Save</span>
-        <span class="text-btn text-btn--primary is-disabled">Publish</span>
+        <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">Save</span>
+        <span
+          class="text-btn"
+          :class="phase === 'canvas' ? 'text-btn--outline is-disabled' : 'text-btn--primary is-disabled'"
+        >Publish</span>
       </div>
 
-      <div class="panel">
-        <h1>Let's get started</h1>
-        <p>Describe what you want this agent to do.</p>
+      <div class="panel" :class="{ 'is-building': phase === 'building', 'is-gone': phase === 'canvas' }">
+        <Transition name="heading" mode="out-in">
+          <h1 :key="heading">{{ heading }}</h1>
+        </Transition>
+        <Transition name="heading" mode="out-in">
+          <p :key="subtext">{{ subtext }}</p>
+        </Transition>
         <div class="prompt" data-autoplay="prompt">
           <span class="prompt-placeholder" :class="{ 'is-value': inputText }">{{ inputText || previewText || 'Describe your AI agent in a conversational manner...' }}</span>
-          <span class="send" :class="{ 'is-ready': inputText }" aria-hidden="true">
-            <Icon name="send" :size="16" />
+          <span class="send" :class="{ 'is-ready': inputText }" data-autoplay="send" aria-hidden="true">
+            <span v-if="phase === 'building'" class="spinner" />
+            <Icon v-else name="send" :size="16" />
           </span>
         </div>
-        <div class="chips">
+        <div class="chips" :class="{ 'is-hidden': phase === 'building' || phase === 'canvas' }">
           <div class="chip-row">
             <span
               v-for="(chip, i) in suggestionChips.slice(0, 3)"
@@ -62,6 +70,32 @@
           <button type="button" class="manual">Create manually</button>
         </div>
       </div>
+
+      <AgentCanvas
+        v-if="phase === 'canvas'"
+        :count="revealedCount"
+        :shimmering="shimmering"
+        :entering="entering"
+      />
+
+      <div v-if="phase === 'canvas'" class="dock">
+        <span class="assist" aria-hidden="true">
+          <svg viewBox="0 0 16 16">
+            <path d="M8 1.2 9.1 5.4 13.4 6.2 9.1 7.1 8 11.3 6.9 7.1 2.6 6.2 6.9 5.4 8 1.2Z" />
+            <path d="M12.4 9.4 12.8 10.8 14.2 11.1 12.8 11.5 12.4 12.9 12 11.5 10.6 11.1 12 10.8 12.4 9.4Z" />
+          </svg>
+        </span>
+        <span class="zoom">
+          <svg viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
+          <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
+          <svg viewBox="0 0 16 16"><path d="M6 2.5H3.5V5M10 2.5h2.5V5M6 13.5H3.5V11M10 13.5h2.5V11" /></svg>
+          <svg viewBox="0 0 16 16"><path d="M6 3H3v3M10 3h3v3M6 13H3v-3M10 13h3v-3" /></svg>
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.2" /><path d="M8 5.4v3.2M8 11.1v.1" /></svg>
+        </span>
+        <span class="add" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" /></svg>
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -70,6 +104,7 @@
 import { computed } from 'vue'
 import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
+import AgentCanvas from './AgentCanvas.vue'
 import { chipPrompts, suggestionChips } from '../agents.js'
 
 const props = defineProps({
@@ -81,6 +116,10 @@ const props = defineProps({
     default: null,
     validator: (value) => value == null || Number.isInteger(value),
   },
+  phase: { type: String, default: 'edit' },
+  revealedCount: { type: Number, default: 0 },
+  shimmering: { type: Array, default: () => [] },
+  entering: { type: Array, default: () => [] },
 })
 
 function chipSentence(index) {
@@ -90,6 +129,12 @@ function chipSentence(index) {
 
 const previewText = computed(() => chipSentence(props.previewIndex))
 const inputText = computed(() => chipSentence(props.inputIndex))
+const heading = computed(() => (props.phase === 'building' ? 'Building your agent...' : "Let's get started"))
+const subtext = computed(() => (
+  props.phase === 'building'
+    ? "Great description! We'll take it from here. Hang tight."
+    : 'Describe what you want this agent to do.'
+))
 </script>
 
 <style scoped>
@@ -118,6 +163,12 @@ const inputText = computed(() => chipSentence(props.inputIndex))
   position: absolute;
   pointer-events: none;
   background-size: 300% 300%;
+  transition: opacity 0.6s ease;
+}
+
+.ambient-glow.is-faded,
+.ambient-glow-2.is-faded {
+  opacity: 0;
 }
 
 .ambient-glow {
@@ -250,6 +301,13 @@ const inputText = computed(() => chipSentence(props.inputIndex))
   border-radius: 6px;
 }
 
+.text-btn--outline {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  color: #9a9a9a;
+}
+
 .is-disabled {
   opacity: 0.5;
 }
@@ -270,6 +328,23 @@ const inputText = computed(() => chipSentence(props.inputIndex))
   width: 100%;
   max-width: 620px;
   padding: 0 24px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.panel.is-gone {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.heading-enter-active,
+.heading-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.heading-enter-from,
+.heading-leave-to {
+  opacity: 0;
 }
 
 h1 {
@@ -329,12 +404,38 @@ p {
   color: #fff;
 }
 
+.send.is-pressed {
+  transform: scale(0.92);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: send-spin 0.7s linear infinite;
+}
+
+@keyframes send-spin {
+  to { transform: rotate(360deg); }
+}
+
 .chips {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   width: 100%;
+  max-height: 240px;
+  overflow: hidden;
+  transition: opacity 0.35s ease, max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chips.is-hidden {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .chip-row {
@@ -380,5 +481,86 @@ p {
   font-size: 15px;
   text-decoration: underline;
   cursor: default;
+}
+
+.dock {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 80px;
+  pointer-events: none;
+  animation: dock-in 0.45s ease;
+}
+
+@keyframes dock-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.assist,
+.add,
+.zoom {
+  position: absolute;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assist {
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #f97316 100%);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  color: #fff;
+}
+
+.assist svg,
+.add svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+
+.assist svg { fill: currentColor; stroke: none; }
+
+.zoom {
+  left: 88px;
+  gap: 0;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+.zoom svg {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  box-sizing: border-box;
+}
+
+.add {
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #9358ff;
+  box-shadow: 0 4px 12px rgba(147, 88, 255, 0.3);
+  color: #fff;
 }
 </style>
