@@ -92,7 +92,7 @@
         :agent-description="agentDescription"
         :pan-x="pan.x"
         :pan-y="pan.y"
-        @open-skill="openSkillName = $event"
+        @open-skill="openSkillFromNode"
       />
 
       <SkillDrawer
@@ -105,7 +105,20 @@
         :actions="openSkill.actions"
         :generating="guardrailsGenerating && openSkill.name === 'Reschedule Appointments'"
         :guardrails="openSkill.guardrails"
-        @close="openSkillName = ''"
+        :instant="skillDrawerInstant"
+        @close="closeSkill"
+      />
+
+      <AddSkillPopover
+        v-if="addPopoverOpen"
+        @close="addPopoverOpen = false"
+        @create="openCreateSheet"
+      />
+
+      <CreateSkillDrawer
+        v-if="createSheetOpen"
+        @cancel="createSheetOpen = false"
+        @created="finishManualSkill"
       />
 
       <AssistantChat
@@ -132,9 +145,9 @@
           <svg viewBox="0 0 16 16"><path d="M6 3H3v3M10 3h3v3M6 13H3v-3M10 13h3v-3" /></svg>
           <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.2" /><path d="M8 5.4v3.2M8 11.1v.1" /></svg>
         </span>
-        <span class="add" aria-hidden="true">
+        <button type="button" class="add" aria-label="Add skill" @click="addPopoverOpen = !addPopoverOpen">
           <svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" /></svg>
-        </span>
+        </button>
       </div>
     </div>
   </div>
@@ -147,6 +160,8 @@ import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
+import AddSkillPopover from './AddSkillPopover.vue'
+import CreateSkillDrawer from './CreateSkillDrawer.vue'
 import { canvasDescriptions, chipPrompts, receptionistSkills, skillEditors, suggestionChips } from '../agents.js'
 
 const emit = defineEmits(['back'])
@@ -162,6 +177,10 @@ const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref('')
 const openSkillName = ref('')
+const addPopoverOpen = ref(false)
+const createSheetOpen = ref(false)
+const skillDrawerInstant = ref(false)
+const manualSkillName = 'Handle Cancellations'
 const pan = ref({ x: 0, y: 0 })
 const panning = ref(false)
 const guardrailsGenerating = ref(false)
@@ -237,7 +256,7 @@ function stopPanListeners() {
 
 function startPan(event) {
   if (phase.value !== 'canvas' || event.button !== 0) return
-  if (event.target.closest('button, a, input, textarea, .float, .assistant, .drawer, .node')) return
+  if (event.target.closest('button, a, input, textarea, .float, .assistant, .drawer, .node, .skill-popover')) return
   dragMoved = false
   captureEl = event.currentTarget
   panPointer = {
@@ -332,6 +351,48 @@ function revealCanvas() {
       shimmering.value = shimmering.value.map((on, idx) => (idx === i ? false : on))
     }, t0 + 1200)
   })
+}
+
+function closeSkill() {
+  openSkillName.value = ''
+  skillDrawerInstant.value = false
+}
+
+function openSkillFromNode(name) {
+  skillDrawerInstant.value = false
+  openSkillName.value = name
+}
+
+function openCreateSheet() {
+  addPopoverOpen.value = false
+  createSheetOpen.value = true
+}
+
+function finishManualSkill() {
+  createSheetOpen.value = false
+  addManualSkill()
+  skillDrawerInstant.value = true
+  openSkillName.value = manualSkillName
+}
+
+function addManualSkill() {
+  if (liveSkillNames.value.includes(manualSkillName)) return
+  const editor = skillEditors[manualSkillName]
+  const id = `skill-${Date.now()}`
+  const baseCount = showSkills.value ? receptionistSkills.length : liveSkillNames.value.length
+  const top = 50 + (baseCount + addedSkills.value.length) * 160
+  addedSkills.value = [...addedSkills.value, {
+    id,
+    name: manualSkillName,
+    description: editor.description.replace(/<[^>]+>/g, ''),
+    actions: editor.actions,
+    left: 420,
+    top,
+    entering: true,
+    shimmer: true,
+  }]
+  later(() => patchSkill(id, { entering: false }), 900)
+  later(() => patchSkill(id, { shimmer: false }), 1200)
 }
 
 function patchSkill(id, fields) {
@@ -826,9 +887,13 @@ p {
   right: 16px;
   width: 48px;
   height: 48px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   background: #9358ff;
   box-shadow: 0 4px 12px rgba(147, 88, 255, 0.3);
   color: #fff;
+  pointer-events: auto;
+  cursor: pointer;
 }
 </style>

@@ -144,6 +144,23 @@ export const skillEditors = {
     labels: 'scheduling, appointments, reschedule',
     actions: 5,
   },
+  'Handle Cancellations': {
+    description: '<p>Confirms the purchase is inside the cancellation window and eligible, then completes or declines it.</p>',
+    instructions: [
+      '<p><strong>Confirm the Purchase</strong> — Ask which order they want to cancel and restate the item before anything changes.</p>',
+      '<p><strong>Check the Window</strong> — Use <span class="connection-badge">Check Cancellation Policy</span> to confirm the purchase is still inside the cancellation window.</p>',
+      '<p><strong>Check Eligibility</strong> — Use <span class="connection-badge">Check Product Eligibility</span> to confirm what they bought can be cancelled.</p>',
+      '<p><strong>Cancel or Decline</strong> — If both checks pass, cancel it with <span class="connection-badge">Cancel Order</span>. If either fails, explain why and leave the order unchanged.</p>',
+      '<p><strong>Confirm the Result</strong> — Repeat what happened and what the customer should expect next.</p>',
+    ].join(''),
+    guardrails: [
+      '<p>Never cancel a purchase that is outside the cancellation window.</p>',
+      '<p>Never cancel an item that is not eligible for cancellation.</p>',
+      '<p>Confirm the specific purchase with the customer before cancelling it.</p>',
+    ].join(''),
+    labels: 'cancellations, orders, policy',
+    actions: 3,
+  },
 }
 
 // Shown when someone asks what to add. The three ideas stay the same for every agent.

@@ -91,10 +91,11 @@ const props = defineProps({
   actions: { type: Number, default: 0 },
   generating: { type: Boolean, default: false },
   guardrails: { type: String, default: '' },
+  instant: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['close'])
-const entered = ref(false)
+const entered = ref(props.instant)
 const guardrailsSection = ref(null)
 
 watch(() => [props.generating, props.guardrails], () => {
@@ -103,6 +104,7 @@ watch(() => [props.generating, props.guardrails], () => {
 })
 
 onMounted(() => {
+  if (props.instant) return
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { entered.value = true })
   })
