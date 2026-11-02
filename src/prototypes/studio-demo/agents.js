@@ -73,6 +73,33 @@ export const receptionistSkills = [
   'Schedule Callbacks',
 ]
 
+// Shown when someone asks what to add. The three ideas stay the same for every agent.
+export const skillIdeas = [
+  {
+    name: 'Reschedule Appointments',
+    detail: 'Let customers move existing bookings to different times without canceling and rebooking.',
+  },
+  {
+    name: 'View Upcoming Appointments',
+    detail: 'Customers can check their scheduled appointments and details at any time.',
+  },
+  {
+    name: 'Send Confirmations',
+    detail: 'Similar to reminders, but triggered immediately after booking for extra assurance.',
+  },
+]
+
+export const skillAdviceHandles = {
+  'AI Receptionist': 'routing calls, taking messages, and scheduling callbacks',
+  'Scheduling Assistant': 'booking, reminders, and cancellations',
+  'Recruiting Agent': 'screening candidates and scheduling interviews',
+  'Account Manager': 'account questions, requests, and escalations',
+  'CRM Buddy': 'logging interactions and updating records',
+  'Sales Support Agent': 'qualifying leads and handing off to sales',
+}
+
+export const skillAdviceClosing = "Which sounds most useful for your use case, or did you have something else in mind?"
+
 export const chipPrompts = {
   'AI Receptionist': 'An AI receptionist that answers incoming calls, greets callers professionally, routes them to the right department, and takes messages when no agents are available.',
   'Scheduling Assistant': 'A scheduling assistant that books appointments, sends automated reminders to customers, and handles rescheduling or cancellation requests.',

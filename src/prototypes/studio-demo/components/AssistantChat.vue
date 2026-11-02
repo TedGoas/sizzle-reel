@@ -19,91 +19,314 @@
       </button>
     </header>
 
-    <div class="messages">
-      <div class="message message--user">
-        <div class="bubble">{{ userText }}</div>
-      </div>
+    <div ref="messagesEl" class="messages">
+      <template v-for="msg in messages" :key="msg.id">
+        <div v-if="msg.role === 'user'" class="message message--user">
+          <div class="bubble">{{ msg.content }}</div>
+        </div>
 
-      <div v-if="showThought" class="thought">
-        <svg viewBox="0 0 12 12" aria-hidden="true">
-          <path d="M6 1.2 6.7 4.2 9.8 4.8 6.7 5.5 6 8.5 5.3 5.5 2.2 4.8 5.3 4.2 6 1.2Z" />
-        </svg>
-        Thought for {{ thoughtSeconds }}s
-        <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6 4.5 9.5" /></svg>
-      </div>
+        <div v-else-if="msg.role === 'thought'" class="thought">
+          <svg viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M6 1.2 6.7 4.2 9.8 4.8 6.7 5.5 6 8.5 5.3 5.5 2.2 4.8 5.3 4.2 6 1.2Z" />
+          </svg>
+          Thought for {{ msg.seconds }}s
+          <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6 4.5 9.5" /></svg>
+        </div>
 
-      <div v-if="reply" class="message message--ai">
-        <p>{{ reply }}</p>
-        <ul v-if="skills.length">
-          <li v-for="skill in skills" :key="skill">{{ skill }}</li>
-        </ul>
-        <span v-if="skills.length" class="summary">Hide summary</span>
-      </div>
+        <div v-else-if="msg.role === 'assistant' && (msg.content || msg.ideas?.length || msg.closing)" class="message message--ai">
+          <p v-if="msg.content">{{ msg.content }}</p>
+          <p v-for="(idea, index) in msg.ideas" :key="index" class="idea">
+            <strong>{{ idea.name }}</strong><span v-if="idea.detail"> – {{ idea.detail }}</span>
+          </p>
+          <p v-if="msg.closing" class="closing">{{ msg.closing }}</p>
+          <ul v-if="msg.bullets?.length">
+            <li v-for="skill in msg.bullets" :key="skill">{{ skill }}</li>
+          </ul>
+          <span v-if="msg.bullets?.length" class="summary">Hide summary</span>
+        </div>
+      </template>
 
       <div v-if="typing" class="typing" aria-hidden="true">
         <span></span><span></span><span></span>
       </div>
     </div>
 
-    <div class="composer">
-      <span>Ask for changes</span>
-      <span class="send" aria-hidden="true">
+    <form class="composer" @submit.prevent="send">
+      <input
+        v-model="draft"
+        type="text"
+        placeholder="Ask for changes"
+        aria-label="Ask for changes"
+      />
+      <button type="submit" class="send" :class="{ 'is-ready': draft.trim() }" aria-label="Send">
         <Icon name="send" :size="14" />
-      </span>
-    </div>
+      </button>
+    </form>
   </aside>
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Icon from './Icon.vue'
+import { skillAdviceClosing, skillAdviceHandles, skillIdeas } from '../agents.js'
 
 const props = defineProps({
   userText: { type: String, required: true },
   agentName: { type: String, required: true },
   skills: { type: Array, default: () => [] },
+  openingSkills: { type: Array, default: () => [] },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'action'])
 
 const entered = ref(false)
-const showThought = ref(false)
 const typing = ref(false)
-const thoughtSeconds = ref(0)
-const reply = ref('')
+const draft = ref('')
+const messagesEl = ref(null)
+const messages = ref([{ id: 1, role: 'user', content: props.userText }])
 const timers = []
 let ticker = 0
+let nextId = 2
 
-const fullReply = computed(() => {
-  const count = props.skills.length
-  if (count > 0) {
-    const noun = count === 1 ? 'skill' : 'skills'
-    return `All set! I've created ${props.agentName} with ${count} ${noun} to handle your request. Let me know if you'd like to adjust anything.`
+function openingCopy() {
+  const names = props.openingSkills
+  const count = names.length
+  if (!count) {
+    return {
+      text: `I'm setting up ${props.agentName} now. The skills will appear on the canvas shortly. Let me know if you'd like to adjust anything.`,
+      bullets: null,
+    }
   }
-  return `I'm setting up ${props.agentName} now. The skills will appear on the canvas shortly. Let me know if you'd like to adjust anything.`
-})
+  const noun = count === 1 ? 'skill' : 'skills'
+  return {
+    text: `All set! I've created ${props.agentName} with ${count} ${noun} to handle your request. Let me know if you'd like to adjust anything.`,
+    bullets: [...names],
+  }
+}
+
+function scroll() {
+  nextTick(() => {
+    const el = messagesEl.value
+    if (el) el.scrollTop = el.scrollHeight
+  })
+}
+
+function messageById(id) {
+  return messages.value.find((msg) => msg.id === id)
+}
+
+function typeInto(id, text) {
+  let i = 0
+  const typer = setInterval(() => {
+    i += 1
+    const msg = messageById(id)
+    if (!msg) {
+      clearInterval(typer)
+      return
+    }
+    msg.content = text.slice(0, i)
+    scroll()
+    if (i >= text.length) clearInterval(typer)
+  }, 8)
+  timers.push(typer)
+}
+
+function capitalize(value) {
+  if (!value) return value
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
+function asksForIdeas(text) {
+  const lower = text.toLowerCase()
+  const asks = /\b(what|which|suggest|recommend|should|think|idea|ideas)\b/.test(lower)
+  if (!asks) return false
+  if (/\bskills?\b/.test(lower)) return true
+  return /\b(suggest|recommend|add|change|include|idea|ideas)\b/.test(lower)
+}
+
+function adviceForAgent() {
+  const handles = skillAdviceHandles[props.agentName] || 'the work you described'
+  return {
+    intro: `Good question! Given your ${props.agentName} already handles ${handles}, I'd suggest one of these:`,
+    ideas: skillIdeas,
+    closing: skillAdviceClosing,
+  }
+}
+
+function wantsReschedule(text) {
+  const lower = text.toLowerCase()
+  if (!/reschedul/.test(lower)) return false
+  if (asksForIdeas(text) && !/\b(add|create|include|want|let's|lets)\b/.test(lower)) return false
+  return true
+}
+
+function fallback(text) {
+  const lower = text.toLowerCase()
+  if (wantsReschedule(text)) {
+    return {
+      responseText: "Done! I've added Reschedule Appointments to your canvas. It walks through retrieving the appointment, showing available slots, confirming the new time, updating it, and sending a confirmation email.",
+      skipThought: true,
+      action: {
+        type: 'add_skill',
+        name: 'Reschedule Appointments',
+        description: 'Moves an existing booking to a new time and sends a confirmation email.',
+        actions: 5,
+      },
+    }
+  }
+  if (asksForIdeas(text)) {
+    return { advice: adviceForAgent(), action: null }
+  }
+  if (/\b(create|add)\b.*(skill|capability|feature|ability)/i.test(lower)) {
+    const match = text.match(
+      /(?:create|add)\s+(?:a\s+)?(?:new\s+)?(?:skill\s+(?:for|to(?:\s+handle)?)\s+)?(.+?)(?:\s+skill)?$/i,
+    )
+    const name = capitalize((match?.[1] || 'New Skill').trim().replace(/\.$/, ''))
+    return {
+      responseText: `I've created a "${name}" skill and will generate the full instructions from your description now.`,
+      action: {
+        type: 'add_skill',
+        name,
+        description: `Handles ${name.toLowerCase()} requests.`,
+      },
+    }
+  }
+  if (/\b(remove|delete)\b/i.test(lower)) {
+    const matched = props.skills.find((name) => lower.includes(name.toLowerCase()))
+    if (matched) {
+      return {
+        responseText: `I've removed "${matched}" from the canvas.`,
+        action: { type: 'remove_skill', name: matched },
+      }
+    }
+    return { responseText: 'Which skill would you like to remove?', action: null }
+  }
+  if (/rename.*agent|call.*agent|agent.*name/i.test(lower)) {
+    const match = text.match(/["']([^"']+)["']/)
+      || text.match(/(?:to|called?|named?)\s+([A-Za-z0-9 &'-]+)/i)
+    const name = match ? capitalize(match[1].trim()) : null
+    if (name) {
+      return {
+        responseText: `Done! I've renamed the agent to "${name}".`,
+        action: { type: 'rename_agent', name },
+      }
+    }
+  }
+  return {
+    responseText: "Sure, could you give me a bit more detail about what you'd like to change?",
+    action: null,
+  }
+}
+
+function typeAdvice(id, advice) {
+  const parts = [
+    { field: 'content', text: advice.intro },
+    ...advice.ideas.map((idea) => ({ field: 'idea', name: idea.name, text: idea.detail })),
+    { field: 'closing', text: advice.closing },
+  ]
+  let part = 0
+  let i = 0
+  const typer = setInterval(() => {
+    const msg = messageById(id)
+    const piece = parts[part]
+    if (!msg || !piece) {
+      clearInterval(typer)
+      return
+    }
+    if (piece.field === 'idea' && i === 0) {
+      msg.ideas = [...(msg.ideas || []), { name: piece.name, detail: '' }]
+    }
+    i += 1
+    if (piece.field === 'content') msg.content = piece.text.slice(0, i)
+    if (piece.field === 'closing') msg.closing = piece.text.slice(0, i)
+    if (piece.field === 'idea') {
+      const ideas = msg.ideas.map((idea, index) => (
+        index === msg.ideas.length - 1 ? { ...idea, detail: piece.text.slice(0, i) } : idea
+      ))
+      msg.ideas = ideas
+    }
+    scroll()
+    if (i >= piece.text.length) {
+      part += 1
+      i = 0
+      if (part >= parts.length) clearInterval(typer)
+    }
+  }, 8)
+  timers.push(typer)
+}
+
+function thinkThen(ms, then) {
+  const thoughtId = nextId++
+  messages.value.push({ id: thoughtId, role: 'thought', seconds: 0 })
+  typing.value = true
+  scroll()
+  const count = setInterval(() => {
+    const thought = messageById(thoughtId)
+    if (thought) thought.seconds += 1
+  }, 1000)
+  timers.push(count)
+  timers.push(setTimeout(() => {
+    clearInterval(count)
+    const thought = messageById(thoughtId)
+    if (thought) thought.seconds = 10
+    typing.value = false
+    then()
+  }, ms))
+}
+
+function send() {
+  const text = draft.value.trim()
+  if (!text) return
+  draft.value = ''
+  messages.value.push({ id: nextId++, role: 'user', content: text })
+  const result = fallback(text)
+  if (result.advice) {
+    thinkThen(10050, () => {
+      const replyId = nextId++
+      messages.value.push({ id: replyId, role: 'assistant', content: '', ideas: [], closing: '' })
+      typeAdvice(replyId, result.advice)
+    })
+    return
+  }
+  if (!result.skipThought) {
+    messages.value.push({ id: nextId++, role: 'thought', seconds: 0 })
+  }
+  if (result.action) emit('action', result.action)
+  const replyId = nextId++
+  messages.value.push({ id: replyId, role: 'assistant', content: '' })
+  typeInto(replyId, result.responseText)
+}
 
 onMounted(() => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { entered.value = true })
   })
   timers.push(setTimeout(() => {
-    showThought.value = true
+    const thoughtId = nextId++
+    messages.value.push({ id: thoughtId, role: 'thought', seconds: 0 })
     typing.value = true
-    ticker = setInterval(() => { thoughtSeconds.value += 1 }, 300)
+    scroll()
+    ticker = setInterval(() => {
+      const thought = messageById(thoughtId)
+      if (thought) thought.seconds += 1
+    }, 1000)
   }, 400))
+  // Thought starts 400ms after open and counts one real second at a time.
+  // The reply waits until that count reaches 8.
+  const replyAt = props.openingSkills.length ? 8450 : 1200
   timers.push(setTimeout(() => {
     clearInterval(ticker)
     typing.value = false
-    const text = fullReply.value
-    let i = 0
-    const typer = setInterval(() => {
-      i += 1
-      reply.value = text.slice(0, i)
-      if (i >= text.length) clearInterval(typer)
-    }, 8)
-    timers.push(typer)
-  }, 1200))
+    const replyId = nextId++
+    const opening = openingCopy()
+    messages.value.push({
+      id: replyId,
+      role: 'assistant',
+      content: '',
+      bullets: opening.bullets,
+    })
+    typeInto(replyId, opening.text)
+  }, replyAt))
 })
 
 onUnmounted(() => {
@@ -205,7 +428,8 @@ onUnmounted(() => {
   gap: 4px;
   min-height: 0;
   padding: 16px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .message--user {
@@ -262,6 +486,18 @@ onUnmounted(() => {
   line-height: 1.5;
 }
 
+.idea {
+  margin: 16px 0;
+}
+
+.idea strong {
+  font-weight: 650;
+}
+
+.closing {
+  margin-top: 16px;
+}
+
 .message--ai ul {
   display: flex;
   flex-direction: column;
@@ -310,13 +546,28 @@ onUnmounted(() => {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   margin: 12px 16px 16px;
-  padding: 10px 8px 10px 14px;
+  padding: 6px 6px 6px 14px;
   border: 1px solid rgba(28, 28, 28, 0.12);
   border-radius: 12px;
-  color: #9a9a9a;
+  background: #fff;
   font-size: 15px;
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #1c1c1c;
+  font: inherit;
+}
+
+.composer input::placeholder {
+  color: #9a9a9a;
 }
 
 .composer::before {
@@ -332,10 +583,19 @@ onUnmounted(() => {
 
 .send {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
+  border-radius: 50%;
   color: #c4c4c4;
+  cursor: default;
+}
+
+.send.is-ready {
+  background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #f97316 100%);
+  color: #fff;
+  cursor: pointer;
 }
 </style>

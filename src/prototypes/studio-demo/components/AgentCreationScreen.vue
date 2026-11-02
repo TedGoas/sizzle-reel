@@ -80,16 +80,20 @@
         :count="showSkills ? revealedCount : 0"
         :shimmering="shimmering"
         :entering="entering"
+        :added="addedSkills"
+        :removed="removedSkills"
         :agent-name="agentName"
-        :agent-description="canvasDescriptions[agentName]"
+        :agent-description="agentDescription"
       />
 
       <AssistantChat
         v-if="chatOpen"
         :user-text="inputText"
         :agent-name="agentName"
-        :skills="showSkills ? receptionistSkills : []"
+        :skills="liveSkillNames"
+        :opening-skills="showSkills ? receptionistSkills : []"
         @close="chatOpen = false"
+        @action="onChatAction"
       />
 
       <div v-if="phase === 'canvas'" class="dock">
@@ -131,6 +135,9 @@ const revealedCount = ref(0)
 const shimmering = ref([false, false, false])
 const entering = ref([false, false, false])
 const chatOpen = ref(false)
+const addedSkills = ref([])
+const removedSkills = ref([])
+const nameOverride = ref('')
 const timers = []
 
 function later(fn, ms) {
@@ -148,10 +155,21 @@ function chipSentence(index) {
 
 const inputText = computed(() => chipSentence(selectedChip.value))
 const previewText = computed(() => (selectedChip.value == null ? chipSentence(hoveredChip.value) : ''))
-const agentName = computed(() => (
+const chosenName = computed(() => (
   Number.isInteger(selectedChip.value) ? suggestionChips[selectedChip.value] : 'New AI Agent'
 ))
-const showSkills = computed(() => agentName.value === 'AI Receptionist')
+const agentName = computed(() => nameOverride.value || chosenName.value)
+const agentDescription = computed(() => (
+  canvasDescriptions[agentName.value] || canvasDescriptions[chosenName.value] || ''
+))
+const showSkills = computed(() => chosenName.value === 'AI Receptionist')
+const liveSkillNames = computed(() => {
+  const gone = new Set(removedSkills.value)
+  const base = showSkills.value
+    ? receptionistSkills.slice(0, revealedCount.value).filter((name) => !gone.has(name))
+    : []
+  return [...base, ...addedSkills.value.map((skill) => skill.name)]
+})
 const heading = computed(() => (phase.value === 'building' ? 'Building your agent...' : "Let's get started"))
 const subtext = computed(() => (
   phase.value === 'building'
@@ -186,6 +204,7 @@ function revealCanvas() {
     later(() => { chatOpen.value = true }, 800)
     return
   }
+  chatOpen.value = true
   ;[0, 1, 2].forEach((i) => {
     const t0 = 350 + i * 700
     later(() => {
@@ -200,7 +219,41 @@ function revealCanvas() {
       shimmering.value = shimmering.value.map((on, idx) => (idx === i ? false : on))
     }, t0 + 1200)
   })
-  later(() => { chatOpen.value = true }, 3900)
+}
+
+function patchSkill(id, fields) {
+  addedSkills.value = addedSkills.value.map((skill) => (
+    skill.id === id ? { ...skill, ...fields } : skill
+  ))
+}
+
+function onChatAction(action) {
+  if (action.type === 'add_skill') {
+    if (liveSkillNames.value.includes(action.name)) return
+    const id = `skill-${Date.now()}`
+    const baseCount = showSkills.value ? receptionistSkills.length : liveSkillNames.value.length
+    const top = 50 + (baseCount + addedSkills.value.length) * 160
+    addedSkills.value = [...addedSkills.value, {
+      id,
+      name: action.name,
+      description: action.description,
+      actions: action.actions || 0,
+      left: 420,
+      top,
+      entering: true,
+      shimmer: true,
+    }]
+    later(() => patchSkill(id, { entering: false }), 900)
+    later(() => patchSkill(id, { shimmer: false }), 1200)
+  }
+  if (action.type === 'remove_skill') {
+    if (addedSkills.value.some((skill) => skill.name === action.name)) {
+      addedSkills.value = addedSkills.value.filter((skill) => skill.name !== action.name)
+    } else {
+      removedSkills.value = [...removedSkills.value, action.name]
+    }
+  }
+  if (action.type === 'rename_agent') nameOverride.value = action.name
 }
 </script>
 

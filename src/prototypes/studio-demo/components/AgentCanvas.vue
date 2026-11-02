@@ -1,12 +1,12 @@
 <template>
   <div class="node-stage">
-    <div class="world">
+    <div class="world" :style="worldStyle">
       <svg class="wires" width="760" height="620" aria-hidden="true">
         <path
           v-for="(skill, i) in visibleSkills"
           :key="skill.name"
           :d="pathFor(skill)"
-          :class="{ 'is-drawing': entering[i] }"
+          :class="{ 'is-drawing': entering[i] || skill.entering }"
         />
       </svg>
 
@@ -31,7 +31,7 @@
         v-for="(skill, i) in visibleSkills"
         :key="skill.name"
         class="node node--skill"
-        :class="{ 'is-entering': entering[i], 'is-shimmer': shimmering[i] }"
+        :class="{ 'is-entering': entering[i] || skill.entering, 'is-shimmer': shimmering[i] || skill.shimmer }"
         :style="{ left: `${skill.left}px`, top: `${skill.top}px` }"
       >
         <header class="node-header">
@@ -46,7 +46,7 @@
         <div class="node-body">
           <h2>{{ skill.name }}</h2>
           <p>{{ skill.description }}</p>
-          <span class="actions">
+          <span v-if="skill.actions" class="actions">
             <svg viewBox="0 0 12 12" aria-hidden="true">
               <circle cx="2.2" cy="3" r="1.1" />
               <circle cx="2.2" cy="9" r="1.1" />
@@ -69,6 +69,8 @@ const props = defineProps({
   count: { type: Number, default: 0 },
   shimmering: { type: Array, default: () => [] },
   entering: { type: Array, default: () => [] },
+  added: { type: Array, default: () => [] },
+  removed: { type: Array, default: () => [] },
   agentName: { type: String, default: 'AI Receptionist' },
   agentDescription: {
     type: String,
@@ -101,7 +103,16 @@ const skills = [
   },
 ]
 
-const visibleSkills = computed(() => skills.slice(0, props.count))
+const visibleSkills = computed(() => {
+  const gone = new Set(props.removed)
+  const base = skills.slice(0, props.count).filter((skill) => !gone.has(skill.name))
+  return [...base, ...props.added]
+})
+
+const worldStyle = computed(() => {
+  const extra = Math.max(0, visibleSkills.value.length - 3)
+  return { transform: `translate(-390px, ${-300 - extra * 160}px)` }
+})
 
 function pathFor(skill) {
   const agentX = 360
@@ -134,7 +145,6 @@ function pathFor(skill) {
   position: absolute;
   width: 760px;
   height: 620px;
-  transform: translate(-390px, -300px);
 }
 
 .wires {
