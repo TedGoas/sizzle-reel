@@ -84,7 +84,10 @@
         :removed="removedSkills"
         :agent-name="agentName"
         :agent-description="agentDescription"
+        @open-skill="skillOpen = true"
       />
+
+      <SkillDrawer v-if="skillOpen" @close="skillOpen = false" />
 
       <AssistantChat
         v-if="chatOpen"
@@ -124,6 +127,7 @@ import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
+import SkillDrawer from './SkillDrawer.vue'
 import { canvasDescriptions, chipPrompts, receptionistSkills, suggestionChips } from '../agents.js'
 
 const emit = defineEmits(['back'])
@@ -138,6 +142,7 @@ const chatOpen = ref(false)
 const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref('')
+const skillOpen = ref(false)
 const timers = []
 
 function later(fn, ms) {

@@ -31,8 +31,13 @@
         v-for="(skill, i) in visibleSkills"
         :key="skill.name"
         class="node node--skill"
-        :class="{ 'is-entering': entering[i] || skill.entering, 'is-shimmer': shimmering[i] || skill.shimmer }"
+        :class="{
+          'is-entering': entering[i] || skill.entering,
+          'is-shimmer': shimmering[i] || skill.shimmer,
+          'is-clickable': skill.name === 'Reschedule Appointments',
+        }"
         :style="{ left: `${skill.left}px`, top: `${skill.top}px` }"
+        @click="skill.name === 'Reschedule Appointments' && emit('open-skill')"
       >
         <header class="node-header">
           <span class="node-kind">
@@ -64,6 +69,8 @@
 <script setup>
 import { computed } from 'vue'
 import Icon from './Icon.vue'
+
+const emit = defineEmits(['open-skill'])
 
 const props = defineProps({
   count: { type: Number, default: 0 },
@@ -189,6 +196,11 @@ function pathFor(skill) {
 
 .node--skill {
   outline: 2px solid rgba(255, 152, 0, 0.3);
+}
+
+.node--skill.is-clickable {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .node--skill.is-entering {
