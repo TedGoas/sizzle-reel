@@ -132,12 +132,24 @@
       />
 
       <div v-if="phase === 'canvas'" class="dock">
-        <span class="assist" aria-hidden="true">
-          <svg viewBox="0 0 16 16">
-            <path d="M8 1.2 9.1 5.4 13.4 6.2 9.1 7.1 8 11.3 6.9 7.1 2.6 6.2 6.9 5.4 8 1.2Z" />
-            <path d="M12.4 9.4 12.8 10.8 14.2 11.1 12.8 11.5 12.4 12.9 12 11.5 10.6 11.1 12 10.8 12.4 9.4Z" />
+        <button
+          type="button"
+          class="assist"
+          :aria-pressed="chatOpen"
+          :aria-label="chatOpen ? 'Close assistant' : 'Open assistant'"
+          @click="chatOpen = !chatOpen"
+        >
+          <svg viewBox="0 0 24 24">
+            <path d="M10 3H8" />
+            <path d="m15.007 5.008 3.987 3.986" />
+            <path d="M20 15v4" />
+            <path d="M21.174 6.813a2.82 2.82 0 0 0-3.986-3.987L3.842 16.175a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+            <path d="M22 17h-4" />
+            <path d="M4 5v4" />
+            <path d="M6 7H2" />
+            <path d="M9 2v2" />
           </svg>
-        </span>
+        </button>
         <span class="zoom">
           <svg viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
           <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
@@ -840,12 +852,17 @@ p {
 
 .assist {
   left: 16px;
-  width: 56px;
-  height: 56px;
+  z-index: 5;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, #9333ea 0%, #ec4899 50%, #f97316 100%);
   box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
   color: #fff;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .assist svg,
@@ -854,14 +871,15 @@ p {
   height: 22px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
+  stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.assist svg { fill: currentColor; stroke: none; }
+.add svg { stroke-width: 1.6; }
+.assist svg { stroke-width: 2; }
 
 .zoom {
-  left: 88px;
+  left: 80px;
   gap: 0;
   padding: 4px;
   background: #fff;
