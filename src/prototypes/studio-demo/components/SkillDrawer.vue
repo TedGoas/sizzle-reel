@@ -1,5 +1,14 @@
 <template>
-  <aside class="drawer" :class="{ 'is-open': entered }">
+  <aside class="drawer" :class="{ 'is-open': entered, 'is-resizing': resizing }" :style="{ width: `${width}px` }">
+    <button
+      type="button"
+      class="resize-handle"
+      aria-label="Resize skill drawer"
+      @pointerdown="startResize"
+      @pointermove="moveResize"
+      @pointerup="endResize"
+      @pointercancel="endResize"
+    />
     <div class="sheet">
       <header class="sheet-header">
         <div class="crumb">
@@ -81,7 +90,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import EditorToolbar from './EditorToolbar.vue'
 import SlashMenu from './SlashMenu.vue'
 
@@ -97,9 +106,42 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
+const baseWidth = 468
 const entered = ref(props.instant)
 const guardrailsSection = ref(null)
 const slashMenu = ref(null)
+const width = ref(baseWidth)
+const resizing = ref(false)
+let resizeStart = null
+
+function startResize(event) {
+  if (event.button !== 0) return
+  resizing.value = true
+  resizeStart = { x: event.clientX, width: width.value }
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+  document.addEventListener('pointermove', moveResize)
+  document.addEventListener('pointerup', endResize)
+  document.addEventListener('pointercancel', endResize)
+  event.preventDefault()
+}
+
+function moveResize(event) {
+  if (!resizeStart) return
+  const next = resizeStart.width + (resizeStart.x - event.clientX)
+  width.value = Math.min(baseWidth * 2, Math.max(baseWidth, next))
+}
+
+function endResize() {
+  if (!resizeStart) return
+  resizeStart = null
+  resizing.value = false
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  document.removeEventListener('pointermove', moveResize)
+  document.removeEventListener('pointerup', endResize)
+  document.removeEventListener('pointercancel', endResize)
+}
 
 function onEditorKeydown(event) {
   slashMenu.value?.onKeydown(event)
@@ -115,6 +157,14 @@ onMounted(() => {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { entered.value = true })
   })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('pointermove', moveResize)
+  document.removeEventListener('pointerup', endResize)
+  document.removeEventListener('pointercancel', endResize)
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
 })
 </script>
 
@@ -133,6 +183,36 @@ onMounted(() => {
 
 .drawer.is-open {
   transform: translateX(0);
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 2;
+  top: 24px;
+  bottom: 24px;
+  left: -4px;
+  width: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.resize-handle:hover::after,
+.drawer.is-resizing .resize-handle::after {
+  background: rgba(28, 28, 28, 0.2);
 }
 
 .sheet {
