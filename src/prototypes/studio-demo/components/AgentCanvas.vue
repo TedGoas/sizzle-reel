@@ -48,6 +48,13 @@
           <h2>{{ skill.name }}</h2>
           <p>{{ skill.description }}</p>
           <span v-if="skill.actions" class="actions">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="16" y="16" width="6" height="6" rx="1" />
+              <rect x="2" y="16" width="6" height="6" rx="1" />
+              <rect x="9" y="2" width="6" height="6" rx="1" />
+              <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" />
+              <path d="M12 12V8" />
+            </svg>
             {{ skill.actions }} {{ skill.actions === 1 ? 'Action' : 'Actions' }}
           </span>
         </div>
@@ -332,6 +339,7 @@ p {
 .actions {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   width: fit-content;
   margin-top: 4px;
   padding: 4px 8px;
@@ -340,5 +348,15 @@ p {
   color: #666;
   font-size: 11px;
   font-weight: 500;
+}
+
+.actions svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 </style>

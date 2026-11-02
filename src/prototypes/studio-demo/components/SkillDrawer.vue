@@ -11,11 +11,12 @@
           </span>
           <span class="crumb-actions">
             <span v-if="actions" class="count">
-              <svg viewBox="0 0 12 12" aria-hidden="true">
-                <circle cx="2.2" cy="3" r="1.1" />
-                <circle cx="2.2" cy="9" r="1.1" />
-                <circle cx="9.2" cy="6" r="1.1" />
-                <path d="M3.2 3.4 8 5.5M3.2 8.6 8 6.5" fill="none" stroke="currentColor" stroke-width="1" />
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="16" y="16" width="6" height="6" rx="1" />
+                <rect x="2" y="16" width="6" height="6" rx="1" />
+                <rect x="9" y="2" width="6" height="6" rx="1" />
+                <path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3" />
+                <path d="M12 12V8" />
               </svg>
               {{ actions }}
             </span>
@@ -188,9 +189,13 @@ onMounted(() => {
 }
 
 .count svg {
-  width: 12px;
-  height: 12px;
-  fill: currentColor;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .crumb-divider {
