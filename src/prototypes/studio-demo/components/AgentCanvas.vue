@@ -13,9 +13,11 @@
       <article class="node node--agent">
         <header class="node-header">
           <span class="node-kind">
-            <svg class="kind-icon kind-icon--agent" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M8 1.2 9.1 5.4 13.4 6.2 9.1 7.1 8 11.3 6.9 7.1 2.6 6.2 6.9 5.4 8 1.2Z" />
-              <path d="M12.2 9.2 12.7 10.8 14.3 11.2 12.7 11.7 12.2 13.3 11.7 11.7 10.1 11.2 11.7 10.8 12.2 9.2Z" />
+            <svg class="kind-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+              <path d="M20 2v4" />
+              <path d="M22 4h-4" />
+              <circle cx="4" cy="20" r="2" />
             </svg>
             AI Agent
           </span>
@@ -40,24 +42,13 @@
         @click="skill.name === 'Reschedule Appointments' && emit('open-skill')"
       >
         <header class="node-header">
-          <span class="node-kind">
-            <svg class="kind-icon kind-icon--skill" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M8 1.4 9.4 5.2 13.4 5.6 10.4 8.2 11.4 12.2 8 10.1 4.6 12.2 5.6 8.2 2.6 5.6 6.6 5.2 8 1.4Z" />
-            </svg>
-            Skill
-          </span>
+          <span class="node-kind">Skill</span>
           <span class="node-menu"><Icon name="more-vertical" :size="14" /></span>
         </header>
         <div class="node-body">
           <h2>{{ skill.name }}</h2>
           <p>{{ skill.description }}</p>
           <span v-if="skill.actions" class="actions">
-            <svg viewBox="0 0 12 12" aria-hidden="true">
-              <circle cx="2.2" cy="3" r="1.1" />
-              <circle cx="2.2" cy="9" r="1.1" />
-              <circle cx="9.2" cy="6" r="1.1" />
-              <path d="M3.2 3.4 8 5.5M3.2 8.6 8 6.5" fill="none" stroke="currentColor" stroke-width="1" />
-            </svg>
             {{ skill.actions }} {{ skill.actions === 1 ? 'Action' : 'Actions' }}
           </span>
         </div>
@@ -283,21 +274,24 @@ function pathFor(skill) {
 .node-kind {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  color: #000;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 24px;
+  gap: 6px;
+  color: #6b6b6b;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  line-height: 16px;
+  text-transform: uppercase;
 }
 
 .kind-icon {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #7c52ff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-
-.kind-icon--agent { color: #7c52ff; }
-.kind-icon--skill { color: #ff9800; }
 
 .node-menu {
   display: inline-flex;
@@ -335,7 +329,6 @@ p {
 .actions {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   width: fit-content;
   margin-top: 4px;
   padding: 4px 8px;
@@ -344,11 +337,5 @@ p {
   color: #666;
   font-size: 11px;
   font-weight: 500;
-}
-
-.actions svg {
-  width: 12px;
-  height: 12px;
-  fill: currentColor;
 }
 </style>
