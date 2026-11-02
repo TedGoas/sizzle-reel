@@ -270,7 +270,8 @@ function typeAdvice(id, advice) {
   timers.push(typer)
 }
 
-function thinkThen(ms, then, seconds = 10) {
+function thinkThen(then) {
+  const seconds = 3 + Math.floor(Math.random() * 8)
   const thoughtId = nextId++
   messages.value.push({ id: thoughtId, role: 'thought', seconds: 0 })
   typing.value = true
@@ -286,7 +287,7 @@ function thinkThen(ms, then, seconds = 10) {
     if (thought) thought.seconds = seconds
     typing.value = false
     then()
-  }, ms))
+  }, seconds * 1000 + 450))
 }
 
 function send() {
@@ -296,7 +297,7 @@ function send() {
   messages.value.push({ id: nextId++, role: 'user', content: text })
   const result = fallback(text)
   if (result.advice) {
-    thinkThen(10050, () => {
+    thinkThen(() => {
       const replyId = nextId++
       messages.value.push({ id: replyId, role: 'assistant', content: '', ideas: [], closing: '' })
       typeAdvice(replyId, result.advice)
@@ -305,12 +306,12 @@ function send() {
   }
   if (result.guardrails) {
     emit('action', { type: 'add_guardrails', phase: 'start' })
-    thinkThen(4450, () => {
+    thinkThen(() => {
       emit('action', { type: 'add_guardrails', phase: 'write' })
       const replyId = nextId++
       messages.value.push({ id: replyId, role: 'assistant', content: '' })
       typeInto(replyId, result.responseText)
-    }, 4)
+    })
     return
   }
   if (!result.skipThought) {
@@ -336,9 +337,8 @@ onMounted(() => {
       if (thought) thought.seconds += 1
     }, 1000)
   }, 400))
-  // Thought starts 400ms after open and counts one real second at a time.
-  // The reply waits until that count reaches 8.
-  const replyAt = props.openingSkills.length ? 8450 : 1200
+  // The nodes are already on the canvas, so this first reply follows a short thought.
+  const replyAt = props.openingSkills.length ? 2850 : 1200
   timers.push(setTimeout(() => {
     clearInterval(ticker)
     typing.value = false
