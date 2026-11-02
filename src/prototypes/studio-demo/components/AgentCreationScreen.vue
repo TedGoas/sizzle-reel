@@ -21,7 +21,9 @@
 
       <div class="float float--right">
         <span class="icon-btn"><Icon name="more-vertical" :size="16" /></span>
-        <span class="icon-btn"><Icon name="settings" :size="16" /></span>
+        <button type="button" class="icon-btn" aria-label="AI Agent Settings" @click="settingsOpen = true">
+          <Icon name="settings" :size="16" />
+        </button>
         <span class="divider" />
         <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">
           <Icon name="play" :size="12" />
@@ -172,6 +174,7 @@
         </button>
       </div>
     </div>
+    <SettingsModal v-if="settingsOpen" @close="settingsOpen = false" />
   </div>
 </template>
 
@@ -184,6 +187,7 @@ import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
 import AddSkillPopover from './AddSkillPopover.vue'
 import CreateSkillDrawer from './CreateSkillDrawer.vue'
+import SettingsModal from './SettingsModal.vue'
 import { canvasDescriptions, chipPrompts, receptionistSkills, skillEditors, suggestionChips } from '../agents.js'
 
 const emit = defineEmits(['back'])
@@ -195,6 +199,7 @@ const revealedCount = ref(0)
 const shimmering = ref([false, false, false])
 const entering = ref([false, false, false])
 const chatOpen = ref(false)
+const settingsOpen = ref(false)
 const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref('')
