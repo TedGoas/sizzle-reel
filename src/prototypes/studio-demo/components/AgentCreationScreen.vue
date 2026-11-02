@@ -1,7 +1,13 @@
 <template>
   <div class="creation">
     <LeftRail />
-    <div class="canvas">
+    <div
+      class="canvas"
+      :class="{ 'is-pannable': phase === 'canvas', 'is-panning': panning }"
+      :style="canvasStyle"
+      @pointerdown="startPan"
+      @click.capture="keepClick"
+    >
       <div class="ambient-glow" :class="{ 'is-faded': phase === 'canvas' }" />
       <div class="ambient-glow-2" :class="{ 'is-faded': phase === 'canvas' }" />
 
@@ -84,14 +90,22 @@
         :removed="removedSkills"
         :agent-name="agentName"
         :agent-description="agentDescription"
-        @open-skill="skillOpen = true"
+        :pan-x="pan.x"
+        :pan-y="pan.y"
+        @open-skill="openSkillName = $event"
       />
 
       <SkillDrawer
-        v-if="skillOpen"
-        :generating="guardrailsGenerating"
-        :guardrails="guardrailHtml"
-        @close="skillOpen = false"
+        v-if="openSkill"
+        :key="openSkill.name"
+        :name="openSkill.name"
+        :description="openSkill.description"
+        :instructions="openSkill.instructions"
+        :labels="openSkill.labels"
+        :actions="openSkill.actions"
+        :generating="guardrailsGenerating && openSkill.name === 'Reschedule Appointments'"
+        :guardrails="openSkill.guardrails"
+        @close="openSkillName = ''"
       />
 
       <AssistantChat
@@ -133,7 +147,7 @@ import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
-import { canvasDescriptions, chipPrompts, receptionistSkills, suggestionChips } from '../agents.js'
+import { canvasDescriptions, chipPrompts, receptionistSkills, skillEditors, suggestionChips } from '../agents.js'
 
 const emit = defineEmits(['back'])
 
@@ -147,7 +161,9 @@ const chatOpen = ref(false)
 const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref('')
-const skillOpen = ref(false)
+const openSkillName = ref('')
+const pan = ref({ x: 0, y: 0 })
+const panning = ref(false)
 const guardrailsGenerating = ref(false)
 const guardrailHtml = ref('')
 
@@ -156,6 +172,22 @@ const guardrailSteps = [
   '<p>Always verify customer identity before modifying bookings.</p>',
   '<p>Comply with cancellation policy at all times.</p>',
 ]
+
+const openSkill = computed(() => {
+  const name = openSkillName.value
+  if (!name) return null
+  const known = skillEditors[name]
+  const added = addedSkills.value.find((skill) => skill.name === name)
+  const editor = known || {
+    description: `<p>${added?.description || `Handles ${name.toLowerCase()} requests.`}</p>`,
+    instructions: `<p><strong>Understand the request</strong> — Confirm what the customer wants from ${name}.</p><p><strong>Complete the task</strong> — Carry out the request and confirm the result with the customer.</p>`,
+    guardrails: '',
+    labels: '',
+    actions: added?.actions || 0,
+  }
+  const guardrails = name === 'Reschedule Appointments' ? guardrailHtml.value : editor.guardrails
+  return { name, ...editor, guardrails }
+})
 const timers = []
 
 function later(fn, ms) {
@@ -164,6 +196,7 @@ function later(fn, ms) {
 
 onUnmounted(() => {
   timers.forEach(clearTimeout)
+  stopPanListeners()
 })
 
 function chipSentence(index) {
@@ -188,6 +221,68 @@ const liveSkillNames = computed(() => {
     : []
   return [...base, ...addedSkills.value.map((skill) => skill.name)]
 })
+const canvasStyle = computed(() => (
+  phase.value === 'canvas' ? { backgroundPosition: `${pan.value.x}px ${pan.value.y}px` } : {}
+))
+
+let dragMoved = false
+let panPointer = null
+let captureEl = null
+
+function stopPanListeners() {
+  window.removeEventListener('pointermove', movePan)
+  window.removeEventListener('pointerup', endPan)
+  window.removeEventListener('pointercancel', endPan)
+}
+
+function startPan(event) {
+  if (phase.value !== 'canvas' || event.button !== 0) return
+  if (event.target.closest('button, a, input, textarea, .float, .assistant, .drawer, .node')) return
+  dragMoved = false
+  captureEl = event.currentTarget
+  panPointer = {
+    x: event.clientX,
+    y: event.clientY,
+    originX: event.clientX - pan.value.x,
+    originY: event.clientY - pan.value.y,
+    id: event.pointerId,
+  }
+  window.addEventListener('pointermove', movePan)
+  window.addEventListener('pointerup', endPan)
+  window.addEventListener('pointercancel', endPan)
+}
+
+function movePan(event) {
+  if (!panPointer || event.pointerId !== panPointer.id) return
+  const dx = event.clientX - panPointer.x
+  const dy = event.clientY - panPointer.y
+  if (!panning.value) {
+    if (Math.hypot(dx, dy) < 4) return
+    panning.value = true
+    dragMoved = true
+    try { captureEl?.setPointerCapture(event.pointerId) } catch { /* synthetic events have no pointer */ }
+  }
+  pan.value = {
+    x: event.clientX - panPointer.originX,
+    y: event.clientY - panPointer.originY,
+  }
+}
+
+function endPan(event) {
+  if (!panPointer || (event && event.pointerId !== panPointer.id)) return
+  panPointer = null
+  panning.value = false
+  captureEl = null
+  stopPanListeners()
+}
+
+function keepClick(event) {
+  if (!dragMoved) return
+  event.preventDefault()
+  event.stopPropagation()
+  dragMoved = false
+}
+
 const heading = computed(() => (phase.value === 'building' ? 'Building your agent...' : "Let's get started"))
 const subtext = computed(() => (
   phase.value === 'building'
@@ -311,6 +406,15 @@ function onChatAction(action) {
   background-size: 15px 15px;
 }
 
+.canvas.is-pannable {
+  cursor: grab;
+}
+
+.canvas.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .ambient-glow,
 .ambient-glow-2 {
   position: absolute;
@@ -399,6 +503,7 @@ function onChatAction(action) {
   display: flex;
   align-items: center;
   gap: 4px;
+  cursor: default;
   padding: 4px 8px;
   background: #fff;
   border: 1px solid #e5e7eb;

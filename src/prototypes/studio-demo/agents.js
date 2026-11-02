@@ -73,6 +73,79 @@ export const receptionistSkills = [
   'Schedule Callbacks',
 ]
 
+export const skillEditors = {
+  'Route Incoming Calls': {
+    description: '<p>Greets callers and intelligently routes them based on intent and department availability.</p>',
+    instructions: [
+      '<p><strong>Greet Caller</strong> — Answer the call with a professional greeting and introduce the organization by name.</p>',
+      '<p><strong>Identify Intent</strong> — Ask an open-ended question to understand the caller’s purpose, then use <span class="connection-badge">Classify Intent</span> to match to a department.</p>',
+      '<p><strong>Check Availability</strong> — Query <span class="connection-badge">Get Department Availability</span> to confirm the target queue has capacity.</p>',
+      '<p><strong>Confirm Routing</strong> — Tell the caller where they’re being routed and the estimated wait time using <span class="connection-badge">Get Queue Wait Time</span>.</p>',
+      '<p><strong>Transfer Call</strong> — Transfer with <span class="connection-badge connection-badge--transfer">Transfer to Contact Center</span>, including the caller’s intent.</p>',
+      '<p><strong>Log Interaction</strong> — Record the outcome in <span class="connection-badge">Create Interaction Log</span>.</p>',
+    ].join(''),
+    guardrails: [
+      '<p>Never share direct extension numbers or employee personal contact information.</p>',
+      '<p>Always confirm the caller’s destination before completing a transfer.</p>',
+      '<p>If the target department is unavailable, offer to take a message rather than leaving the caller on hold.</p>',
+      '<p>Route by stated intent, not by caller identity or account status alone.</p>',
+    ].join(''),
+    labels: 'voice, inbound, routing, ivr',
+    actions: 5,
+  },
+  'Take Messages': {
+    description: '<p>Captures caller name, number, and message details for agent follow-up.</p>',
+    instructions: [
+      '<p><strong>Explain Unavailability</strong> — Let the caller know no agent is available and offer to take a message.</p>',
+      '<p><strong>Collect Contact Info</strong> — Gather the caller’s name and callback number, then validate it with <span class="connection-badge">Validate Phone Number</span>.</p>',
+      '<p><strong>Capture Message</strong> — Ask them to describe why they’re calling and record it.</p>',
+      '<p><strong>Confirm Details</strong> — Read back the name, number, and message summary.</p>',
+      '<p><strong>Log Message</strong> — Save it with <span class="connection-badge">Create Message Log</span> for the right department.</p>',
+      '<p><strong>Notify Agent</strong> — Alert the team with <span class="connection-badge">Send Notification</span>.</p>',
+    ].join(''),
+    guardrails: [
+      '<p>Never promise a specific callback time — only commit to passing the message along.</p>',
+      '<p>Always read back contact information before ending the call.</p>',
+      '<p>Do not record payment details or other sensitive information in the message.</p>',
+      '<p>If the caller declines to leave a message, end politely and log the missed attempt.</p>',
+    ].join(''),
+    labels: 'voice, messaging, voicemail',
+    actions: 3,
+  },
+  'Schedule Callbacks': {
+    description: '<p>Books callback time slots when live agents are busy or after-hours.</p>',
+    instructions: [
+      '<p><strong>Explain Callback Option</strong> — Offer a scheduled callback instead of waiting on hold.</p>',
+      '<p><strong>Collect Preferences</strong> — Ask for a preferred date, time window, and timezone.</p>',
+      '<p><strong>Check Agent Availability</strong> — Query <span class="connection-badge">Get Agent Availability</span> for matching slots.</p>',
+      '<p><strong>Present Options</strong> — Offer up to three times within business hours.</p>',
+      '<p><strong>Confirm Booking</strong> — Book the choice with <span class="connection-badge">Create Callback</span> and repeat the details.</p>',
+      '<p><strong>Send Reminder</strong> — Confirm by <span class="connection-badge">Send SMS</span> or <span class="connection-badge">Send Email</span>.</p>',
+    ].join(''),
+    guardrails: [
+      '<p>Only offer callback slots within confirmed business hours.</p>',
+      '<p>Never guarantee a specific agent unless one is explicitly assigned.</p>',
+      '<p>If the preferred time is unavailable, offer the closest alternative.</p>',
+      '<p>Always send a written confirmation in addition to the verbal one.</p>',
+    ].join(''),
+    labels: 'voice, scheduling, callbacks',
+    actions: 4,
+  },
+  'Reschedule Appointments': {
+    description: '<p>Moves an existing booking to a new time and sends a confirmation email.</p>',
+    instructions: [
+      '<p><strong>Retrieve Appointment</strong> — Look up the customer’s existing booking using <span class="connection-badge">Get Appointment Details</span>.</p>',
+      '<p><strong>Show Available Slots</strong> — Query <span class="connection-badge">Check Calendar Availability</span> and offer up to three open times.</p>',
+      '<p><strong>Confirm the New Time</strong> — Read the chosen slot back and ask the customer to confirm before anything changes.</p>',
+      '<p><strong>Update the Appointment</strong> — Move the booking with <span class="connection-badge">Update Appointment</span> and free the original slot.</p>',
+      '<p><strong>Send Confirmation</strong> — Deliver the new time via <span class="connection-badge">Send Email</span> with the updated details.</p>',
+    ].join(''),
+    guardrails: '',
+    labels: 'scheduling, appointments, reschedule',
+    actions: 5,
+  },
+}
+
 // Shown when someone asks what to add. The three ideas stay the same for every agent.
 export const skillIdeas = [
   {

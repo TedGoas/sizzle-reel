@@ -10,14 +10,14 @@
             Skill
           </span>
           <span class="crumb-actions">
-            <span class="count">
+            <span v-if="actions" class="count">
               <svg viewBox="0 0 12 12" aria-hidden="true">
                 <circle cx="2.2" cy="3" r="1.1" />
                 <circle cx="2.2" cy="9" r="1.1" />
                 <circle cx="9.2" cy="6" r="1.1" />
                 <path d="M3.2 3.4 8 5.5M3.2 8.6 8 6.5" fill="none" stroke="currentColor" stroke-width="1" />
               </svg>
-              5
+              {{ actions }}
             </span>
             <span class="crumb-divider" />
             <button type="button" class="icon-close" aria-label="Close skill" @click="emit('close')">
@@ -30,7 +30,7 @@
       <div class="sheet-body">
         <section class="field">
           <label class="field-label" for="skill-name">Skill Name</label>
-          <input id="skill-name" class="text-input" type="text" value="Reschedule Appointments" />
+          <input id="skill-name" class="text-input" type="text" :value="name" />
         </section>
 
         <section class="field">
@@ -66,7 +66,7 @@
 
         <section class="field">
           <label class="field-label" for="skill-labels">Labels <span>(Optional)</span></label>
-          <input id="skill-labels" class="text-input" type="text" value="scheduling, appointments, reschedule" />
+          <input id="skill-labels" class="text-input" type="text" :value="labels" />
         </section>
       </div>
 
@@ -83,6 +83,11 @@ import { nextTick, onMounted, ref, watch } from 'vue'
 import EditorToolbar from './EditorToolbar.vue'
 
 const props = defineProps({
+  name: { type: String, default: '' },
+  description: { type: String, default: '' },
+  instructions: { type: String, default: '' },
+  labels: { type: String, default: '' },
+  actions: { type: Number, default: 0 },
   generating: { type: Boolean, default: false },
   guardrails: { type: String, default: '' },
 })
@@ -90,16 +95,6 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const entered = ref(false)
 const guardrailsSection = ref(null)
-
-const description = '<p>Moves an existing booking to a new time and sends a confirmation email.</p>'
-
-const instructions = [
-  '<p><strong>Retrieve Appointment</strong> — Look up the customer’s existing booking using <span class="connection-badge">Get Appointment Details</span>.</p>',
-  '<p><strong>Show Available Slots</strong> — Query <span class="connection-badge">Check Calendar Availability</span> and offer up to three open times.</p>',
-  '<p><strong>Confirm the New Time</strong> — Read the chosen slot back and ask the customer to confirm before anything changes.</p>',
-  '<p><strong>Update the Appointment</strong> — Move the booking with <span class="connection-badge">Update Appointment</span> and free the original slot.</p>',
-  '<p><strong>Send Confirmation</strong> — Deliver the new time via <span class="connection-badge">Send Email</span> with the updated details.</p>',
-].join('')
 
 watch(() => [props.generating, props.guardrails], () => {
   if (!props.generating && !props.guardrails) return
@@ -121,6 +116,7 @@ onMounted(() => {
   right: 16px;
   bottom: 16px;
   width: 468px;
+  cursor: default;
   transform: translateX(calc(100% + 32px));
   transition: transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
 }
@@ -348,6 +344,11 @@ onMounted(() => {
   font-weight: 400;
   line-height: 1.2;
   vertical-align: middle;
+}
+
+.editor-body :deep(.connection-badge--transfer) {
+  background: rgba(0, 109, 210, 0.1);
+  color: #006dd2;
 }
 
 .sheet-footer {

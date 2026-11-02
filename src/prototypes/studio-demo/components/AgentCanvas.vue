@@ -36,10 +36,9 @@
         :class="{
           'is-entering': entering[i] || skill.entering,
           'is-shimmer': shimmering[i] || skill.shimmer,
-          'is-clickable': skill.name === 'Reschedule Appointments',
         }"
         :style="{ left: `${skill.left}px`, top: `${skill.top}px` }"
-        @click="skill.name === 'Reschedule Appointments' && emit('open-skill')"
+        @click="emit('open-skill', skill.name)"
       >
         <header class="node-header">
           <span class="node-kind">Skill</span>
@@ -69,6 +68,8 @@ const props = defineProps({
   entering: { type: Array, default: () => [] },
   added: { type: Array, default: () => [] },
   removed: { type: Array, default: () => [] },
+  panX: { type: Number, default: 0 },
+  panY: { type: Number, default: 0 },
   agentName: { type: String, default: 'AI Receptionist' },
   agentDescription: {
     type: String,
@@ -109,7 +110,9 @@ const visibleSkills = computed(() => {
 
 const worldStyle = computed(() => {
   const extra = Math.max(0, visibleSkills.value.length - 3)
-  return { transform: `translate(-390px, ${-300 - extra * 160}px)` }
+  const x = -390 + props.panX
+  const y = -300 - extra * 160 + props.panY
+  return { transform: `translate(${x}px, ${y}px)` }
 })
 
 function pathFor(skill) {
@@ -149,6 +152,7 @@ function pathFor(skill) {
   position: absolute;
   inset: 0;
   overflow: visible;
+  pointer-events: none;
 }
 
 .wires path {
@@ -183,13 +187,12 @@ function pathFor(skill) {
   top: 210px;
   outline: 2px solid rgba(71, 21, 113, 0.3);
   animation: agent-in 0.45s ease;
+  pointer-events: auto;
+  cursor: default;
 }
 
 .node--skill {
   outline: 2px solid rgba(255, 152, 0, 0.3);
-}
-
-.node--skill.is-clickable {
   pointer-events: auto;
   cursor: pointer;
 }

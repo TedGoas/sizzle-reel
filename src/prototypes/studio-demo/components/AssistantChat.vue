@@ -374,6 +374,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  cursor: default;
   background: #fff;
   border-radius: 24px;
   box-shadow:
@@ -589,6 +590,7 @@ onUnmounted(() => {
   background: transparent;
   color: #1c1c1c;
   font: inherit;
+  cursor: text;
 }
 
 .composer input::placeholder {
