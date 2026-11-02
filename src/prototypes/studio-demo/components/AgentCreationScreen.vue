@@ -92,6 +92,7 @@
         :agent-description="agentDescription"
         :pan-x="pan.x"
         :pan-y="pan.y"
+        :zoom="zoom"
         @open-skill="openSkillFromNode"
       />
 
@@ -151,11 +152,20 @@
           </svg>
         </button>
         <span class="zoom">
-          <svg viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
-          <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
-          <svg viewBox="0 0 16 16"><path d="M6 2.5H3.5V5M10 2.5h2.5V5M6 13.5H3.5V11M10 13.5h2.5V11" /></svg>
-          <svg viewBox="0 0 16 16"><path d="M6 3H3v3M10 3h3v3M6 13H3v-3M10 13h3v-3" /></svg>
-          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.2" /><path d="M8 5.4v3.2M8 11.1v.1" /></svg>
+          <button type="button" aria-label="Zoom out" :disabled="zoom <= minZoom" @click="zoomOut">
+            <svg viewBox="0 0 16 16"><path d="M3 8h10" /></svg>
+          </button>
+          <button type="button" aria-label="Zoom in" :disabled="zoom >= maxZoom" @click="zoomIn">
+            <svg viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></svg>
+          </button>
+          <button type="button" aria-label="Recenter canvas" @click="recenterCanvas">
+            <svg viewBox="0 0 24 24">
+              <path d="m14 10 7-7" />
+              <path d="M20 10h-6V4" />
+              <path d="m3 21 7-7" />
+              <path d="M4 14h6v6" />
+            </svg>
+          </button>
         </span>
         <button type="button" class="add" aria-label="Add skill" @click="addPopoverOpen = !addPopoverOpen">
           <svg viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" /></svg>
@@ -194,6 +204,9 @@ const createSheetOpen = ref(false)
 const skillDrawerInstant = ref(false)
 const manualSkillName = 'Handle Cancellations'
 const pan = ref({ x: 0, y: 0 })
+const zoom = ref(1)
+const minZoom = 0.5
+const maxZoom = 2
 const panning = ref(false)
 const guardrailsGenerating = ref(false)
 const guardrailHtml = ref('')
@@ -252,9 +265,27 @@ const liveSkillNames = computed(() => {
     : []
   return [...base, ...addedSkills.value.map((skill) => skill.name)]
 })
-const canvasStyle = computed(() => (
-  phase.value === 'canvas' ? { backgroundPosition: `${pan.value.x}px ${pan.value.y}px` } : {}
-))
+const canvasStyle = computed(() => {
+  if (phase.value !== 'canvas') return {}
+  const size = 15 * zoom.value
+  return {
+    backgroundSize: `${size}px ${size}px`,
+    backgroundPosition: `${pan.value.x}px ${pan.value.y}px`,
+  }
+})
+
+function zoomIn() {
+  zoom.value = Math.min(maxZoom, Math.round(zoom.value * 1.15 * 100) / 100)
+}
+
+function zoomOut() {
+  zoom.value = Math.max(minZoom, Math.round(zoom.value / 1.15 * 100) / 100)
+}
+
+function recenterCanvas() {
+  pan.value = { x: 0, y: 0 }
+  zoom.value = 1
+}
 
 let dragMoved = false
 let panPointer = null
@@ -268,7 +299,7 @@ function stopPanListeners() {
 
 function startPan(event) {
   if (phase.value !== 'canvas' || event.button !== 0) return
-  if (event.target.closest('button, a, input, textarea, .float, .assistant, .drawer, .node, .skill-popover')) return
+  if (event.target.closest('button, a, input, textarea, .float, .assistant, .drawer, .node, .skill-popover, .zoom')) return
   dragMoved = false
   captureEl = event.currentTarget
   panPointer = {
@@ -887,6 +918,26 @@ p {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   color: #666;
+  pointer-events: auto;
+}
+
+.zoom button {
+  display: flex;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.zoom button:hover {
+  background: rgba(28, 28, 28, 0.06);
+}
+
+.zoom button:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .zoom svg {
@@ -899,6 +950,18 @@ p {
   stroke-linecap: round;
   stroke-linejoin: round;
   box-sizing: border-box;
+}
+
+.zoom button:last-child svg {
+  stroke-width: 2;
+}
+
+.canvas :deep(.world) {
+  transition: transform 0.2s ease;
+}
+
+.canvas.is-panning :deep(.world) {
+  transition: none;
 }
 
 .add {

@@ -77,6 +77,7 @@ const props = defineProps({
   removed: { type: Array, default: () => [] },
   panX: { type: Number, default: 0 },
   panY: { type: Number, default: 0 },
+  zoom: { type: Number, default: 1 },
   agentName: { type: String, default: 'AI Receptionist' },
   agentDescription: {
     type: String,
@@ -119,7 +120,7 @@ const worldStyle = computed(() => {
   const extra = Math.max(0, visibleSkills.value.length - 3)
   const x = -390 + props.panX
   const y = -300 - extra * 160 + props.panY
-  return { transform: `translate(${x}px, ${y}px)` }
+  return { transform: `translate(${x}px, ${y}px) scale(${props.zoom})` }
 })
 
 function pathFor(skill) {
