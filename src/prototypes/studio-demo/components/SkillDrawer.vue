@@ -39,7 +39,7 @@
           <p class="field-hint">Briefly describe what this skill does.</p>
           <div class="editor editor--short">
             <EditorToolbar />
-            <div class="editor-body" contenteditable="true" v-html="description"></div>
+            <div class="editor-body" contenteditable="true" v-html="description" @keydown="onEditorKeydown"></div>
           </div>
         </section>
 
@@ -48,7 +48,7 @@
           <p class="field-hint">Outline each step and action the agent should take to complete this task.</p>
           <div class="editor editor--tall">
             <EditorToolbar />
-            <div class="editor-body" contenteditable="true" v-html="instructions"></div>
+            <div class="editor-body" contenteditable="true" v-html="instructions" @keydown="onEditorKeydown"></div>
           </div>
         </section>
 
@@ -61,7 +61,7 @@
           </div>
           <div class="editor editor--mid">
             <EditorToolbar />
-            <div class="editor-body" contenteditable="true" v-html="guardrails"></div>
+            <div class="editor-body" contenteditable="true" v-html="guardrails" @keydown="onEditorKeydown"></div>
           </div>
         </section>
 
@@ -76,12 +76,14 @@
         <button type="button" class="btn btn--primary" @click="emit('close')">Update</button>
       </footer>
     </div>
+    <SlashMenu ref="slashMenu" />
   </aside>
 </template>
 
 <script setup>
 import { nextTick, onMounted, ref, watch } from 'vue'
 import EditorToolbar from './EditorToolbar.vue'
+import SlashMenu from './SlashMenu.vue'
 
 const props = defineProps({
   name: { type: String, default: '' },
@@ -97,6 +99,11 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const entered = ref(props.instant)
 const guardrailsSection = ref(null)
+const slashMenu = ref(null)
+
+function onEditorKeydown(event) {
+  slashMenu.value?.onKeydown(event)
+}
 
 watch(() => [props.generating, props.guardrails], () => {
   if (!props.generating && !props.guardrails) return
@@ -351,6 +358,16 @@ onMounted(() => {
   font-weight: 400;
   line-height: 1.2;
   vertical-align: middle;
+}
+
+.editor-body :deep(.connection-badge--action) {
+  background: rgba(28, 28, 28, 0.1);
+  color: #1c1c1c;
+}
+
+.editor-body :deep(.connection-badge--workflow) {
+  background: rgba(124, 82, 255, 0.1);
+  color: #7c52ff;
 }
 
 .editor-body :deep(.connection-badge--transfer) {
