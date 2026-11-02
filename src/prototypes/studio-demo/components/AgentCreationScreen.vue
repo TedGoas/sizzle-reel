@@ -87,7 +87,12 @@
         @open-skill="skillOpen = true"
       />
 
-      <SkillDrawer v-if="skillOpen" @close="skillOpen = false" />
+      <SkillDrawer
+        v-if="skillOpen"
+        :generating="guardrailsGenerating"
+        :guardrails="guardrailHtml"
+        @close="skillOpen = false"
+      />
 
       <AssistantChat
         v-if="chatOpen"
@@ -143,6 +148,14 @@ const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref('')
 const skillOpen = ref(false)
+const guardrailsGenerating = ref(false)
+const guardrailHtml = ref('')
+
+const guardrailSteps = [
+  '<p>Never share personal information with unauthorized parties.</p>',
+  '<p>Always verify customer identity before modifying bookings.</p>',
+  '<p>Comply with cancellation policy at all times.</p>',
+]
 const timers = []
 
 function later(fn, ms) {
@@ -259,6 +272,21 @@ function onChatAction(action) {
     }
   }
   if (action.type === 'rename_agent') nameOverride.value = action.name
+  if (action.type === 'add_guardrails') {
+    if (action.phase === 'start') {
+      guardrailsGenerating.value = true
+      return
+    }
+    if (guardrailHtml.value) return
+    let html = ''
+    guardrailSteps.forEach((step, i) => {
+      later(() => {
+        html += step
+        guardrailHtml.value = html
+        if (i === guardrailSteps.length - 1) guardrailsGenerating.value = false
+      }, i * 400)
+    })
+  }
 }
 </script>
 

@@ -51,9 +51,13 @@
           </div>
         </section>
 
-        <section class="field">
+        <section ref="guardrailsSection" class="field">
           <div class="field-label">Guardrails</div>
           <p class="field-hint">Add guidelines to ensure compliance and safety.</p>
+          <div v-if="generating" class="building">
+            <span class="spinner" aria-hidden="true" />
+            Generating skill content…
+          </div>
           <div class="editor editor--mid">
             <EditorToolbar />
             <div class="editor-body" contenteditable="true" v-html="guardrails"></div>
@@ -75,11 +79,17 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import EditorToolbar from './EditorToolbar.vue'
+
+const props = defineProps({
+  generating: { type: Boolean, default: false },
+  guardrails: { type: String, default: '' },
+})
 
 const emit = defineEmits(['close'])
 const entered = ref(false)
+const guardrailsSection = ref(null)
 
 const description = '<p>Moves an existing booking to a new time and sends a confirmation email.</p>'
 
@@ -91,12 +101,10 @@ const instructions = [
   '<p><strong>Send Confirmation</strong> — Deliver the new time via <span class="connection-badge">Send Email</span> with the updated details.</p>',
 ].join('')
 
-const guardrails = [
-  '<p>Never move an appointment without confirming the new time with the customer.</p>',
-  '<p>Only offer slots within published business hours.</p>',
-  '<p>Always send a written confirmation after the booking changes.</p>',
-  '<p>If the preferred time is unavailable, offer the closest alternatives before ending the conversation.</p>',
-].join('')
+watch(() => [props.generating, props.guardrails], () => {
+  if (!props.generating && !props.guardrails) return
+  nextTick(() => guardrailsSection.value?.scrollIntoView({ block: 'nearest' }))
+})
 
 onMounted(() => {
   requestAnimationFrame(() => {
@@ -276,6 +284,32 @@ onMounted(() => {
 .editor--short { height: 120px; }
 .editor--tall { height: 365px; }
 .editor--mid { height: 160px; }
+
+.building {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(28, 28, 28, 0.1);
+  border-radius: 6px;
+  background: #f9f9f9;
+  color: #3a3a3a;
+  font-size: 13px;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(28, 28, 28, 0.2);
+  border-top-color: #3a3a3a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 .editor-body {
   flex: 1;

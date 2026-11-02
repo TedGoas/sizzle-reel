@@ -153,6 +153,14 @@ function adviceForAgent() {
   }
 }
 
+function wantsGuardrails(text) {
+  const lower = text.toLowerCase()
+  if (!/\bguardrails?\b/.test(lower)) return false
+  const missing = /\b(no|none|missing|without|empty|lack|lacks|doesn't|doesnt|don't|dont)\b/.test(lower)
+  const add = /\b(add|generate|write|create|include|put|give|need)\b/.test(lower)
+  return missing || add
+}
+
 function wantsReschedule(text) {
   const lower = text.toLowerCase()
   if (!/reschedul/.test(lower)) return false
@@ -172,6 +180,13 @@ function fallback(text) {
         description: 'Moves an existing booking to a new time and sends a confirmation email.',
         actions: 5,
       },
+    }
+  }
+  if (wantsGuardrails(text)) {
+    return {
+      responseText: "Done! I've added guardrails to Reschedule Appointments.",
+      guardrails: true,
+      action: null,
     }
   }
   if (asksForIdeas(text)) {
@@ -255,7 +270,7 @@ function typeAdvice(id, advice) {
   timers.push(typer)
 }
 
-function thinkThen(ms, then) {
+function thinkThen(ms, then, seconds = 10) {
   const thoughtId = nextId++
   messages.value.push({ id: thoughtId, role: 'thought', seconds: 0 })
   typing.value = true
@@ -268,7 +283,7 @@ function thinkThen(ms, then) {
   timers.push(setTimeout(() => {
     clearInterval(count)
     const thought = messageById(thoughtId)
-    if (thought) thought.seconds = 10
+    if (thought) thought.seconds = seconds
     typing.value = false
     then()
   }, ms))
@@ -286,6 +301,16 @@ function send() {
       messages.value.push({ id: replyId, role: 'assistant', content: '', ideas: [], closing: '' })
       typeAdvice(replyId, result.advice)
     })
+    return
+  }
+  if (result.guardrails) {
+    emit('action', { type: 'add_guardrails', phase: 'start' })
+    thinkThen(4450, () => {
+      emit('action', { type: 'add_guardrails', phase: 'write' })
+      const replyId = nextId++
+      messages.value.push({ id: replyId, role: 'assistant', content: '' })
+      typeInto(replyId, result.responseText)
+    }, 4)
     return
   }
   if (!result.skipThought) {
