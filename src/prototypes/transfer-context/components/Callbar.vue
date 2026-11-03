@@ -124,6 +124,8 @@ const initials = computed(() =>
   border-radius: var(--dt-size-radius-pill);
   background-color: var(--dt-callbar-color-surface-primary);
   backdrop-filter: blur(2px);
+  /* Soft light glow so content fades out as it passes under the bar. */
+  box-shadow: 0 0 24px 16px color-mix(in srgb, var(--dt-color-surface-primary) 85%, transparent);
   color: var(--dt-color-foreground-primary-inverted);
 }
 

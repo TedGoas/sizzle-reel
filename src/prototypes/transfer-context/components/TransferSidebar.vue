@@ -119,7 +119,8 @@ const salesforceOpen = ref(false)
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 10px 10px var(--dt-space-500);
+  /* Extra bottom room so the last cards can scroll up past the callbar. */
+  padding: 10px 10px 116px;
 }
 
 .sidebar-card {

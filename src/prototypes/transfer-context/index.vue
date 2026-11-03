@@ -3,8 +3,11 @@
     <TopBar />
     <div class="transfer-context-body">
       <LeftSidebar :active-label="selectedContact.label" />
-      <main class="transfer-context-content" :class="{ 'transfer-context-content--with-callbar': callState === 'active' }">
-        <ConversationView class="transfer-context-conversation" :name="selectedContact.label" :phone="selectedContact.phone" />
+      <main class="transfer-context-content">
+        <ConversationView
+          class="transfer-context-conversation"
+          :class="{ 'transfer-context-conversation--with-callbar': callState === 'active' }"
+          :name="selectedContact.label" :phone="selectedContact.phone" />
 
         <!-- Slides in on Accept and stays open after the call ends. -->
         <Transition name="sidebar">
@@ -114,12 +117,12 @@ onBeforeUnmount(() => {
   display: flex;
   min-height: 0;
   overflow: hidden;
-  transition: padding-bottom var(--td300) var(--ttf-out-quint);
 }
 
 .transfer-context-conversation {
   flex: 1;
   min-width: 0;
+  transition: padding-bottom var(--td300) var(--ttf-out-quint);
 }
 
 .transfer-context-sidebar {
@@ -149,8 +152,9 @@ onBeforeUnmount(() => {
   transform: translateX(100%);
 }
 
-/* Keep the composer clear of the callbar (84px bar + 16px inset). */
-.transfer-context-content--with-callbar {
+/* Keep the composer clear of the callbar (84px bar + 16px inset).
+   The right sidebar stays full height and scrolls under the callbar instead. */
+.transfer-context-conversation--with-callbar {
   padding-bottom: 100px;
 }
 </style>
