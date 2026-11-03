@@ -85,7 +85,7 @@ const initials = computed(() =>
 <style scoped>
 .callbar__wrapper {
   --callbar-transition: cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: absolute;
+  position: fixed; /* centered in the viewport, not the main area */
   bottom: 0;
   left: 0;
   width: 100%;
@@ -118,7 +118,7 @@ const initials = computed(() =>
   gap: var(--dt-space-400);
   width: 100%;
   min-width: 384px;
-  max-width: 1340px;
+  max-width: 1300px;
   height: 84px;
   padding: var(--dt-space-200) var(--dt-space-550) var(--dt-space-200) var(--dt-space-400);
   border-radius: var(--dt-size-radius-pill);
