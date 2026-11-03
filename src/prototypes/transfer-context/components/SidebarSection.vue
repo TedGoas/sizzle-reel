@@ -28,7 +28,7 @@
       >
         <div class="sidebar-row-left">
           <template v-if="item.avatar">
-            <div class="sidebar-avatar" :style="{ background: item.avatarColor }">
+            <div class="sidebar-avatar" :style="{ background: item.avatarColor, color: item.avatarTextColor }">
               {{ item.avatar }}
             </div>
             <span v-if="item.status === 'busy'" class="sidebar-avatar-status sidebar-avatar-status--busy"></span>

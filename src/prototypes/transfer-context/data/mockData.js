@@ -1,6 +1,8 @@
+// Conversation open before the call. Accepting the call switches to the caller.
 export const selectedContact = {
-  label: '(919) 426-1801',
-  phone: '(919) 426-1801',
+  label: 'Alicia Kurniawan',
+  initials: 'AK',
+  avatarColor: '#7C52FF',
 }
 
 export const caller = {
@@ -10,7 +12,6 @@ export const caller = {
   title: 'RevOps Manager',
   phone: '(415) 123-4567',
   email: 'ben.parker@aerolabs.com',
-  contactCenter: 'Dialpad Customer Care',
   verified: true,
 }
 
@@ -37,7 +38,7 @@ export const transferContext = {
     { label: 'Customer Sentiment Analysis', value: 'Neutral, growing impatient' },
     { label: 'Authentication Status', value: 'Verified (caller ID + account email)' },
     { label: 'Account', value: 'Aerolabs · Enterprise plan · 240 seats' },
-    { label: 'Location', value: 'Austin, TX' },
+    { label: 'Location', value: 'San Francisco, CA' },
     { label: 'Skills Triggered', value: 'Integrations Troubleshooting, Account Verification' },
   ],
 }
@@ -57,7 +58,7 @@ export const sidebarSections = [
     title: 'Favorites',
     defaultOpen: true,
     items: [
-      { label: 'Ben Parker', subtitle: 'In a meeting · Working from SF', avatar: 'BP', avatarColor: '#7C52FF', status: 'busy' },
+      { label: 'Jordan Lee', subtitle: 'In a meeting · Working from SF', avatar: 'JL', avatarColor: '#7C52FF', status: 'busy' },
       { label: 'Alicia Kurniawan', avatar: 'AK', avatarColor: '#7C52FF', badge: 2 },
       { label: 'design', icon: 'channel' },
       { label: 'Claire Reynolds, Lori Smith...', icon: 'group' },
@@ -75,7 +76,7 @@ export const sidebarSections = [
     title: 'Recents',
     defaultOpen: true,
     items: [
-      { label: '(919) 426-1801', icon: 'user' },
+      { label: '(617) 555-0193', icon: 'user' },
       { label: '(805) 684-7000', icon: 'user' },
       { label: '(913) 221-3070', icon: 'user' },
       { label: '(684) 555-0102', icon: 'user' },

@@ -2,12 +2,17 @@
   <div class="transfer-context-app">
     <TopBar />
     <div class="transfer-context-body">
-      <LeftSidebar :active-label="selectedContact.label" />
+      <LeftSidebar :active-label="openConversation.label" :recent="callerRecent" />
       <main class="transfer-context-content">
         <ConversationView
           class="transfer-context-conversation"
           :class="{ 'transfer-context-conversation--with-callbar': callState === 'active' }"
-          :name="selectedContact.label" :phone="selectedContact.phone" />
+          :name="openConversation.label"
+          :phone="openConversation.phone"
+          :initials="openConversation.initials"
+          :avatar-color="openConversation.avatarColor"
+          :avatar-text-color="openConversation.avatarTextColor"
+        />
 
         <!-- Slides in on Accept and stays open after the call ends. -->
         <Transition name="sidebar">
@@ -45,7 +50,7 @@
           :show="callState === 'active'"
           :name="caller.name"
           :phone="caller.phone"
-          :contact-center="caller.contactCenter"
+          :contact-center="transferContext.queue"
           :formatted-time="formattedTime"
           @end-call="endCall"
         />
@@ -68,6 +73,22 @@ import { caller, transferContext, salesforce, selectedContact, RING_DELAY_MS, RI
 const callState = ref('idle')
 const secondsElapsed = ref(0)
 const sidebarOpen = ref(false)
+
+// Accepting the call opens the caller's conversation and adds them to Recents.
+const callerConnected = ref(false)
+const callerRecent = computed(() => callerConnected.value ? {
+  label: caller.name,
+  initials: caller.initials,
+  avatar: caller.initials,
+  avatarColor: 'var(--dt-avatar-color-background-1600)',
+  avatarTextColor: 'var(--dt-color-neutral-black)',
+  phone: caller.phone,
+} : null)
+const openConversation = computed(() => callerRecent.value ?? {
+  label: selectedContact.label,
+  initials: selectedContact.initials,
+  avatarColor: selectedContact.avatarColor,
+})
 
 // Sidebar width: drag its left edge between SIDEBAR_MIN and SIDEBAR_MAX.
 const SIDEBAR_MIN = 340
@@ -113,6 +134,7 @@ const formattedTime = computed(() => {
 function acceptCall() {
   callState.value = 'active'
   sidebarOpen.value = true
+  callerConnected.value = true
   secondsElapsed.value = 0
   callTimer = setInterval(() => { secondsElapsed.value += 1 }, 1000)
 }

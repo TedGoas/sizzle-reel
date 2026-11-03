@@ -3,7 +3,7 @@
     <SidebarNav />
     <div class="sidebar-sections">
       <SidebarSection
-        v-for="(section, idx) in sidebarSections"
+        v-for="(section, idx) in sections"
         :key="idx"
         :title="section.title"
         :items="section.items"
@@ -19,11 +19,22 @@
 <script setup>
 import SidebarNav from '@/components/SidebarNav.vue'
 import SidebarSection from './SidebarSection.vue'
+import { computed } from 'vue'
 import { sidebarSections } from '../data/mockData.js'
 
-defineProps({
+const props = defineProps({
   activeLabel: { type: String, default: '' },
+  // Prepended to Recents, e.g. the caller once a call is accepted.
+  recent: { type: Object, default: null },
 })
+
+const sections = computed(() =>
+  sidebarSections.map((section) =>
+    section.title === 'Recents' && props.recent
+      ? { ...section, items: [props.recent, ...section.items] }
+      : section
+  )
+)
 </script>
 
 <style scoped>

@@ -2,8 +2,12 @@
   <section class="conversation">
     <header class="conversation-header">
       <div class="conversation-header__contact">
-        <div class="conversation-avatar">
-          <DtIcon name="user" :size="20" />
+        <div
+          class="conversation-avatar"
+          :style="avatarColor ? { background: avatarColor, color: avatarTextColor } : null"
+        >
+          <span v-if="initials" class="conversation-avatar__initials">{{ initials }}</span>
+          <DtIcon v-else name="user" :size="20" />
         </div>
         <div class="conversation-header__text">
           <div class="conversation-header__name-row">
@@ -42,6 +46,9 @@ import DtIcon from '@/components/icons/DtIcon.vue'
 defineProps({
   name: { type: String, required: true },
   phone: { type: String, default: '' },
+  initials: { type: String, default: '' },
+  avatarColor: { type: String, default: '' },
+  avatarTextColor: { type: String, default: 'white' },
 })
 </script>
 
@@ -81,6 +88,10 @@ defineProps({
   flex-shrink: 0;
   background: var(--dt-color-surface-moderate);
   color: var(--dt-color-foreground-secondary);
+}
+
+.conversation-avatar__initials {
+  font: var(--dt-typography-label-sm-compact);
 }
 
 .conversation-header__name-row {
