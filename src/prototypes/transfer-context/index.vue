@@ -4,14 +4,26 @@
     <div class="transfer-context-body">
       <LeftSidebar :active-label="selectedContact.label" />
       <main class="transfer-context-content" :class="{ 'transfer-context-content--with-callbar': callState === 'active' }">
-        <ConversationView :name="selectedContact.label" :phone="selectedContact.phone" />
+        <ConversationView class="transfer-context-conversation" :name="selectedContact.label" :phone="selectedContact.phone" />
+
+        <!-- Slides in on Accept and stays open after the call ends. -->
+        <Transition name="sidebar">
+          <div v-if="sidebarOpen" class="transfer-context-sidebar">
+            <TransferSidebar
+              :caller="caller"
+              :context="transferContext"
+              :salesforce="salesforce"
+              @close="sidebarOpen = false"
+            />
+          </div>
+        </Transition>
 
         <IncomingCall
           :show="callState === 'ringing'"
-          :name="caller.name"
-          :phone="caller.phone"
+          :caller="caller"
+          :context="transferContext"
           :timeout="RING_TIMEOUT_MS"
-          @answer="answerCall"
+          @accept="acceptCall"
           @decline="endCall"
         />
 
@@ -35,11 +47,13 @@ import LeftSidebar from './components/LeftSidebar.vue'
 import ConversationView from './components/ConversationView.vue'
 import IncomingCall from './components/IncomingCall.vue'
 import Callbar from './components/Callbar.vue'
-import { caller, selectedContact, RING_DELAY_MS, RING_TIMEOUT_MS } from './data/mockData.js'
+import TransferSidebar from './components/TransferSidebar.vue'
+import { caller, transferContext, salesforce, selectedContact, RING_DELAY_MS, RING_TIMEOUT_MS } from './data/mockData.js'
 
 // 'idle' → 'ringing' → 'active' → 'idle'
 const callState = ref('idle')
 const secondsElapsed = ref(0)
+const sidebarOpen = ref(false)
 let ringTimer = null
 let callTimer = null
 
@@ -49,8 +63,9 @@ const formattedTime = computed(() => {
   return `${m}:${s}`
 })
 
-function answerCall() {
+function acceptCall() {
   callState.value = 'active'
+  sidebarOpen.value = true
   secondsElapsed.value = 0
   callTimer = setInterval(() => { secondsElapsed.value += 1 }, 1000)
 }
@@ -96,9 +111,42 @@ onBeforeUnmount(() => {
 
 .transfer-context-content {
   position: relative;
+  display: flex;
   min-height: 0;
   overflow: hidden;
   transition: padding-bottom var(--td300) var(--ttf-out-quint);
+}
+
+.transfer-context-conversation {
+  flex: 1;
+  min-width: 0;
+}
+
+.transfer-context-sidebar {
+  flex-shrink: 0;
+  width: 340px;
+  overflow: hidden;
+}
+
+/* Width animates so the conversation reflows; the panel slides in from the right. */
+.sidebar-enter-active,
+.sidebar-leave-active {
+  transition: width var(--td300) var(--ttf-out-quint);
+}
+
+.sidebar-enter-active :deep(.transfer-sidebar),
+.sidebar-leave-active :deep(.transfer-sidebar) {
+  transition: transform var(--td300) var(--ttf-out-quint);
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+  width: 0;
+}
+
+.sidebar-enter-from :deep(.transfer-sidebar),
+.sidebar-leave-to :deep(.transfer-sidebar) {
+  transform: translateX(100%);
 }
 
 /* Keep the composer clear of the callbar (84px bar + 16px inset). */

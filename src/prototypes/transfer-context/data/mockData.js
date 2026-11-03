@@ -4,10 +4,49 @@ export const selectedContact = {
 }
 
 export const caller = {
-  name: 'Matthew Rodriguez',
+  name: 'Ben Parker',
+  initials: 'BP',
+  company: 'Aerolabs',
+  title: 'RevOps Manager',
   phone: '(415) 123-4567',
-  contactCenter: 'Credit Card Help Center',
+  email: 'ben.parker@aerolabs.com',
+  contactCenter: 'Dialpad Customer Care',
+  verified: true,
 }
+
+// What the AI agent captured before handing the call to a human.
+export const transferContext = {
+  queue: 'Dialpad Customer Care - Gold - Enterprise Support',
+  source: 'DP Support Ai Agent',
+  summary:
+    'Customer needs help connecting HubSpot to Dialpad. The assistant walked them through the connection and sign-in process, but it did not resolve the issue.',
+  // Shown on the incoming call card, in priority order.
+  cardFields: [
+    { label: 'Feature', value: 'HubSpot integration' },
+    { label: 'Issue', value: 'Connection and authentication' },
+    { label: 'Customer type', value: 'Engaged, 3 tickets this month' },
+    { label: 'Sentiment', value: 'Neutral', sentiment: 'neutral' },
+  ],
+  // Full detail shown in the sidebar once the call is accepted.
+  fields: [
+    { label: 'Stated Desired Outcome', value: 'Get HubSpot calls and contacts syncing before Monday’s sales kickoff' },
+    { label: 'Product Service', value: 'HubSpot integration' },
+    { label: 'Reason For Contact', value: 'HubSpot shows “Authorization failed” after sign-in' },
+    { label: 'Troubleshooting Steps Attempted', value: 'Disconnected and reconnected the integration; signed in with a HubSpot Super Admin; cleared browser cache' },
+    { label: 'Escalation Reason', value: 'Connection still failing after guided steps; may need back-end token reset' },
+    { label: 'Customer Sentiment Analysis', value: 'Neutral, growing impatient' },
+    { label: 'Authentication Status', value: 'Verified (caller ID + account email)' },
+    { label: 'Account', value: 'Aerolabs · Enterprise plan · 240 seats' },
+    { label: 'Location', value: 'Austin, TX' },
+    { label: 'Skills Triggered', value: 'Integrations Troubleshooting, Account Verification' },
+  ],
+}
+
+export const salesforce = [
+  { label: 'Account Owner', value: 'Priya Nair' },
+  { label: 'Plan', value: 'Enterprise · Renews Mar 2027' },
+  { label: 'Open Cases', value: '3 (2 related to integrations)' },
+]
 
 // Delay before the incoming call appears, and how long Decline counts down.
 export const RING_DELAY_MS = 1000

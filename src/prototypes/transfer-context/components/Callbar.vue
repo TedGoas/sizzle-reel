@@ -150,7 +150,7 @@ const initials = computed(() =>
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--dt-avatar-color-background-1100);
+  background: var(--dt-avatar-color-background-1600);
   color: var(--dt-color-neutral-black);
   font: var(--dt-typography-label-md-compact);
 }
