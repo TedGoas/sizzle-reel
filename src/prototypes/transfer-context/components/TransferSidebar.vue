@@ -83,7 +83,8 @@ const salesforceOpen = ref(false)
 .transfer-sidebar {
   display: flex;
   flex-direction: column;
-  width: 340px;
+  /* Width set by the parent's resizable wrapper. */
+  width: var(--sidebar-width, 340px);
   height: 100%;
   background: var(--dt-color-surface-secondary);
   border-left: 1px solid var(--dt-color-border-subtle);

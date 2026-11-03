@@ -11,7 +11,18 @@
 
         <!-- Slides in on Accept and stays open after the call ends. -->
         <Transition name="sidebar">
-          <div v-if="sidebarOpen" class="transfer-context-sidebar">
+          <div
+            v-if="sidebarOpen"
+            class="transfer-context-sidebar"
+            :class="{ 'is-resizing': resizing }"
+            :style="{ '--sidebar-width': `${sidebarWidth}px` }"
+          >
+            <button
+              type="button"
+              class="resize-handle"
+              aria-label="Resize sidebar"
+              @pointerdown="startResize"
+            />
             <TransferSidebar
               :caller="caller"
               :context="transferContext"
@@ -57,6 +68,39 @@ import { caller, transferContext, salesforce, selectedContact, RING_DELAY_MS, RI
 const callState = ref('idle')
 const secondsElapsed = ref(0)
 const sidebarOpen = ref(false)
+
+// Sidebar width: drag its left edge between SIDEBAR_MIN and SIDEBAR_MAX.
+const SIDEBAR_MIN = 340
+const SIDEBAR_MAX = SIDEBAR_MIN * 2
+const sidebarWidth = ref(560)
+const resizing = ref(false)
+let resizeStart = null
+
+function startResize(event) {
+  resizeStart = { x: event.clientX, width: sidebarWidth.value }
+  resizing.value = true
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+  document.addEventListener('pointermove', moveResize)
+  document.addEventListener('pointerup', endResize)
+  document.addEventListener('pointercancel', endResize)
+}
+
+function moveResize(event) {
+  if (!resizeStart) return
+  const next = resizeStart.width + (resizeStart.x - event.clientX)
+  sidebarWidth.value = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, next))
+}
+
+function endResize() {
+  resizeStart = null
+  resizing.value = false
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  document.removeEventListener('pointermove', moveResize)
+  document.removeEventListener('pointerup', endResize)
+  document.removeEventListener('pointercancel', endResize)
+}
 let ringTimer = null
 let callTimer = null
 
@@ -83,6 +127,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  endResize()
   clearTimeout(ringTimer)
   clearInterval(callTimer)
 })
@@ -126,9 +171,37 @@ onBeforeUnmount(() => {
 }
 
 .transfer-context-sidebar {
+  position: relative;
   flex-shrink: 0;
-  width: 340px;
+  width: var(--sidebar-width);
   overflow: hidden;
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: transparent;
+  transition: background-color var(--td150) var(--ttf-out-quint);
+}
+
+.resize-handle:hover::after,
+.transfer-context-sidebar.is-resizing .resize-handle::after {
+  background: var(--dt-color-border-moderate);
 }
 
 /* Width animates so the conversation reflows; the panel slides in from the right. */
