@@ -47,6 +47,7 @@
    * ----------------------------------------------------------------------- */
   --dt-typography-headline-xl:        500 27px/1.2 var(--dt-font-family-body);
   --dt-typography-headline-lg:        700 19px/1.6 var(--dt-font-family-body);
+  --dt-typography-headline-lg-compact: 700 19px/1.2 var(--dt-font-family-body);
   --dt-typography-headline-md:        600 15px/1.4 var(--dt-font-family-body);
   --dt-typography-body-md:            400 15px/1.6 var(--dt-font-family-body);
   --dt-typography-body-md-compact:    400 15px/1.4 var(--dt-font-family-body);
@@ -103,12 +104,56 @@
   --dt-color-chart-neutral:  #CEC8C4; /* tan.300 */
 
   /* -------------------------------------------------------------------------
+   * Colors — inverted / contrast (dark surfaces like the callbar)
+   * Values from dialtone.dialpad.com (black.* scale)
+   * ----------------------------------------------------------------------- */
+  --dt-color-neutral-black:              oklch(0 0 0);
+  --dt-color-neutral-white:              oklch(1 0 0);
+  --dt-color-magenta-200:                oklch(.8232 .1275 343.61);
+  --dt-color-red-300:                    oklch(.7713 .1367 14.03);
+  --dt-color-red-500:                    oklch(.6392 .25 15.77);
+  --dt-color-red-600:                    oklch(.5724 .229466 18.56);
+  --dt-color-surface-strong:             oklch(.5134 .0063 95.18);        /* black.600 */
+  --dt-color-surface-contrast:           oklch(.3436 .0055 56.21);        /* black.800 */
+  --dt-color-surface-contrast-opaque:    oklch(.2572 .0063 78.21 / .92);  /* black.900 @ 92% */
+  --dt-color-foreground-primary-inverted:   oklch(.9748 .0025 48.72);     /* black.100 */
+  --dt-color-foreground-secondary-inverted: oklch(.9245 .0029 84.56);     /* black.200 */
+  --dt-color-foreground-tertiary-inverted:  oklch(.8448 .0059 84.57);     /* black.300 */
+  --dt-color-foreground-disabled-inverted:  oklch(.7321 .0061 84.57);     /* black.400 */
+  --dt-color-foreground-muted-inverted:     oklch(.9748 .0025 48.72 / .65);
+  --dt-color-border-default-inverted:    oklch(1 0 0 / .2);
+  --dt-action-color-background-inverted-hover: oklch(1 0 0 / .23);
+  --dt-action-color-background-critical-primary-default: var(--dt-color-red-500);
+  --dt-action-color-background-critical-primary-hover:   var(--dt-color-red-600);
+  --dt-avatar-color-background-1100:     oklch(.8471 .0921 331.77);
+  --dt-avatar-color-background-1700:     oklch(.8872 .16 92.49);
+
+  /* -------------------------------------------------------------------------
+   * Radius / border
+   * ----------------------------------------------------------------------- */
+  --dt-size-border-100: 1px;
+  --dt-size-radius-400: 8px;
+  --dt-size-radius-500: 16px;
+  --dt-size-radius-pill: 102px;
+
+  /* -------------------------------------------------------------------------
+   * Motion
+   * ----------------------------------------------------------------------- */
+  --td100: .1s;
+  --td150: .15s;
+  --td200: .2s;
+  --td300: .3s;
+  --ttf-out-quint: cubic-bezier(.22, 1, .36, 1);
+
+  /* -------------------------------------------------------------------------
    * Button heights
    * ----------------------------------------------------------------------- */
   --btn-height-sm:   28px;  /* compact / small buttons */
   --btn-height-md:   32px;  /* standard text buttons */
   --btn-height-icon: 32px;  /* square icon-only buttons (same height, explicit semantic) */
   --btn-height-nav:  36px;  /* nav icon buttons (left bar) */
+  --btn-height-call: 42px;  /* incoming call Answer / Decline */
+  --btn-height-callbar: 48px; /* callbar End button */
 
   /* -------------------------------------------------------------------------
    * Shadows
