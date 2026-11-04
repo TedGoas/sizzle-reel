@@ -101,6 +101,10 @@
   --dt-color-gold-200:  #FFE89C;
   --dt-color-chart-positive: #52C926; /* green.425 */
   --dt-color-chart-neutral:  #CEC8C4; /* tan.300 */
+  /* Categorical chart colors, copied from the Dialtone chart-color swatches. */
+  --dt-color-chart-categorical-01: oklch(0.5829 0.2426 287.41);
+  --dt-color-chart-categorical-02: oklch(0.7038 0.232 347.8);
+  --dt-color-chart-categorical-03: oklch(0.6089 0.2128 259.28);
 
   /* -------------------------------------------------------------------------
    * Button heights

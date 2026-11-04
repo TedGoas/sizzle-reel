@@ -7,7 +7,6 @@
       </button>
       <div class="title-row">
         <h1>{{ agent.name }}</h1>
-        <span class="badge">{{ agent.type }}</span>
         <span class="badge badge--ok">{{ agent.status }}</span>
       </div>
     </header>
