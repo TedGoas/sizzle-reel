@@ -22,7 +22,7 @@ Commit-only work uses [commit](../commit/SKILL.md). Push-only uses [push](../pus
    - Commits exist and leftover files look unrelated: leave them unstaged, say they stay local, and continue.
    - Branch already matches origin: say so. If a PR already exists, report its URL.
 2. **Goal.** From the chat and `git log` against the merge-base with `origin/main`, write a one-line goal. If the goal is ambiguous, ask one question before pushing.
-3. **Push.** Follow [push](../push/SKILL.md). Never force-push. If push has nothing new to publish, continue when the remote branch already has the commits.
+3. **Push.** Follow [push](../push/SKILL.md). Run the push as its own command, not chained with `gh pr create`, so a blocked step is easy to see. Never force-push. If push has nothing new to publish, continue when the remote branch already has the commits.
 4. **Title and body.**
    - Title: plain English, about 50 characters, max 72, no trailing period, no Conventional Commit prefix.
    - Body: a short summary and a test checklist.

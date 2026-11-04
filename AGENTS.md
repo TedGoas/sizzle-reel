@@ -11,11 +11,15 @@ Cursor rules in [`.cursor/rules/`](.cursor/rules/) are the short always-on const
 - **Reference before inventing.** Match the published prototype at `https://tedgoas.github.io/sizzle-reel/prototypes/<name>` or the source folder under `src/prototypes/`. Then polish.
 - **New work is a new folder.** Register it in [`src/router.js`](src/router.js). Leave the frozen originals alone (see *Adding prototypes*).
 - **One visual change per polish turn.** Change one thing (spacing, color, motion, copy) and stop for review.
+- **Questions go in chat as a numbered list.** Do not use question popups. Ted answers by number (“1. Yes 2. Four rows”).
 - **Fuzzy or repeated ask.** Restate in one line (“I’ll change X on `/prototypes/studio`”) or ask one question before editing. A re-ask means the last edit missed. Re-read, confirm, then act.
 - **Presentation only.** When Ted says presentation only, controls can be focused, toggled, and typed in. They do not need real behavior unless he says so.
-- **Figma is layout and intent.** Old files often show outdated chrome and pre-Dialtone controls. Keep the layout. Restyle controls to current Dialtone. Ask if a chrome difference is major (a missing nav, a different product shell) or if a faithful copy would look meaningfully older.
-- **Prove it in the browser.** After UI edits, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite was started before that route existed. Restart the dev server, then check branch and port before changing the design again.
-- **Prototype map.** If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype.
+- **Figma is layout and intent.** Old files often show outdated chrome and pre-Dialtone controls. Keep the layout. Restyle controls to current Dialtone. Ask if a chrome difference is major (a missing nav, a different product shell) or if a faithful copy would look meaningfully older. Fabricate data that fits the prototype's story unless Ted says to copy the Figma content. Workflow: [figma-to-prototype](.cursor/skills/figma-to-prototype/SKILL.md).
+- **One source for fake data.** People, phone numbers, emails, IDs, and records live in one `src/prototypes/<name>/data.js`. Components import them. Never retype a name or number in a second file.
+- **One source for timing.** Delays and durations (ring time, autoplay steps, AI fill) live in one `TIMING` object in `data.js` or at the top of `index.vue`. Ted tunes these often.
+- **Prove it in the browser.** After UI edits, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite was started before that route existed. Restart the dev server, then check branch and port before changing the design again. Start or reuse the server with [dev-server](.cursor/skills/dev-server/SKILL.md). Screenshot timed states with [verify-ui](.cursor/skills/verify-ui/SKILL.md).
+- **Prototype map.** If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype. After the first working build of a new prototype, write one: states, timers, component map, data file. Update it when the flow changes. Long sessions run out of context, and the map is how the next one starts warm.
+- **Porting from design-studio.** Source code in `~/Downloads/design-studio*` follows [port-from-design-studio](.cursor/skills/port-from-design-studio/SKILL.md). Report what you found before building.
 - **Microcopy.** UI strings, empty states, toasts, and helper text use the [ted-voice](.cursor/skills/ted-voice/SKILL.md) skill.
 - **Ambiguous flow.** Use [shaping](.cursor/skills/shaping/SKILL.md) before building when there is more than one real approach. A one-control polish pass skips it.
 - **Several places.** After a shape is chosen, use [breadboard](.cursor/skills/breadboard/SKILL.md) to list places, controls, and the state the prototype remembers.
@@ -97,7 +101,7 @@ When you encounter a `Dt*` component (`DtTooltip`, `DtModal`, `DtBadge`), do not
 
 ### Chart colors
 
-Match [Dialtone chart colors](https://dialtone.dialpad.com/foundations/colors/chart-colors/) with local `--dt-color-chart-*` variables. Draw charts with the installed `chart.js` / `vue-chartjs`. Do not import Dialtone or add D3.
+Match [Dialtone chart colors](https://dialtone.dialpad.com/foundations/colors/chart-colors/) with local `--dt-color-chart-*` variables. Draw charts with the installed `chart.js` / `vue-chartjs`. Do not import Dialtone or use D3 in a new chart.
 
 How a chart should look and behave: [chart](.cursor/skills/chart/SKILL.md). Reference implementation: [`src/prototypes/scorecards-v3-llm-questions/components/ComboChart.vue`](src/prototypes/scorecards-v3-llm-questions/components/ComboChart.vue).
 
@@ -230,5 +234,6 @@ Public packages only:
 - `vite` + `@vitejs/plugin-vue`
 - `vue-router`
 - `chart.js` + `vue-chartjs`
+- `d3` and `markdown-it`. Used only by `studio`. New charts still use `chart.js`, not D3.
 
 Ask before adding anything else.

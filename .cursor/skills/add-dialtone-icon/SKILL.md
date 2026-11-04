@@ -15,6 +15,15 @@ Canonical steps: [AGENTS.md](../../../AGENTS.md) (*Icons*).
 
 Look up the name in [`src/components/icons/iconPaths.js`](../../../src/components/icons/iconPaths.js). If it is already there, use `<DtIcon name="…" :size="…" />`. Do not fetch it again.
 
+## Find the name
+
+The name Ted says may not be the file name. Brand icons usually end in `-logo` (Salesforce is `salesforce-logo`). Search the package listing once instead of guessing URLs:
+
+```bash
+curl -s "https://data.jsdelivr.com/v1/packages/npm/@dialpad/dialtone-icons@4.52.0?structure=flat" \
+  | grep -oiE '"name": *"/dist/svg/icons/[^"]*salesforce[^"]*"'
+```
+
 ## Dialtone icons
 
 1. Fetch (no auth):

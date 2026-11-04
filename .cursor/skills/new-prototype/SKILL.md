@@ -34,6 +34,12 @@ Stay on the current feature branch when already off `main`.
    - `src/prototypes/scorecards/`
 
    Scorecards iteration belongs in a copy such as `scorecards-v1-mvp`, not in `scorecards/`.
+4. Add `src/prototypes/<name>/data.js` for every fake person, number, email, and record. Export a `TIMING` object for delays and durations. Components import from it.
+
+   ```js
+   export const TIMING = { ringDelayMs: 1000, ringDurationMs: 10000 }
+   export const caller = { name: 'Ben Carter', phone: '(415) 123-4567', email: 'ben@example.com' }
+   ```
 
 ## Reference and check
 
@@ -41,6 +47,10 @@ Match behavior from `https://tedgoas.github.io/sizzle-reel/prototypes/<source>` 
 
 If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing.
 
-After the route exists, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>`. Restart Vite if the page is blank and the server was started before the route was added.
+After the route exists, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>`. Restart Vite if the page is blank and the server was started before the route was added. Use [dev-server](../dev-server/SKILL.md) and [verify-ui](../verify-ui/SKILL.md).
+
+## Prototype map
+
+After the first working build, write `src/prototypes/<name>/CLAUDE.md`: what the prototype shows, its states in order, the timers in `TIMING`, a file map, and where the data lives. See `src/prototypes/studio/CLAUDE.md`. Keep it current when the flow changes.
 
 A self-playing demo uses [autoplay-demo](../autoplay-demo/SKILL.md).

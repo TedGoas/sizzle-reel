@@ -18,6 +18,10 @@ Match behavior from `https://tedgoas.github.io/sizzle-reel/prototypes/<name>` or
 
 After UI edits, check `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite started before the route existed. Restart it, then check branch and port.
 
-If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype.
+If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype. Write one after the first working build of a new prototype.
+
+Fake people, numbers, and records live in one `data.js` per prototype. Delays and durations live in one `TIMING` object. Do not retype either in a second file.
+
+Ask questions in chat as a numbered list, not as popups.
 
 Longer contract: [AGENTS.md](AGENTS.md). Workflow: `.cursor/skills/new-prototype`.
