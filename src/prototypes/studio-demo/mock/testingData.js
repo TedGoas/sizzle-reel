@@ -53,14 +53,25 @@ export function generateScenarios() {
 }
 
 function synopsis(percentage, channel) {
-  const where = channel.toLowerCase()
-  if (percentage >= 85) {
-    return `Excellent performance across ${where}. Strong capabilities in the key scenarios, with consistent accuracy.`
+  const where = channel === 'Voice only' ? 'voice' : channel === 'Digital only' ? 'digital' : 'voice and digital'
+  if (percentage >= 86) return `Most of these passed on ${where}. The agent stayed with the request.`
+  if (percentage >= 66) return `The routine ones passed on ${where}. A few of the harder requests still slipped.`
+  return `A lot of these missed on ${where}. The harder requests fell apart.`
+}
+
+function failCountFor(total) {
+  if (!total) return 0
+  const bands = { good: [], ok: [], poor: [] }
+  for (let fails = 0; fails <= total; fails += 1) {
+    const percentage = Math.round(((total - fails) / total) * 100)
+    if (percentage >= 86) bands.good.push(fails)
+    else if (percentage >= 66) bands.ok.push(fails)
+    else bands.poor.push(fails)
   }
-  if (percentage >= 70) {
-    return `Solid performance on routine tasks, with a few scenarios still to tighten up on ${where}.`
-  }
-  return `Mixed results. Basic scenarios passed, and the more complex requests need another pass on ${where}.`
+  const open = ['good', 'ok', 'poor'].filter((name) => bands[name].length)
+  const band = open[Math.floor(Math.random() * open.length)]
+  const options = bands[band]
+  return options[Math.floor(Math.random() * options.length)]
 }
 
 function statusFor(percentage) {
@@ -77,9 +88,8 @@ function scenarioChannel(channel, index) {
 
 export function buildTestResult(scenarios, channel) {
   const total = scenarios.length
-  const maxFails = Math.floor(total * 0.14)
   const failIds = new Set(
-    [...scenarios].sort(() => Math.random() - 0.5).slice(0, maxFails).map((scenario) => scenario.id),
+    [...scenarios].sort(() => Math.random() - 0.5).slice(0, failCountFor(total)).map((scenario) => scenario.id),
   )
   const passed = total - failIds.size
   const percentage = Math.round((passed / total) * 100)
@@ -250,7 +260,7 @@ export function testingFor(agentId) {
       results: seedResults(),
       scenarios: [],
       selected: [],
-      channel: 'Select channels',
+      channel: 'Voice and Digital',
     }
   }
   return store.agents[agentId]

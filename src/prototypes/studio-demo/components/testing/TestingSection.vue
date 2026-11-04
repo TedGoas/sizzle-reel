@@ -44,7 +44,6 @@
               </button>
             </template>
           </div>
-          <p v-if="channelError" class="error">Please select a channel before running tests.</p>
         </div>
       </div>
 
@@ -55,17 +54,15 @@
         </div>
       </div>
       <div v-else-if="running" class="banner" role="status">
+        <span class="spinner" aria-hidden="true" />
         <div>
           <strong>Running tests</strong>
-          <p>Testing {{ state.selected.length }} scenario{{ state.selected.length === 1 ? '' : 's' }} against your agent...</p>
+          <p>This should take 5 to 10 minutes. You can leave this page. We’ll let you know when it’s done.</p>
         </div>
       </div>
 
       <div v-if="scenarios.length && !running" class="sd-card table-card">
-        <div class="table-title">
-          <span>Generated scenarios — {{ today }}</span>
-          <button type="button" class="link" @click="clearScenarios">Remove scenarios</button>
-        </div>
+        <div class="table-title">Generated scenarios — {{ today }}</div>
         <table>
           <thead>
             <tr>
@@ -204,7 +201,6 @@ const allBox = ref(null)
 const generating = ref(false)
 const running = ref(false)
 const channelOpen = ref(false)
-const channelError = ref(false)
 const selected = ref(null)
 const scenario = ref(null)
 const toast = ref(null)
@@ -234,8 +230,8 @@ function wait(ms) {
 
 async function generate() {
   generating.value = true
-  channelError.value = false
   channelOpen.value = false
+  if (state.channel === 'Select channels') state.channel = 'Voice and Digital'
   state.scenarios = []
   state.selected = []
   await wait(1200)
@@ -248,7 +244,6 @@ async function generate() {
 function pickChannel(choice) {
   state.channel = choice
   channelOpen.value = false
-  channelError.value = false
 }
 
 function toggle(id) {
@@ -260,21 +255,11 @@ function toggleAll() {
   state.selected = allSelected.value ? [] : scenarios.value.map((scenario) => scenario.id)
 }
 
-function clearScenarios() {
-  state.scenarios = []
-  state.selected = []
-  channelError.value = false
-}
-
 async function run() {
-  if (state.channel === 'Select channels') {
-    channelError.value = true
-    return
-  }
   const chosen = state.scenarios.filter((scenario) => state.selected.includes(scenario.id))
   running.value = true
   channelOpen.value = false
-  await wait(1200)
+  await wait(5000 + Math.floor(Math.random() * 5001))
   const result = buildTestResult(chosen, state.channel)
   state.results = [result, ...state.results.map((item) => ({ ...item, isNew: false }))]
   state.scenarios = []
@@ -327,12 +312,24 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
 
 .actions { position: relative; }
 .channel { position: relative; }
-.error { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-critical); font-size: var(--dt-font-size-100); text-align: right; }
 
 .banner {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-450);
   padding: var(--dt-space-500);
   border-radius: 8px;
   background: var(--dt-color-surface-brand-subtle);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 2px solid var(--dt-color-border-default);
+  border-top-color: var(--dt-color-foreground-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .banner strong { display: block; }
@@ -347,15 +344,6 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
   padding: var(--dt-space-450) var(--dt-space-500);
   border-bottom: 1px solid var(--dt-color-border-subtle);
   font-weight: 600;
-}
-
-.link {
-  border: 0;
-  background: transparent;
-  color: var(--dt-color-link-primary);
-  font-family: inherit;
-  font-size: var(--dt-font-size-100);
-  cursor: pointer;
 }
 
 table { width: 100%; border-collapse: collapse; }
@@ -451,6 +439,10 @@ tbody tr { cursor: pointer; }
 
 @keyframes ring-fill {
   from { --pct: 0%; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
 
