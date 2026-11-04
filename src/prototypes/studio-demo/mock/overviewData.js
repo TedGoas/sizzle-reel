@@ -20,21 +20,21 @@ export const metricSeries = [
     label: 'Containment rate',
     positive: 'Contained',
     negative: 'Transferred',
-    points: series([68, 122, 180, 206, 156, 84, 62], [12, 18, 40, 34, 44, 16, 8]),
+    points: series([144, 164, 196, 189, 162, 140, 136], [36, 36, 34, 36, 43, 35, 32]),
   },
   {
     id: 'resolution',
     label: 'Resolution rate',
     positive: 'Resolved',
     negative: 'Unresolved',
-    points: series([207, 126, 40, 28, 55, 148, 202], [23, 54, 50, 42, 45, 42, 18]),
+    points: series([207, 183, 145, 136, 157, 189, 207], [23, 27, 30, 32, 28, 26, 21]),
   },
   {
     id: 'skillSuccess',
     label: 'Skill success rate',
     positive: 'No errors',
     negative: 'With errors',
-    points: series([28, 52, 88, 126, 167, 207, 244], [12, 18, 22, 24, 23, 23, 16]),
+    points: series([142, 157, 167, 178, 189, 201, 212], [23, 21, 21, 20, 19, 17, 16]),
   },
 ]
 
