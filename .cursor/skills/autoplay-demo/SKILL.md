@@ -14,7 +14,8 @@ Reference implementation: [`src/prototypes/scorecards-v3-llm-questions/index.vue
 ## Cursor
 
 - Render one cursor element inside the prototype root (`class="autoplay-cursor"`), `position: absolute`, `pointer-events: none`, `aria-hidden="true"`.
-- Move it by setting `transform: translate(x, y)` from the target’s `getBoundingClientRect()` minus the prototype root’s rect. Do not use `window.scrollTo` or `Element.scrollIntoView`.
+- Move it by setting `transform: translate(x, y)` from the target’s `getBoundingClientRect()` minus the prototype root’s rect. **Never** use `window.scrollTo` or `Element.scrollIntoView` — those scroll the host case-study page when the prototype is embedded.
+- Aim the cursor at the actual control (the radio dot, the button label), not a nearby row or column.
 - A clicking state scales the cursor SVG slightly (`autoplay-cursor--clicking`). A pressed target gets a short class such as `autoplay-pressed`.
 - Hide the cursor with a class when it should be off screen. Do not remove it from the DOM mid-run.
 
@@ -34,4 +35,4 @@ If a target is outside the visible area, scroll only an ancestor **inside** the 
 
 ## Timing
 
-Keep the script in the prototype’s root component. Start it on mount. Clear timers on unmount. Use short waits between beats so the cursor reads as a person, not a jump cut.
+Keep the script in the prototype’s root component. Start it on mount. Clear timers on unmount. Put every delay and duration in the prototype’s `TIMING` object (usually in `data.js`). Tune pauses only through `TIMING`. One timing change per polish turn, then stop for review. Use short waits between beats so the cursor reads as a person, not a jump cut. When Ted asks for a slow handoff between places, fade the outgoing view into the next one instead of a hard cut.

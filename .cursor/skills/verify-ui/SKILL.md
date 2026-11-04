@@ -3,13 +3,19 @@ name: verify-ui
 description: >-
   Screenshots a sizzle-reel prototype with headless Chrome at one or more
   moments, so timed states (ringing, animating, settled) can be checked
-  before reporting done. Use after a UI edit, or when the user asks you to
-  check, prove, or screenshot a prototype.
+  before reporting done. Use after a UI edit, when the user asks you to
+  check, prove, or screenshot a prototype, or when they say they do not see
+  a change. Do not keep editing the design until this pass shows the last
+  change.
 ---
 
 # Verify UI
 
 The browser step from [AGENTS.md](../../../AGENTS.md) (*Prove it in the browser*). Needs the server from [dev-server](../dev-server/SKILL.md).
+
+## When Ted does not see it
+
+Stop design edits. Confirm branch, port `5173`, and that Vite is this repo ([dev-server](../dev-server/SKILL.md)). Restart if the route is blank or the server was stale. Then shoot and open the PNGs below before changing anything else.
 
 ## Shoot
 

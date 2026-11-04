@@ -30,9 +30,11 @@ Stop and list what you found: the file paths, what each one is, and which one yo
 ## Rebuild
 
 1. Reuse what sizzle-reel already has first: `LeftBar`, `TopBar`, `SidebarNav`, the launchpad shell.
-2. Replace each `Dt*` component with the local version from the AGENTS.md table. Do not import `@dialpad/*`.
-3. Icons: collect every `DtIcon*` name the source uses. Add the missing ones with [add-dialtone-icon](../add-dialtone-icon/SKILL.md) in one pass.
-4. Put the source's fake people and records in the prototype's `data.js`. Put its timers in `TIMING`.
-5. Keep the source's spacing and type only when they map to a `--dt-*` token or `d-*` class.
+2. Prefer the **light** theme. Design-studio often follows the OS; Ted’s demos are light unless he says otherwise.
+3. Dialtone’s rem root is **10px**. Rem gaps copied from source look about 1.6× too large if you treat rem as 16px. Prefer `--dt-space-*` and `d-*` utilities over raw rem.
+4. Replace each `Dt*` component with the local version from the AGENTS.md table. Do not import `@dialpad/*`.
+5. Icons: collect every `DtIcon*` name the source uses. Add the missing ones with [add-dialtone-icon](../add-dialtone-icon/SKILL.md) in one pass.
+6. Put the source's fake people and records in the prototype's `data.js`. Put its timers in `TIMING`.
+7. Keep the source's spacing and type only when they map to a `--dt-*` token or `d-*` class.
 
-Then check with [verify-ui](../verify-ui/SKILL.md).
+Then check with [verify-ui](../verify-ui/SKILL.md). A token pass after the first cut: [dialtone-audit](../dialtone-audit/SKILL.md).

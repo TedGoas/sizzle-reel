@@ -1,15 +1,19 @@
 ---
 name: new-prototype
 description: >-
-  Creates a new sizzle-reel prototype folder, registers it in router.js, and
-  leaves frozen originals untouched. Use when the user asks for a new
-  prototype, a demo fork, or a branch to build a new screen. Branch off main
-  first when the current branch is main.
+  Creates a new sizzle-reel prototype folder from scratch, registers it in
+  router.js, and leaves frozen originals untouched. Use when the user asks for
+  a greenfield prototype or a branch to build a new screen with no source
+  folder. When they say to copy or fork an existing prototype (like V2 as the
+  foundation), use fork-prototype instead. Branch off main first when the
+  current branch is main.
 ---
 
 # New prototype
 
 Canonical rules: [AGENTS.md](../../../AGENTS.md) (*Adding prototypes*).
+
+When Ted wants a copy of an existing film or folder (“use V2 as the foundation,” “fork that demo”), use [fork-prototype](../fork-prototype/SKILL.md) instead of scaffolding from scratch.
 
 ## Branch
 
@@ -53,4 +57,4 @@ After the route exists, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name
 
 After the first working build, write `src/prototypes/<name>/CLAUDE.md`: what the prototype shows, its states in order, the timers in `TIMING`, a file map, and where the data lives. See `src/prototypes/studio/CLAUDE.md`. Keep it current when the flow changes.
 
-A self-playing demo uses [autoplay-demo](../autoplay-demo/SKILL.md).
+A self-playing demo uses [autoplay-demo](../autoplay-demo/SKILL.md). A Dialtone token pass after the first cut uses [dialtone-audit](../dialtone-audit/SKILL.md).

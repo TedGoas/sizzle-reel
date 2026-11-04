@@ -17,9 +17,15 @@ Cursor rules in [`.cursor/rules/`](.cursor/rules/) are the short always-on const
 - **Figma is layout and intent.** Old files often show outdated chrome and pre-Dialtone controls. Keep the layout. Restyle controls to current Dialtone. Ask if a chrome difference is major (a missing nav, a different product shell) or if a faithful copy would look meaningfully older. Fabricate data that fits the prototype's story unless Ted says to copy the Figma content. Workflow: [figma-to-prototype](.cursor/skills/figma-to-prototype/SKILL.md).
 - **One source for fake data.** People, phone numbers, emails, IDs, and records live in one `src/prototypes/<name>/data.js`. Components import them. Never retype a name or number in a second file.
 - **One source for timing.** Delays and durations (ring time, autoplay steps, AI fill) live in one `TIMING` object in `data.js` or at the top of `index.vue`. Ted tunes these often.
-- **Prove it in the browser.** After UI edits, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite was started before that route existed. Restart the dev server, then check branch and port before changing the design again. Start or reuse the server with [dev-server](.cursor/skills/dev-server/SKILL.md). Screenshot timed states with [verify-ui](.cursor/skills/verify-ui/SKILL.md).
+- **Prove it in the browser.** After UI edits, give the full URL `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite was started before that route existed. Restart the dev server, then check branch and port before changing the design again. Start or reuse the server with [dev-server](.cursor/skills/dev-server/SKILL.md). Screenshot timed states with [verify-ui](.cursor/skills/verify-ui/SKILL.md).
+- **“I don’t see it.”** Stop editing. Check branch, port `5173`, and that the server is this repo. Restart with [dev-server](.cursor/skills/dev-server/SKILL.md), then [verify-ui](.cursor/skills/verify-ui/SKILL.md). Do not change the design again until the last change is visible.
+- **Two failed approaches.** After two misses on the same problem, name the pivot (“abandon A; do B”). Do not invent a third custom path.
+- **One deliverable per branch.** If `git status` shows unrelated prototype dirt (Studio vs Scorecards, two films, docs vs UI), surface it and split before commit or PR.
+- **Reuse the shared shell.** Prefer `LeftBar`, `TopBar`, `SidebarNav`, and existing Scorecards chrome before rebuilding nav or product chrome.
 - **Prototype map.** If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype. After the first working build of a new prototype, write one: states, timers, component map, data file. Update it when the flow changes. Long sessions run out of context, and the map is how the next one starts warm.
-- **Porting from design-studio.** Source code in `~/Downloads/design-studio*` follows [port-from-design-studio](.cursor/skills/port-from-design-studio/SKILL.md). Report what you found before building.
+- **Porting from design-studio.** Source code in `~/Downloads/design-studio*` follows [port-from-design-studio](.cursor/skills/port-from-design-studio/SKILL.md). Prefer the **light** theme. Dialtone’s rem root is **10px** — rem gaps from source look about 1.6× too large if treated as 16px. Report what you found before building.
+- **Dialtone check.** After a first visual cut of a new screen, or when Ted asks for a token pass, use [dialtone-audit](.cursor/skills/dialtone-audit/SKILL.md).
+- **Forking a prototype.** Copy an existing folder rather than starting from scratch when Ted says “like V2” or “use that as the foundation”: [fork-prototype](.cursor/skills/fork-prototype/SKILL.md).
 - **Microcopy.** UI strings, empty states, toasts, and helper text use the [ted-voice](.cursor/skills/ted-voice/SKILL.md) skill.
 - **Ambiguous flow.** Use [shaping](.cursor/skills/shaping/SKILL.md) before building when there is more than one real approach. A one-control polish pass skips it.
 - **Several places.** After a shape is chosen, use [breadboard](.cursor/skills/breadboard/SKILL.md) to list places, controls, and the state the prototype remembers.
@@ -33,6 +39,7 @@ Default branch is `main` (treat `master` the same).
 - Never commit, amend, or push on `main` / `master`. If files need to change while on that branch, create a feature branch first so the working tree comes along.
 - Stay on the current feature branch when already off `main`.
 - Never commit unless Ted asks. Never push unless he asks. “Commit and push” means both. “Commit” does not mean push.
+- When Ted asks whether work was already committed, answer from `git status` and `git log` only. Do not commit unless he explicitly asks.
 - Stop after editing so he can verify before commit.
 - Commit, push, and pull request steps: [commit](.cursor/skills/commit/SKILL.md), [push](.cursor/skills/push/SKILL.md), [pr-create](.cursor/skills/pr-create/SKILL.md).
 
@@ -53,6 +60,8 @@ Dialtone assets in this repo are local replicas. `chart.js` and `vue-chartjs` ar
 ## Dialtone, locally
 
 Use tokens and utility classes so prototypes look like Dialtone. Native HTML plus local `--dt-*` tokens plus `d-*` classes is the default. If a token or utility from the Dialtone docs is missing, add it to the files below. Do not invent spacing, color, or type values.
+
+Button variants follow [Dialtone buttons](https://dialtone.dialpad.com/components/button.html#variants). Prefer the documented **clear** (or other named) variant over inventing “outline → solid purple” unless Ted asks for primary. After a first cut, [dialtone-audit](.cursor/skills/dialtone-audit/SKILL.md) catches token and variant drift.
 
 ### CSS tokens
 
@@ -181,7 +190,7 @@ New work lives in a new folder under `src/prototypes/`. Do not modify these four
 
 Register a prototype with one `{ name, label }` entry in the `prototypes` array in [`src/router.js`](src/router.js). The homepage reads that list. `name` must match the folder (`src/prototypes/<name>/index.vue`).
 
-Workflow: [new-prototype](.cursor/skills/new-prototype/SKILL.md).
+Workflow: [new-prototype](.cursor/skills/new-prototype/SKILL.md) for greenfield, [fork-prototype](.cursor/skills/fork-prototype/SKILL.md) when copying an existing folder.
 
 Self-playing demos (fake cursor, scripted clicks) follow [autoplay-demo](.cursor/skills/autoplay-demo/SKILL.md). Scroll stays inside the prototype. Do not scroll the host page.
 
