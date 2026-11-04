@@ -1,6 +1,7 @@
 ---
 description: Scorecards Figma work only changes .builder-main; restyle old visuals to Dialtone
-alwaysApply: true
+globs: src/prototypes/scorecards*/**
+alwaysApply: false
 ---
 
 # Scorecards — only change `.builder-main`
