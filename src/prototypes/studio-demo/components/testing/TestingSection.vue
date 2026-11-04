@@ -3,7 +3,7 @@
     <div v-if="!selected" class="testing">
       <div class="head">
         <div>
-          <h2>Proving Ground</h2>
+          <h2>Testing</h2>
           <p>Test your agent before it handles real world scenarios</p>
         </div>
         <div class="actions">
@@ -104,13 +104,13 @@
       <h3>Testing Results</h3>
       <div class="timeline">
         <button
-          v-for="result in state.results"
+          v-for="(result, index) in state.results"
           :key="result.id"
           type="button"
           class="sd-card result"
           @click="selected = result"
         >
-          <span class="ring" :style="{ '--pct': result.percentage + '%', '--tone': result.color }">
+          <span class="ring" :style="ringStyle(result, index)">
             <span>{{ result.percentage }}%</span>
           </span>
           <span class="result-copy">
@@ -126,17 +126,14 @@
       </div>
     </div>
 
-    <div v-else class="testing">
-      <button type="button" class="back" @click="selected = null">
-        <Icon name="arrow-left" :size="16" />
-        Back to tests
-      </button>
+    <div v-else class="testing" :style="scenario ? { marginRight: '420px' } : null">
+      <h2>Testing</h2>
       <div class="detail-head">
-        <span class="ring ring--lg" :style="{ '--pct': selected.percentage + '%', '--tone': selected.color }">
+        <span class="ring ring--lg" :style="ringStyle(selected)">
           <span>{{ selected.percentage }}%</span>
         </span>
         <div>
-          <h2>{{ selected.date }}</h2>
+          <h3>{{ selected.date }}</h3>
           <p class="status-line">
             {{ selected.status }}
             <span class="meta">{{ selected.completion }}/{{ selected.total }} scenarios passed</span>
@@ -157,7 +154,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in selected.scenarios" :key="row.id">
+            <tr v-for="row in selected.scenarios" :key="row.id" @click="scenario = row">
               <td :class="row.passFail === 'Pass' ? 'pass' : 'fail'">{{ row.passFail }}</td>
               <td>{{ row.scenario }}</td>
               <td>{{ row.details }}</td>
@@ -179,6 +176,8 @@
       </div>
     </div>
 
+    <ScenarioDrawer :scenario="scenario" @close="scenario = null" />
+
     <div v-if="toast" class="toast" role="status">
       <div>
         <strong>Testing complete</strong>
@@ -193,6 +192,7 @@
 <script setup>
 import { computed, onUnmounted, ref, watchEffect } from 'vue'
 import Icon from '../Icon.vue'
+import ScenarioDrawer from './ScenarioDrawer.vue'
 import { buildTestResult, channelChoices, generateScenarios, testingFor } from '../../mock/testingData.js'
 
 const props = defineProps({
@@ -206,6 +206,7 @@ const running = ref(false)
 const channelOpen = ref(false)
 const channelError = ref(false)
 const selected = ref(null)
+const scenario = ref(null)
 const toast = ref(null)
 let timer = 0
 
@@ -282,7 +283,16 @@ async function run() {
   toast.value = result
 }
 
+function ringStyle(result, index = 0) {
+  return {
+    '--pct': `${result.percentage}%`,
+    '--tone': result.color,
+    '--delay': `${index * 70}ms`,
+  }
+}
+
 function openToast() {
+  scenario.value = null
   selected.value = toast.value
   toast.value = null
 }
@@ -389,6 +399,8 @@ tbody tr { cursor: pointer; }
   flex-shrink: 0;
   border-radius: 50%;
   background: conic-gradient(var(--tone) var(--pct), var(--dt-color-surface-secondary) 0);
+  animation: ring-fill 700ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  animation-delay: var(--delay, 0ms);
 }
 .ring span {
   display: grid;
@@ -403,18 +415,6 @@ tbody tr { cursor: pointer; }
 .ring--lg { width: 84px; height: 84px; }
 .ring--lg span { width: 64px; height: 64px; }
 
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-200);
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--dt-color-foreground-secondary);
-  font-family: inherit;
-  cursor: pointer;
-}
 .detail-head { align-items: center; }
 .status-line {
   display: flex;
@@ -447,5 +447,17 @@ tbody tr { cursor: pointer; }
   color: #fff;
   font-size: 18px;
   cursor: pointer;
+}
+
+@keyframes ring-fill {
+  from { --pct: 0%; }
+}
+</style>
+
+<style>
+@property --pct {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
 }
 </style>

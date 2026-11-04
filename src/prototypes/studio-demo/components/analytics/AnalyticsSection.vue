@@ -2,7 +2,7 @@
   <div class="analytics">
     <header class="head">
       <div>
-        <h2>Agentic AI</h2>
+        <h2>Analytics</h2>
         <p>Track conversation volume, topics, quality, transfer paths, and skill performance.</p>
       </div>
       <div class="range">

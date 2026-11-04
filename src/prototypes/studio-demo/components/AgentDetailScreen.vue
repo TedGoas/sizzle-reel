@@ -25,7 +25,7 @@
       </nav>
       <div class="detail-main">
         <OverviewSection v-if="section === 'overview'" />
-        <TestingSection v-else-if="section === 'testing'" :agent-id="agent.id" />
+        <TestingSection v-else-if="section === 'testing'" :key="testingEpoch" :agent-id="agent.id" />
         <AnalyticsSection v-else-if="section === 'analytics'" />
         <HistorySection v-else-if="section === 'history'" :agent="agent" />
       </div>
@@ -34,18 +34,20 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import Icon from './Icon.vue'
 import OverviewSection from './overview/OverviewSection.vue'
 import TestingSection from './testing/TestingSection.vue'
 import AnalyticsSection from './analytics/AnalyticsSection.vue'
 import HistorySection from './history/HistorySection.vue'
 
-defineProps({
+const props = defineProps({
   agent: { type: Object, required: true },
   section: { type: String, required: true },
 })
 
 const emit = defineEmits(['back', 'section', 'edit'])
+const testingEpoch = ref(0)
 
 const tabs = [
   { id: 'overview', label: 'Overview' },
@@ -57,7 +59,10 @@ const tabs = [
 
 function choose(id) {
   if (id === 'editor') emit('edit')
-  else emit('section', id)
+  else {
+    if (id === 'testing' && props.section === 'testing') testingEpoch.value += 1
+    emit('section', id)
+  }
 }
 </script>
 
@@ -95,9 +100,7 @@ function choose(id) {
 
 h1 {
   margin: 0;
-  font-size: var(--dt-font-size-300);
-  font-weight: 600;
-  line-height: 1.2;
+  font: var(--dt-typography-headline-xl);
 }
 
 .badge {
