@@ -20,7 +20,7 @@
 import SidebarNav from '@/components/SidebarNav.vue'
 import SidebarSection from './SidebarSection.vue'
 import { computed } from 'vue'
-import { sidebarSections } from '../data/mockData.js'
+import { sidebarSections } from '../data.js'
 
 const props = defineProps({
   activeLabel: { type: String, default: '' },

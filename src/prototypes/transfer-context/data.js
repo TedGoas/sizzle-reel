@@ -30,44 +30,48 @@ export const transferContext = {
   ],
   // Full detail shown in the sidebar once the call is accepted.
   fields: [
-    { label: 'Stated Desired Outcome', value: 'Get HubSpot calls and contacts syncing before Monday’s sales kickoff' },
-    { label: 'Product Service', value: 'HubSpot integration' },
-    { label: 'Reason For Contact', value: 'HubSpot shows “Authorization failed” after sign-in' },
-    { label: 'Troubleshooting Steps Attempted', value: 'Disconnected and reconnected the integration; signed in with a HubSpot Super Admin; cleared browser cache' },
-    { label: 'Escalation Reason', value: 'Connection still failing after guided steps; may need back-end token reset' },
-    { label: 'Customer Sentiment Analysis', value: 'Neutral, growing impatient' },
-    { label: 'Authentication Status', value: 'Verified (caller ID + account email)' },
+    { label: 'Stated desired outcome', value: 'Get HubSpot calls and contacts syncing before Monday’s sales kickoff' },
+    { label: 'Product service', value: 'HubSpot integration' },
+    { label: 'Reason for contact', value: 'HubSpot shows “Authorization failed” after sign-in' },
+    { label: 'Troubleshooting steps attempted', value: 'Disconnected and reconnected the integration; signed in with a HubSpot Super Admin; cleared browser cache' },
+    { label: 'Escalation reason', value: 'Connection still failing after guided steps; may need back-end token reset' },
+    { label: 'Customer sentiment analysis', value: 'Neutral, growing impatient' },
+    { label: 'Authentication status', value: 'Verified (caller ID + account email)' },
     { label: 'Account', value: 'Aerolabs · Enterprise plan · 240 seats' },
     { label: 'Location', value: 'San Francisco, CA' },
-    { label: 'Skills Triggered', value: 'Integrations Troubleshooting, Account Verification' },
+    { label: 'Skills triggered', value: 'Integrations Troubleshooting, Account Verification' },
   ],
 }
 
 export const salesforce = [
-  { label: 'Account Owner', value: 'Priya Nair' },
+  { label: 'Account owner', value: 'Priya Nair' },
   { label: 'Plan', value: 'Enterprise · Renews Mar 2027' },
-  { label: 'Open Cases', value: '3 (2 related to integrations)' },
+  { label: 'Open cases', value: '3 (2 related to integrations)' },
 ]
 
-// Delay before the incoming call appears, and how long Decline counts down.
-// Wrap-Up: disposition options and the AI draft that pre-fills the modal.
+// Wrap-up: disposition options and the AI draft that pre-fills the modal.
 export const dispositions = [
   'Resolved',
-  'Resolved – Follow-up required',
-  'Unresolved – Escalated to Tier 2',
-  'Unresolved – Customer to call back',
-  'Not an issue – Working as intended',
+  'Resolved: follow-up required',
+  'Unresolved: escalated to Tier 2',
+  'Unresolved: customer to call back',
+  'Not an issue: working as intended',
   'Callback scheduled',
   'Transferred to another team',
 ]
 
 export const wrapUpDraft = {
-  disposition: 'Resolved – Follow-up required',
+  disposition: 'Resolved: follow-up required',
   notes: 'Ben (Aerolabs, Enterprise) could not authenticate the HubSpot integration after the AI agent\'s reconnect steps failed. Re-authorized OAuth with an Aerolabs admin account and confirmed contacts are syncing again. Follow-up: send Ben a sync-health check in 24 hours. Linked to the 2 open integration cases.',
 }
 
-export const RING_DELAY_MS = 1000
-export const RING_TIMEOUT_MS = 10000
+// Every delay and duration in the prototype. Tune here only.
+export const TIMING = {
+  ringDelayMs: 1000,            // Page load to the incoming call card.
+  ringTimeoutMs: 10000,         // How long the Decline button counts down.
+  wrapUpDispositionAtMs: 3000,  // Wrap-up shimmer before the disposition lands.
+  wrapUpNotesDurationMs: 6000,  // How long the AI notes take to stream in.
+}
 
 export const sidebarSections = [
   {

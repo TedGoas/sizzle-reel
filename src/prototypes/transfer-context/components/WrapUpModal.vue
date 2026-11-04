@@ -11,7 +11,7 @@
           tabindex="-1"
         >
           <header class="wrap-up__header">
-            <h2 id="wrap-up-title" class="d-headline--lg-compact">Wrap-Up</h2>
+            <h2 id="wrap-up-title" class="d-headline--lg-compact">Wrap-up</h2>
             <p class="wrap-up__subline d-body--sm">{{ caller.name }} · {{ caller.company }} · {{ duration }}</p>
           </header>
 
@@ -111,6 +111,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import DtIcon from '@/components/icons/DtIcon.vue'
+import { TIMING } from '../data.js'
 
 const props = defineProps({
   show: { type: Boolean, default: false },
@@ -121,9 +122,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['done'])
 
-// Pre-fill timing (~9s): shimmer, then the disposition lands, then notes stream in.
-const DISPOSITION_AT_MS = 3000
-const NOTES_DURATION_MS = 6000
+// Pre-fill: shimmer, then the disposition lands, then notes stream in. Timing lives in TIMING.
 
 const dialogRef = ref(null)
 const dispositionRef = ref(null)
@@ -186,8 +185,8 @@ function startDraft() {
         if (notesRef.value) notesRef.value.scrollTop = notesRef.value.scrollHeight
       })
       if (shown >= words.length) finishDraft()
-    }, NOTES_DURATION_MS / words.length)
-  }, DISPOSITION_AT_MS)
+    }, TIMING.wrapUpNotesDurationMs / words.length)
+  }, TIMING.wrapUpDispositionAtMs)
 }
 
 watch(() => props.show, (show) => {

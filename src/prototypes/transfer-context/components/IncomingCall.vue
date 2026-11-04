@@ -81,7 +81,7 @@ const props = defineProps({
   // AI transfer context: { queue, source, summary, cardFields[] }
   context: { type: Object, default: null },
   // Decline progress duration. When it ends the card stays up and the fill is removed.
-  timeout: { type: Number, default: 10000 },
+  timeout: { type: Number, required: true },
 })
 
 const emit = defineEmits(['accept', 'decline'])

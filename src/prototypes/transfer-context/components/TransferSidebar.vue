@@ -6,7 +6,7 @@
 <template>
   <aside class="transfer-sidebar">
     <header class="transfer-sidebar__header">
-      <h3 class="d-headline--lg-compact">Contact Info</h3>
+      <h3 class="d-headline--lg-compact">Contact info</h3>
       <button class="transfer-sidebar__icon-btn" aria-label="Close" @click="emit('close')">
         <DtIcon name="close" :size="20" />
       </button>
@@ -34,7 +34,7 @@
       <section class="sidebar-card">
         <button class="sidebar-card__header" :aria-expanded="contextOpen" @click="contextOpen = !contextOpen">
           <DtIcon name="arrow-left-right" :size="18" />
-          <span class="d-headline--md sidebar-card__title">Transfer Context</span>
+          <span class="d-headline--md sidebar-card__title">Transfer context</span>
           <DtIcon :name="contextOpen ? 'chevron-up' : 'chevron-down'" :size="14" />
         </button>
         <dl v-if="contextOpen" class="sidebar-card__fields">

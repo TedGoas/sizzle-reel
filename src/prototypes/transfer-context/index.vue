@@ -41,7 +41,7 @@
           :show="callState === 'ringing'"
           :caller="caller"
           :context="transferContext"
-          :timeout="RING_TIMEOUT_MS"
+          :timeout="TIMING.ringTimeoutMs"
           @accept="acceptCall"
           @decline="endCall"
         />
@@ -77,7 +77,7 @@ import IncomingCall from './components/IncomingCall.vue'
 import Callbar from './components/Callbar.vue'
 import TransferSidebar from './components/TransferSidebar.vue'
 import WrapUpModal from './components/WrapUpModal.vue'
-import { caller, transferContext, salesforce, selectedContact, dispositions, wrapUpDraft, RING_DELAY_MS, RING_TIMEOUT_MS } from './data/mockData.js'
+import { caller, transferContext, salesforce, selectedContact, dispositions, wrapUpDraft, TIMING } from './data.js'
 
 // 'idle' → 'ringing' → 'active' → 'wrapup' → 'idle'
 // Declining while ringing skips wrap-up.
@@ -155,14 +155,14 @@ function endCall() {
   clearInterval(callTimer)
 }
 
-// End in the callbar opens Wrap-Up; the timer freezes at the final duration.
+// End in the callbar opens Wrap-up; the timer freezes at the final duration.
 function endCallToWrapUp() {
   callState.value = 'wrapup'
   clearInterval(callTimer)
 }
 
 onMounted(() => {
-  ringTimer = setTimeout(() => { callState.value = 'ringing' }, RING_DELAY_MS)
+  ringTimer = setTimeout(() => { callState.value = 'ringing' }, TIMING.ringDelayMs)
 })
 
 onBeforeUnmount(() => {
