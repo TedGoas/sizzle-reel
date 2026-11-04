@@ -17,6 +17,10 @@ Cursor rules in [`.cursor/rules/`](.cursor/rules/) are the short always-on const
 - **Prove it in the browser.** After UI edits, open `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite was started before that route existed. Restart the dev server, then check branch and port before changing the design again.
 - **Prototype map.** If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype.
 - **Microcopy.** UI strings, empty states, toasts, and helper text use the [ted-voice](.cursor/skills/ted-voice/SKILL.md) skill.
+- **Ambiguous flow.** Use [shaping](.cursor/skills/shaping/SKILL.md) before building when there is more than one real approach. A one-control polish pass skips it.
+- **Several places.** After a shape is chosen, use [breadboard](.cursor/skills/breadboard/SKILL.md) to list places, controls, and the state the prototype remembers.
+- **Before merge.** [skeptic-review](.cursor/skills/skeptic-review/SKILL.md) is a read-only pass on the branch diff. It reports in chat and does not fix.
+- **Charts.** New and restyled charts follow [chart](.cursor/skills/chart/SKILL.md).
 
 ## Git workflow
 
@@ -93,7 +97,11 @@ When you encounter a `Dt*` component (`DtTooltip`, `DtModal`, `DtBadge`), do not
 
 ### Chart colors
 
-Match [Dialtone chart colors](https://dialtone.dialpad.com/foundations/colors/chart-colors/) with local CSS variables (`--dt-*` or prototype-scoped). Draw charts with the installed `chart.js` / `vue-chartjs`. Do not import Dialtone.
+Match [Dialtone chart colors](https://dialtone.dialpad.com/foundations/colors/chart-colors/) with local `--dt-color-chart-*` variables. Draw charts with the installed `chart.js` / `vue-chartjs`. Do not import Dialtone or add D3.
+
+How a chart should look and behave: [chart](.cursor/skills/chart/SKILL.md). Reference implementation: [`src/prototypes/scorecards-v3-llm-questions/components/ComboChart.vue`](src/prototypes/scorecards-v3-llm-questions/components/ComboChart.vue).
+
+Seeded in [`src/assets/design-tokens.css`](src/assets/design-tokens.css): `--dt-color-chart-positive`, `--dt-color-chart-neutral`, `--dt-color-chart-critical`, categorical `01` through `05`, sequential `01` through `06` and `10`. Copy any other ramp from the Dialtone page under the same token name. Do not invent a color.
 
 ## Icons
 
