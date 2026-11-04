@@ -7,25 +7,57 @@
 
     <div class="grid">
       <article class="sd-card card metrics">
-        <div class="card-head">
+        <div class="widget-title">
           <h2>Key metrics</h2>
-          <div class="metric-tabs" role="tablist">
-            <button
-              v-for="series in metricSeries"
-              :key="series.id"
-              type="button"
-              role="tab"
-              :aria-selected="series.id === activeId"
-              :class="{ active: series.id === activeId }"
-              @click="activeId = series.id"
-            >
-              <span>{{ series.label }}</span>
-              <strong>{{ series.rate }}</strong>
-            </button>
-          </div>
+          <svg class="info" viewBox="0 0 12 12" aria-hidden="true">
+            <circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" />
+            <path d="M6 5.25v3.1M6 3.55v.15" stroke="currentColor" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="metric-tabs" role="tablist">
+          <button
+            v-for="series in metricSeries"
+            :key="series.id"
+            type="button"
+            role="tab"
+            :aria-selected="series.id === activeId"
+            :class="{ active: series.id === activeId }"
+            @click="activeId = series.id"
+          >
+            <span class="tab-label">
+              {{ series.label }}
+              <svg class="info" viewBox="0 0 12 12" aria-hidden="true">
+                <circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" />
+                <path d="M6 5.25v3.1M6 3.55v.15" stroke="currentColor" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span class="tab-metric">{{ metricRate(series.points) }}</span>
+          </button>
         </div>
         <div class="chart-box">
-          <MetricChart :data="chartData" />
+          <MetricChart
+            :points="active.points"
+            :positive-color="metricColors.positive"
+            :negative-color="metricColors.negative"
+            :line-color="metricColors.line"
+            :show-positive="visible.positive"
+            :show-negative="visible.negative"
+            :show-rate="visible.rate"
+          />
+        </div>
+        <div class="legend">
+          <button type="button" :class="{ inactive: !visible.positive }" @click="visible.positive = !visible.positive">
+            <span class="swatch" :style="{ background: metricColors.positive }" />
+            {{ active.positive }}
+          </button>
+          <button type="button" :class="{ inactive: !visible.negative }" @click="visible.negative = !visible.negative">
+            <span class="swatch" :style="{ background: metricColors.negative }" />
+            {{ active.negative }}
+          </button>
+          <button type="button" :class="{ inactive: !visible.rate }" @click="visible.rate = !visible.rate">
+            <span class="swatch swatch--line" :style="{ background: metricColors.line }" />
+            Rate
+          </button>
         </div>
       </article>
 
@@ -70,13 +102,14 @@
       <article class="sd-card card skills">
         <h2>Most used skills</h2>
         <div class="chart-box">
-          <RankChart :labels="skillLabels" :values="skillCounts" :color="brand" />
+          <RankChart :labels="skillLabels" :values="skillCounts" color="#6366F1" />
         </div>
       </article>
     </div>
 
     <h2 class="section-title">Improve and expand</h2>
     <article class="sd-card mining">
+      <MiningIllustration />
       <h3>Find the skills your customers actually need</h3>
       <p>
         Skill mining analyzes past conversations to uncover real customer scenarios that could be automated with AI skills.
@@ -90,11 +123,14 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import Icon from '../Icon.vue'
 import MetricChart from '../charts/MetricChart.vue'
 import RankChart from '../charts/RankChart.vue'
+import MiningIllustration from './MiningIllustration.vue'
 import {
+  metricColors,
+  metricRate,
   metricSeries,
   totalConversations,
   guardianAlerts,
@@ -105,36 +141,12 @@ import {
 
 const activeId = ref(metricSeries[0].id)
 const active = computed(() => metricSeries.find((series) => series.id === activeId.value))
+const visible = reactive({ positive: true, negative: true, rate: true })
 
-const brand = computed(() => (
-  getComputedStyle(document.documentElement).getPropertyValue('--dt-color-surface-brand').trim() || '#7C52FF'
-))
-const neutral = computed(() => (
-  getComputedStyle(document.documentElement).getPropertyValue('--dt-color-chart-neutral').trim() || '#CEC8C4'
-))
-
-const chartData = computed(() => {
-  const series = active.value
-  const positive = series.positiveValues
-  const negative = series.negativeValues
-  const rates = positive.map((value, index) => Math.round((value / (value + negative[index])) * 100))
-  return {
-    labels: series.labels,
-    datasets: [
-      { type: 'bar', label: series.positive, data: positive, backgroundColor: brand.value, stack: 'volume', borderRadius: 3 },
-      { type: 'bar', label: series.negative, data: negative, backgroundColor: neutral.value, stack: 'volume', borderRadius: 3 },
-      {
-        type: 'line',
-        label: 'Rate',
-        data: rates,
-        borderColor: '#1A1A1A',
-        backgroundColor: '#1A1A1A',
-        yAxisID: 'y1',
-        tension: 0.3,
-        pointRadius: 3,
-      },
-    ],
-  }
+watch(activeId, () => {
+  visible.positive = true
+  visible.negative = true
+  visible.rate = true
 })
 
 const skillLabels = skillUsage.map((skill) => skill.name)
@@ -181,47 +193,102 @@ h2, h3 {
   font-weight: 600;
 }
 
-.card-head {
+.widget-title {
   display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-400);
+  align-items: center;
+  gap: var(--dt-space-300);
+}
+
+.widget-title h2 {
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  font-weight: 500;
+}
+
+.tab-label {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  line-height: 1.2;
+}
+
+.info {
+  width: 12px;
+  height: 12px;
+  color: var(--dt-color-foreground-tertiary);
+  flex: none;
 }
 
 .metric-tabs {
   display: flex;
-  gap: var(--dt-space-200);
+  gap: var(--dt-space-500);
 }
 
 .metric-tabs button {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  flex: 1;
-  padding: var(--dt-space-300) var(--dt-space-400);
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: var(--dt-color-surface-secondary);
-  color: var(--dt-color-foreground-secondary);
+  gap: var(--dt-space-400);
+  padding: var(--dt-space-400);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-size-radius-400, 8px);
+  background: var(--dt-color-surface-primary);
+  color: var(--dt-color-foreground-primary);
   font-family: inherit;
-  font-size: var(--dt-font-size-100);
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.metric-tabs button:hover {
+  border-color: var(--dt-color-border-moderate);
 }
 
 .metric-tabs button.active {
-  border-color: var(--dt-color-border-brand);
-  background: var(--dt-color-surface-brand-subtle);
-  color: var(--dt-color-foreground-primary);
+  border-color: #B794F6;
 }
 
-.metric-tabs strong {
-  font-size: var(--dt-font-size-200);
+.tab-metric {
+  font: var(--dt-typography-headline-xl);
 }
 
 .chart-box {
   flex: 1;
-  min-height: 180px;
+  min-height: 240px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dt-space-400);
+}
+
+.legend button {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  padding: var(--dt-space-300) var(--dt-space-400);
+  border: 0;
+  border-radius: var(--dt-size-radius-300, 4px);
+  background: var(--dt-color-surface-moderate);
+  color: var(--dt-color-foreground-primary);
+  font: var(--dt-typography-body-sm-compact);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.legend button.inactive {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.swatch {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
 }
 
 .hero {
@@ -256,9 +323,10 @@ h2, h3 {
   min-width: 8px;
 }
 
-.voice, .caution { background: var(--dt-color-surface-brand); }
-.digital { background: var(--dt-color-chart-neutral); }
-.risk { background: var(--dt-color-foreground-critical); }
+.voice { background: #8AABDD; }
+.digital { background: #AEC3E7; }
+.caution { background: #4385CB; }
+.risk { background: #D9524C; }
 
 .split-labels {
   display: flex;
@@ -271,13 +339,17 @@ h2, h3 {
 }
 
 .mining {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--dt-space-500);
   width: min(520px, 100%);
   padding: var(--dt-space-600) var(--dt-space-550);
   text-align: center;
 }
 
 .mining p {
-  margin: var(--dt-space-400) 0 var(--dt-space-500);
+  margin: 0;
   color: var(--dt-color-foreground-secondary);
   font-size: var(--dt-font-size-200);
 }

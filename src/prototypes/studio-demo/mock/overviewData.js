@@ -1,35 +1,48 @@
+const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+function series(positiveValues, negativeValues) {
+  return days.map((day, index) => ({
+    day,
+    positive: positiveValues[index],
+    negative: negativeValues[index],
+  }))
+}
+
+export const metricColors = {
+  positive: '#CFDAF0',
+  negative: '#8AABDD',
+  line: '#1C4D70',
+}
+
 export const metricSeries = [
   {
     id: 'containment',
     label: 'Containment rate',
-    rate: '78%',
     positive: 'Contained',
     negative: 'Transferred',
-    labels: ['Oct 29', 'Oct 30', 'Oct 31', 'Nov 1', 'Nov 2', 'Nov 3', 'Nov 4'],
-    positiveValues: [120, 132, 128, 140, 136, 150, 144],
-    negativeValues: [38, 30, 34, 28, 32, 26, 30],
+    points: series([68, 122, 180, 206, 156, 84, 62], [12, 18, 40, 34, 44, 16, 8]),
   },
   {
     id: 'resolution',
     label: 'Resolution rate',
-    rate: '86%',
     positive: 'Resolved',
     negative: 'Unresolved',
-    labels: ['Oct 29', 'Oct 30', 'Oct 31', 'Nov 1', 'Nov 2', 'Nov 3', 'Nov 4'],
-    positiveValues: [140, 148, 152, 160, 155, 168, 162],
-    negativeValues: [28, 24, 22, 20, 26, 18, 22],
+    points: series([207, 126, 40, 28, 55, 148, 202], [23, 54, 50, 42, 45, 42, 18]),
   },
   {
     id: 'skillSuccess',
     label: 'Skill success rate',
-    rate: '91%',
     positive: 'No errors',
     negative: 'With errors',
-    labels: ['Oct 29', 'Oct 30', 'Oct 31', 'Nov 1', 'Nov 2', 'Nov 3', 'Nov 4'],
-    positiveValues: [160, 168, 172, 180, 176, 188, 184],
-    negativeValues: [18, 16, 14, 12, 18, 10, 14],
+    points: series([28, 52, 88, 126, 167, 207, 244], [12, 18, 22, 24, 23, 23, 16]),
   },
 ]
+
+export function metricRate(points) {
+  const positive = points.reduce((sum, point) => sum + point.positive, 0)
+  const total = points.reduce((sum, point) => sum + point.positive + point.negative, 0)
+  return `${((positive / total) * 100).toFixed(1)}%`
+}
 
 export const totalConversations = {
   total: 1542,
