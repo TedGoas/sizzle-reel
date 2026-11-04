@@ -42,7 +42,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="agent in agents" :key="agent.id">
+          <tr v-for="agent in agents" :key="agent.id" class="agent-row" @click="emit('open', agent)">
             <td>
               <div class="agent-name">{{ agent.name }}</div>
               <div class="agent-meta">{{ agent.locale }}</div>
@@ -63,9 +63,11 @@
             </td>
             <td>{{ agent.type }}</td>
             <td>{{ agent.status }}</td>
-            <td>
+            <td @click.stop>
               <div class="row-actions">
-                <span class="icon-btn" title="Edit"><Icon name="pencil" :size="16" /></span>
+                <button type="button" class="icon-btn" title="Edit" aria-label="Edit agent" @click="emit('edit', agent)">
+                  <Icon name="pencil" :size="16" />
+                </button>
                 <span class="icon-btn" title="Play"><Icon name="play" :size="16" /></span>
                 <span class="icon-btn" title="More"><Icon name="more-vertical" :size="16" /></span>
               </div>
@@ -81,7 +83,7 @@
 import Icon from './Icon.vue'
 import { agents } from '../agents.js'
 
-const emit = defineEmits(['create'])
+const emit = defineEmits(['create', 'open', 'edit'])
 
 function areaPoints(sparkline) {
   const points = sparkline.trim().split(' ')
@@ -244,11 +246,24 @@ tr:last-child td {
   color: #808080;
 }
 
+.agent-row {
+  cursor: pointer;
+}
+
+.agent-row:hover td {
+  background: var(--dt-color-surface-secondary);
+}
+
 .icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
+  border: 0;
   border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
 }
 </style>

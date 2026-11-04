@@ -12,7 +12,7 @@
       <div class="ambient-glow-2" :class="{ 'is-faded': phase === 'canvas' }" />
 
       <div class="float float--left">
-        <button type="button" class="icon-btn" aria-label="Back to AI Agents" @click="emit('back')">
+        <button type="button" class="icon-btn" :aria-label="startOnCanvas ? 'Back to agent' : 'Back to AI Agents'" @click="emit('back')">
           <Icon name="arrow-left" :size="16" />
         </button>
         <span class="agent-name">{{ phase === 'canvas' ? agentName : 'New AI Agent' }}</span>
@@ -25,7 +25,17 @@
           <Icon name="settings" :size="16" />
         </button>
         <span class="divider" />
-        <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">
+        <button
+          v-if="startOnCanvas"
+          type="button"
+          class="text-btn"
+          :disabled="phase !== 'canvas'"
+          @click="emit('test')"
+        >
+          <Icon name="play" :size="12" />
+          Test
+        </button>
+        <span v-else class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">
           <Icon name="play" :size="12" />
           Test
         </span>
@@ -190,19 +200,24 @@ import CreateSkillDrawer from './CreateSkillDrawer.vue'
 import SettingsModal from './SettingsModal.vue'
 import { canvasDescriptions, chipPrompts, receptionistSkills, skillEditors, suggestionChips } from '../agents.js'
 
-const emit = defineEmits(['back'])
+const props = defineProps({
+  startOnCanvas: { type: Boolean, default: false },
+  initialName: { type: String, default: '' },
+})
+
+const emit = defineEmits(['back', 'test'])
 
 const hoveredChip = ref(null)
 const selectedChip = ref(null)
-const phase = ref('edit')
-const revealedCount = ref(0)
+const phase = ref(props.startOnCanvas ? 'canvas' : 'edit')
+const revealedCount = ref(props.startOnCanvas && props.initialName === 'AI Receptionist' ? 3 : 0)
 const shimmering = ref([false, false, false])
 const entering = ref([false, false, false])
 const chatOpen = ref(false)
 const settingsOpen = ref(false)
 const addedSkills = ref([])
 const removedSkills = ref([])
-const nameOverride = ref('')
+const nameOverride = ref(props.initialName)
 const openSkillName = ref('')
 const addPopoverOpen = ref(false)
 const createSheetOpen = ref(false)
@@ -262,7 +277,7 @@ const agentName = computed(() => nameOverride.value || chosenName.value)
 const agentDescription = computed(() => (
   canvasDescriptions[agentName.value] || canvasDescriptions[chosenName.value] || ''
 ))
-const showSkills = computed(() => chosenName.value === 'AI Receptionist')
+const showSkills = computed(() => agentName.value === 'AI Receptionist')
 const liveSkillNames = computed(() => {
   const gone = new Set(removedSkills.value)
   const base = showSkills.value
@@ -652,6 +667,15 @@ function onChatAction(action) {
   color: #3a3a3a;
   font-size: 12px;
   font-weight: 600;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.text-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .icon-btn {
