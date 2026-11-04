@@ -9,7 +9,7 @@ description: >-
 
 # Figma to prototype
 
-Figma is layout and intent. See [AGENTS.md](../../../AGENTS.md) (*Working with Ted*, and *Scorecards: only `.builder-main`* for Scorecards).
+Figma is layout and intent. See [AGENTS.md](../../../AGENTS.md) (*Working with Ted*, and *Scorecards builder: prefer `.builder-main`* for Scorecards builder UI).
 
 ## Read
 

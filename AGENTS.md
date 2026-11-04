@@ -196,19 +196,21 @@ Self-playing demos (fake cursor, scripted clicks) follow [autoplay-demo](.cursor
 
 **Scorecards V1 - MVP** (`src/prototypes/scorecards-v1-mvp/`) is the Scorecards copy for iteration. Do not change the original `scorecards` folder when working on a copy.
 
-### Scorecards: only `.builder-main`
+### Scorecards builder: prefer `.builder-main`
 
-When implementing a Figma (or any design) for Scorecards, only change `.builder-main` in [`src/prototypes/scorecards-v1-mvp/components/BuilderView.vue`](src/prototypes/scorecards-v1-mvp/components/BuilderView.vue). That is the page body (breadcrumbs, title, actions, question list, detail).
+When implementing **builder UI** from Figma (or similar) in a Scorecards copy, put the design in `.builder-main` inside that copy’s `BuilderView.vue` (page body: breadcrumbs, title, actions, question list, detail). Prefer that over rewriting chrome. Do not hardcode `scorecards-v1-mvp` — use the folder Ted named.
 
-Leave these alone unless Ted asks:
+This does **not** constrain autoplay films, cursor scripts, timing, or other non-builder work in `index.vue`. Those follow [autoplay-demo](.cursor/skills/autoplay-demo/SKILL.md) and the prototype’s `CLAUDE.md`.
+
+Leave chrome alone unless Ted asks:
 
 - Global left nav (`LeftBar`)
 - Admin sidebar (`.builder-admin-nav`)
 - Call Review and Analytics views
 
-Figma may show an older sidebar, left menu, or shell. Ignore those differences. The live chrome is the source of truth.
+Figma may show an older sidebar, left menu, or shell. Ignore those differences. The live chrome in that prototype is the source of truth.
 
-Inside `.builder-main`, keep layout and intent. Restyle controls to current Dialtone using the cloned Scorecards prototype and [dialtone.dialpad.com](https://dialtone.dialpad.com/). Ask first if a control would look meaningfully older.
+Inside `.builder-main`, keep layout and intent. Restyle controls to current Dialtone using the live Scorecards prototype and [dialtone.dialpad.com](https://dialtone.dialpad.com/). Ask first if a control would look meaningfully older.
 
 ## Project structure
 

@@ -1,29 +1,26 @@
 ---
-description: Scorecards Figma work only changes .builder-main; restyle old visuals to Dialtone
-globs: src/prototypes/scorecards*/**
+description: Scorecards builder Figma work prefers .builder-main; ignore outdated chrome; restyle to Dialtone
+globs: src/prototypes/scorecards*/**/BuilderView.vue
 alwaysApply: false
 ---
 
-# Scorecards — only change `.builder-main`
+# Scorecards builder — prefer `.builder-main`
 
-When implementing a Figma (or any design) for Scorecards, **only change `.builder-main`** in `src/prototypes/scorecards-v1-mvp/components/BuilderView.vue`.
+This rule is for **builder UI** work (Figma or layout in the create/edit scorecard screen). It does **not** apply to autoplay films, cursor scripts, timing, or other non-builder edits in `index.vue` — those follow [autoplay-demo](../skills/autoplay-demo/SKILL.md) and the prototype’s `CLAUDE.md`.
 
-That is the page body (breadcrumbs, title, actions, question list, detail). Everything around it is chrome and already correct.
+When implementing builder UI, put the design in `.builder-main` inside **the Scorecards copy you are editing** (`src/prototypes/scorecards-*/components/BuilderView.vue`). That is the page body (breadcrumbs, title, actions, question list, detail). Prefer that over rewriting chrome.
 
-## Leave these alone
+## Leave chrome alone unless Ted asks
 
 - Global left nav (`LeftBar`)
 - Admin sidebar (`.builder-admin-nav`)
-- Call Review and Analytics views, unless the user explicitly asks
+- Call Review and Analytics views
 
-Figma files may show older or different sidebar, left menu, or shell artwork. **Ignore those differences.** The live chrome is the source of truth for every design going forward.
+Figma may show an older sidebar, left menu, or shell. **Ignore those differences.** The live chrome in that prototype is the source of truth.
 
 ## Old Figma, modern visuals
 
-Figma for `.builder-main` may also be old (wrong button color/size, darker input borders, pre-Dialtone styling). Keep the **layout and intent**. Restyle controls to current Dialtone using:
-
-1. The cloned Scorecards prototype (`scorecards-v1-mvp` / original `scorecards`)
-2. [dialtone.dialpad.com](https://dialtone.dialpad.com/)
+Figma for `.builder-main` may also be old (wrong button color/size, darker input borders, pre-Dialtone styling). Keep the **layout and intent**. Restyle controls to current Dialtone using the live Scorecards prototype you are editing and [dialtone.dialpad.com](https://dialtone.dialpad.com/).
 
 Do **not** ship a version that looks meaningfully older or off-system. If the file would require that, **ask first**. The user may say the file is old — treat that as “take the spirit, update the visual language.”
 
