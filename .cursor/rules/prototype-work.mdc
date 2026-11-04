@@ -1,0 +1,33 @@
+---
+description: New prototypes get their own folder; frozen originals stay frozen; verify on the /sizzle-reel/ URL
+alwaysApply: true
+---
+
+# Prototype work
+
+New work is a new folder under `src/prototypes/`, plus one `{ name, label }` entry in `src/router.js`. `name` matches the folder. Forking an existing film: `.cursor/skills/fork-prototype`.
+
+Do not modify these unless Ted explicitly allows it:
+
+- `src/prototypes/analytics-gpt/`
+- `src/prototypes/launchpad/`
+- `src/prototypes/ai-chatbot/`
+- `src/prototypes/scorecards/`
+
+Match behavior from `https://tedgoas.github.io/sizzle-reel/prototypes/<name>` or the source folder before inventing UI.
+
+After UI edits, give the full URL `http://127.0.0.1:5173/sizzle-reel/prototypes/<name>` and exercise the interaction. A blank page after a new route usually means Vite started before the route existed. Restart it, then check branch and port.
+
+If Ted says he does not see a change, stop editing. Check branch, port `5173`, and the server, then screenshot with `.cursor/skills/verify-ui` before changing the design again.
+
+One deliverable per branch. If `git status` shows unrelated prototype dirt, surface it and split before commit or PR.
+
+When porting design-studio, prefer light theme. Dialtone rem root is 10px — rem gaps look ~1.6× large if treated as 16px.
+
+If `src/prototypes/<name>/CLAUDE.md` exists, read it before editing that prototype. Write one after the first working build of a new prototype.
+
+Fake people, numbers, and records live in one `data.js` per prototype. Delays and durations live in one `TIMING` object. Do not retype either in a second file.
+
+Ask questions in chat as a numbered list, not as popups.
+
+Longer contract: [AGENTS.md](AGENTS.md). Workflow: `.cursor/skills/new-prototype`.
