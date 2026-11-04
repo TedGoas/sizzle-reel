@@ -50,6 +50,22 @@ export const salesforce = [
 ]
 
 // Delay before the incoming call appears, and how long Decline counts down.
+// Wrap-Up: disposition options and the AI draft that pre-fills the modal.
+export const dispositions = [
+  'Resolved',
+  'Resolved – Follow-up required',
+  'Unresolved – Escalated to Tier 2',
+  'Unresolved – Customer to call back',
+  'Not an issue – Working as intended',
+  'Callback scheduled',
+  'Transferred to another team',
+]
+
+export const wrapUpDraft = {
+  disposition: 'Resolved – Follow-up required',
+  notes: 'Ben (Aerolabs, Enterprise) could not authenticate the HubSpot integration after the AI agent\'s reconnect steps failed. Re-authorized OAuth with an Aerolabs admin account and confirmed contacts are syncing again. Follow-up: send Ben a sync-health check in 24 hours. Linked to the 2 open integration cases.',
+}
+
 export const RING_DELAY_MS = 1000
 export const RING_TIMEOUT_MS = 10000
 

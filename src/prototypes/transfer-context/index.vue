@@ -52,7 +52,16 @@
           :phone="caller.phone"
           :contact-center="transferContext.queue"
           :formatted-time="formattedTime"
-          @end-call="endCall"
+          @end-call="endCallToWrapUp"
+        />
+
+        <WrapUpModal
+          :show="callState === 'wrapup'"
+          :caller="caller"
+          :duration="formattedTime"
+          :options="dispositions"
+          :draft="wrapUpDraft"
+          @done="callState = 'idle'"
         />
       </main>
     </div>
@@ -67,9 +76,11 @@ import ConversationView from './components/ConversationView.vue'
 import IncomingCall from './components/IncomingCall.vue'
 import Callbar from './components/Callbar.vue'
 import TransferSidebar from './components/TransferSidebar.vue'
-import { caller, transferContext, salesforce, selectedContact, RING_DELAY_MS, RING_TIMEOUT_MS } from './data/mockData.js'
+import WrapUpModal from './components/WrapUpModal.vue'
+import { caller, transferContext, salesforce, selectedContact, dispositions, wrapUpDraft, RING_DELAY_MS, RING_TIMEOUT_MS } from './data/mockData.js'
 
-// 'idle' → 'ringing' → 'active' → 'idle'
+// 'idle' → 'ringing' → 'active' → 'wrapup' → 'idle'
+// Declining while ringing skips wrap-up.
 const callState = ref('idle')
 const secondsElapsed = ref(0)
 const sidebarOpen = ref(false)
@@ -141,6 +152,12 @@ function acceptCall() {
 
 function endCall() {
   callState.value = 'idle'
+  clearInterval(callTimer)
+}
+
+// End in the callbar opens Wrap-Up; the timer freezes at the final duration.
+function endCallToWrapUp() {
+  callState.value = 'wrapup'
   clearInterval(callTimer)
 }
 
