@@ -462,7 +462,6 @@ function clearFields() {
 }
 
 .wrap-up__button--secondary {
-  border: var(--dt-size-border-100) solid var(--dt-color-border-default);
   color: var(--dt-color-foreground-primary);
 }
 
