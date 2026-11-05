@@ -97,11 +97,28 @@
 
   /* -------------------------------------------------------------------------
    * Colors — data viz (Dialtone chart + palette)
+   * Light-theme values copied from dialtone.dialpad.com chart colors.
+   * categorical 01–05 and sequential 01–06, 10 are the ramps Studio names.
    * ----------------------------------------------------------------------- */
   --dt-color-green-300: #52C926;
   --dt-color-gold-200:  #FFE89C;
   --dt-color-chart-positive: #52C926; /* green.425 */
   --dt-color-chart-neutral:  #CEC8C4; /* tan.300 */
+  --dt-color-chart-critical: oklch(.6392 .25 15.77); /* red.500 */
+
+  --dt-color-chart-categorical-01: oklch(.5829 .2426 287.41); /* purple.500 */
+  --dt-color-chart-categorical-02: oklch(.7038 .232 347.8);   /* magenta.400 */
+  --dt-color-chart-categorical-03: oklch(.6089 .2128 259.28); /* blue.500 */
+  --dt-color-chart-categorical-04: oklch(.7807 .1708 66.55);  /* gold.500 */
+  --dt-color-chart-categorical-05: oklch(.6083 .1511 154.75); /* green.600 */
+
+  --dt-color-chart-sequential-01: oklch(.9547 .0128 266.7);  /* indigo.100 */
+  --dt-color-chart-sequential-02: oklch(.89 .02 264);
+  --dt-color-chart-sequential-03: oklch(.82 .02 261);
+  --dt-color-chart-sequential-04: oklch(.75 .03 258);
+  --dt-color-chart-sequential-05: oklch(.68 .04 255);
+  --dt-color-chart-sequential-06: oklch(.61 .04 252);
+  --dt-color-chart-sequential-10: oklch(.3327 .0697 239.96); /* indigo.900 */
 
   /* -------------------------------------------------------------------------
    * Colors — inverted / contrast (dark surfaces like the callbar)
