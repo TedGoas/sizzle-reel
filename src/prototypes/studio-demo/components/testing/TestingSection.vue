@@ -173,7 +173,9 @@
       </div>
     </div>
 
-    <ScenarioDrawer :scenario="scenario" @close="scenario = null" />
+    <DrawerTransition>
+      <ScenarioDrawer v-if="scenario" :scenario="scenario" @close="scenario = null" />
+    </DrawerTransition>
 
     <div v-if="toast" class="toast" role="status">
       <div>
@@ -190,6 +192,7 @@
 import { computed, onUnmounted, ref, watchEffect } from 'vue'
 import Icon from '../Icon.vue'
 import ScenarioDrawer from './ScenarioDrawer.vue'
+import DrawerTransition from '../DrawerTransition.vue'
 import { buildTestResult, channelChoices, generateScenarios, testingFor } from '../../mock/testingData.js'
 
 const props = defineProps({

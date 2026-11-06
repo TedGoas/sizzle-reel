@@ -1,5 +1,5 @@
 <template>
-  <div v-if="scenario" class="drawer" role="dialog" aria-labelledby="scenario-title">
+  <div v-if="scenario" ref="root" class="drawer" role="dialog" tabindex="-1" aria-labelledby="scenario-title">
     <header>
       <button type="button" class="close" aria-label="Close" @click="emit('close')">×</button>
       <p class="eyebrow">Scenario result</p>
@@ -36,29 +36,22 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, watch } from 'vue'
+import { computed, ref } from 'vue'
+import { useDrawerDismiss } from '../../composables/useDrawerDismiss.js'
 
 const props = defineProps({
   scenario: { type: Object, default: null },
 })
 
 const emit = defineEmits(['close'])
+const root = ref(null)
+
+useDrawerDismiss(root, () => emit('close'))
 
 const passed = computed(() => props.scenario?.passFail === 'Pass')
 const transcript = computed(() => (
   props.scenario ? linesFor(props.scenario.scenario, props.scenario.channel, passed.value) : []
 ))
-
-function onKey(event) {
-  if (event.key === 'Escape') emit('close')
-}
-
-watch(() => props.scenario, (scenario) => {
-  if (scenario) window.addEventListener('keydown', onKey)
-  else window.removeEventListener('keydown', onKey)
-})
-
-onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 function linesFor(scenario, channel, pass) {
   const kind = kindFor(scenario.toLowerCase())
@@ -132,6 +125,7 @@ function includes(text, keys) {
   background: var(--dt-color-surface-primary);
   border-left: 1px solid var(--dt-color-border-default);
   box-shadow: var(--dt-shadow-medium);
+  outline: none;
 }
 
 header { position: relative; padding: var(--dt-space-500) var(--dt-space-550) var(--dt-space-400); }
@@ -147,7 +141,11 @@ header { position: relative; padding: var(--dt-space-500) var(--dt-space-550) va
   color: var(--dt-color-foreground-secondary);
   font-size: 20px;
   cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
 }
+.close:hover { background: var(--dt-color-surface-secondary); color: var(--dt-color-foreground-primary); }
+.close:active { transform: scale(0.94); }
+.close:focus-visible { outline: 2px solid var(--dt-color-border-focus); outline-offset: 1px; }
 .eyebrow {
   margin: 0;
   color: var(--dt-color-foreground-tertiary);

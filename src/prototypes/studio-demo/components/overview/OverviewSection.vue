@@ -108,26 +108,93 @@
     </div>
 
     <h2 class="section-title">Improve and expand</h2>
-    <article class="sd-card mining">
+
+    <article v-if="mining !== 'done'" class="sd-card mining" :class="{ 'is-running': mining === 'running' }">
       <MiningIllustration />
       <h3>Find the skills your customers actually need</h3>
       <p>
-        Skill mining analyzes past conversations to uncover real customer scenarios that could be automated with AI skills.
+        Skill mining reads past conversations and finds the calls this agent couldn’t handle. Each group is a skill you could add.
       </p>
-      <div class="mining-actions">
+      <div v-if="mining === 'idle'" class="mining-actions">
         <span class="sd-btn sd-btn--clear">Learn more</span>
-        <span class="sd-btn sd-btn--primary">Start skill mining</span>
+        <button type="button" class="sd-btn sd-btn--primary" @click="drawer = 'setup'">Start skill mining</button>
+      </div>
+      <div v-else class="mining-status" role="status">
+        <span class="spinner" aria-hidden="true" />
+        <span>Reading {{ miningSummary.analyzed.toLocaleString() }} conversations</span>
+        <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="cancelMining">Cancel</button>
       </div>
     </article>
+
+    <article v-else class="sd-card results">
+      <header class="results-header">
+        <div>
+          <h3>Calls this agent couldn’t handle</h3>
+          <p class="sub">
+            {{ miningSummary.uncovered }} of {{ miningSummary.analyzed.toLocaleString() }} conversations, {{ miningSummary.range }}
+          </p>
+        </div>
+        <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="drawer = 'setup'">Mine again</button>
+      </header>
+      <div class="results-body">
+        <GapDonut
+          :segments="donutSegments"
+          :center-value="`${uncoveredShare}%`"
+          center-label="of calls not handled"
+          @select="openGap"
+        />
+        <ul class="gaps">
+          <li v-for="gap in miningGaps" :key="gap.id">
+            <button
+              type="button"
+              class="gap"
+              :class="{ active: drawer === 'gap' && selectedGap?.id === gap.id }"
+              @click="openGap(gap.id)"
+            >
+              <span class="gap-chip" :style="{ background: `var(${gap.colorToken})` }" />
+              <span class="gap-text">
+                <span class="gap-name">{{ gap.name }}</span>
+                <span class="gap-desc">{{ gap.description }}</span>
+              </span>
+              <span class="gap-count">
+                <strong>{{ gap.calls }}</strong>
+                <span>{{ gapShare(gap) }}%</span>
+              </span>
+              <Icon name="chevron-down" :size="12" class="gap-chevron" />
+            </button>
+          </li>
+        </ul>
+      </div>
+    </article>
+
+    <DrawerTransition>
+      <MiningSetupDrawer
+        v-if="drawer === 'setup'"
+        key="setup"
+        @close="drawer = null"
+        @start="startMining"
+      />
+      <MiningGapDrawer
+        v-else-if="drawer === 'gap' && selectedGap"
+        key="gap"
+        :gap="selectedGap"
+        @close="drawer = null"
+      />
+    </DrawerTransition>
   </div>
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from '../Icon.vue'
 import MetricChart from '../charts/MetricChart.vue'
 import RankChart from '../charts/RankChart.vue'
 import MiningIllustration from './MiningIllustration.vue'
+import DrawerTransition from '../DrawerTransition.vue'
+import MiningSetupDrawer from './MiningSetupDrawer.vue'
+import MiningGapDrawer from './MiningGapDrawer.vue'
+import GapDonut from '../charts/GapDonut.vue'
+import { TIMING, miningGaps, miningSummary, gapShare, uncoveredShare } from '../../mock/miningData.js'
 import {
   metricColors,
   metricRate,
@@ -151,6 +218,42 @@ watch(activeId, () => {
 
 const skillLabels = skillUsage.map((skill) => skill.name)
 const skillCounts = skillUsage.map((skill) => skill.count)
+
+// Skill mining: idle -> running (TIMING.miningRun) -> done
+const mining = ref('idle')
+const drawer = ref(null) // null | 'setup' | 'gap'. Drawers overlay the page so the dashboard grid doesn't reflow.
+const selectedGapId = ref(null)
+const selectedGap = computed(() => miningGaps.find((gap) => gap.id === selectedGapId.value))
+let miningTimer = 0
+
+const donutSegments = [
+  ...miningGaps.map((gap) => ({ id: gap.id, label: gap.name, value: gap.calls, colorToken: gap.colorToken })),
+  {
+    id: null,
+    label: 'Handled by this agent',
+    value: miningSummary.analyzed - miningSummary.uncovered,
+    colorToken: '--dt-color-chart-neutral',
+  },
+]
+
+function startMining() {
+  drawer.value = null
+  mining.value = 'running'
+  clearTimeout(miningTimer)
+  miningTimer = setTimeout(() => { mining.value = 'done' }, TIMING.miningRun)
+}
+
+function cancelMining() {
+  clearTimeout(miningTimer)
+  mining.value = 'idle'
+}
+
+function openGap(id) {
+  selectedGapId.value = id
+  drawer.value = 'gap'
+}
+
+onUnmounted(() => clearTimeout(miningTimer))
 </script>
 
 <style scoped>
@@ -360,8 +463,167 @@ h2, h3 {
   gap: var(--dt-space-400);
 }
 
-.mining-actions .sd-btn {
+.mining-actions span.sd-btn {
   cursor: default;
+}
+
+.mining-status {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
+  min-height: var(--btn-height-md);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-200);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 2px solid var(--dt-color-border-default);
+  border-top-color: var(--dt-color-surface-brand);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.mining.is-running :deep(.illo--star) {
+  animation: star-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes star-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-550);
+  padding: var(--dt-space-550);
+  container-type: inline-size;
+  animation: rise 0.4s ease;
+}
+
+.results-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dt-space-500);
+}
+
+.results-header .sub {
+  margin-top: var(--dt-space-200);
+}
+
+.results-body {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-600);
+}
+
+.gaps {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gap {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-450);
+  width: 100%;
+  padding: var(--dt-space-400) var(--dt-space-450);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.gap:hover {
+  background: var(--dt-color-surface-secondary);
+}
+
+.gap.active {
+  background: var(--dt-color-surface-brand-subtle);
+}
+
+.gap-chip {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: var(--dt-space-200);
+}
+
+.gap-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--dt-space-100);
+  min-width: 0;
+}
+
+.gap-name {
+  font-size: var(--dt-font-size-200);
+  font-weight: 600;
+}
+
+.gap-desc {
+  overflow: hidden;
+  color: var(--dt-color-foreground-tertiary);
+  font-size: var(--dt-font-size-100);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gap-count {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--dt-space-100);
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+}
+
+.gap-count strong {
+  font-size: var(--dt-font-size-200);
+}
+
+.gap-count span {
+  color: var(--dt-color-foreground-tertiary);
+  font-size: var(--dt-font-size-100);
+}
+
+.gap-chevron {
+  flex: none;
+  color: var(--dt-color-foreground-tertiary);
+  transform: rotate(-90deg);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@container (max-width: 760px) {
+  .results-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .results-body > :first-child {
+    align-self: center;
+  }
 }
 
 @media (max-width: 1100px) {

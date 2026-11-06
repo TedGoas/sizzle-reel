@@ -1,5 +1,9 @@
 <template>
-  <div class="history" :style="conversation ? { marginRight: width + 'px' } : null">
+  <div
+    class="history"
+    :class="{ 'is-resizing': resizing }"
+    :style="{ marginRight: conversation ? width + 'px' : '0px' }"
+  >
     <header>
       <h2>History</h2>
       <p>Conversations this agent handled. Open a row to see the recap, flow, traces, transcript, and metadata.</p>
@@ -64,13 +68,17 @@
       </table>
     </div>
 
-    <ConversationDrawer
-      :conversation="conversation"
-      :tab="tab"
-      @close="conversation = null"
-      @tab="tab = $event"
-      @resize="width = $event"
-    />
+    <DrawerTransition>
+      <ConversationDrawer
+        v-if="conversation"
+        :conversation="conversation"
+        :tab="tab"
+        @close="conversation = null"
+        @tab="tab = $event"
+        @resize="width = $event"
+        @resizing="resizing = $event"
+      />
+    </DrawerTransition>
   </div>
 </template>
 
@@ -78,6 +86,7 @@
 import { computed, ref } from 'vue'
 import Icon from '../Icon.vue'
 import ConversationDrawer from './ConversationDrawer.vue'
+import DrawerTransition from '../DrawerTransition.vue'
 import { conversations, outcomeOptions, preferredDrawerWidth } from '../../mock/historyData.js'
 
 defineProps({
@@ -89,6 +98,7 @@ const outcome = ref('All outcomes')
 const conversation = ref(null)
 const tab = ref('recap')
 const width = ref(preferredDrawerWidth())
+const resizing = ref(false)
 
 const rows = computed(() => {
   const needle = query.value.trim().toLowerCase()
@@ -108,7 +118,17 @@ function open(row, nextTab) {
 </script>
 
 <style scoped>
-.history { display: flex; flex-direction: column; gap: var(--dt-space-500); }
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-500);
+  /* Make room for the drawer in step with its slide (see DrawerTransition). */
+  transition: margin-right var(--side-drawer-enter);
+}
+.history.is-resizing { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .history { transition: none; }
+}
 h2 { margin: 0; font-size: var(--dt-font-size-300); font-weight: 600; }
 header p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-200); }
 .toolbar { display: flex; gap: var(--dt-space-450); }

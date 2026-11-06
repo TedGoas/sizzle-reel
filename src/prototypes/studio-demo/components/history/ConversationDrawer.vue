@@ -1,35 +1,34 @@
 <template>
-  <div
+  <SideDrawer
     v-if="conversation"
-    class="drawer"
-    :style="{ width: width + 'px' }"
-    role="dialog"
-    aria-labelledby="history-panel-title"
+    :title="conversation.title"
+    title-id="history-panel-title"
+    :content-key="conversation.id"
+    @close="emit('close')"
+    @resize="emit('resize', $event)"
+    @resizing="emit('resizing', $event)"
   >
-    <button type="button" class="resize" aria-label="Resize conversation panel" @mousedown="startResize" />
-    <header>
-      <button type="button" class="close" aria-label="Close" @click="emit('close')">×</button>
-      <h2 id="history-panel-title">{{ conversation.title }}</h2>
-      <p class="meta">
-        <span>{{ conversation.date }}, {{ conversation.time }}</span>
-        <span class="dot" />
-        <span>{{ conversation.channel }}</span>
-      </p>
-    </header>
-    <div class="tabs" role="tablist">
-      <button
-        v-for="item in tabs"
-        :key="item.id"
-        type="button"
-        role="tab"
-        :aria-selected="tab === item.id"
-        :class="{ active: tab === item.id }"
-        @click="emit('tab', item.id)"
-      >
-        {{ item.label }}
-      </button>
-    </div>
-    <div class="body">
+    <template #meta>
+      <span>{{ conversation.date }}, {{ conversation.time }}</span>
+      <span class="dot" />
+      <span>{{ conversation.channel }}</span>
+    </template>
+    <template #nav>
+      <div class="tabs" role="tablist">
+        <button
+          v-for="item in tabs"
+          :key="item.id"
+          type="button"
+          role="tab"
+          :aria-selected="tab === item.id"
+          :class="{ active: tab === item.id }"
+          @click="emit('tab', item.id)"
+        >
+          {{ item.label }}
+        </button>
+      </div>
+    </template>
+
       <section v-if="tab === 'recap'" class="stack">
         <div class="badges">
           <span class="sd-chip">{{ conversation.outcome }}</span>
@@ -189,20 +188,19 @@
         <div><span>Channel</span><strong>{{ conversation.channel }}</strong></div>
         <div><span>Entry point</span><strong>{{ conversation.entry }}</strong></div>
       </section>
-    </div>
-  </div>
+  </SideDrawer>
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { preferredDrawerWidth } from '../../mock/historyData.js'
+import { computed, ref, watch } from 'vue'
+import SideDrawer from '../SideDrawer.vue'
 
 const props = defineProps({
   conversation: { type: Object, default: null },
   tab: { type: String, default: 'recap' },
 })
 
-const emit = defineEmits(['close', 'tab', 'resize'])
+const emit = defineEmits(['close', 'tab', 'resize', 'resizing'])
 
 const tabs = [
   { id: 'recap', label: 'Recap' },
@@ -212,9 +210,6 @@ const tabs = [
   { id: 'metadata', label: 'Metadata' },
 ]
 
-const width = ref(preferredDrawerWidth())
-
-onMounted(() => emit('resize', width.value))
 const openTopics = ref(new Set())
 const showFail = ref(false)
 const playhead = ref(0)
@@ -297,22 +292,6 @@ function seekFail() {
   if (failEvent.value) playhead.value = failEvent.value.t
 }
 
-function startResize(event) {
-  event.preventDefault()
-  const startX = event.clientX
-  const startWidth = width.value
-  function move(moveEvent) {
-    width.value = Math.min(1100, Math.max(400, startWidth + (startX - moveEvent.clientX)))
-    emit('resize', width.value)
-  }
-  function up() {
-    window.removeEventListener('mousemove', move)
-    window.removeEventListener('mouseup', up)
-  }
-  window.addEventListener('mousemove', move)
-  window.addEventListener('mouseup', up)
-}
-
 function startPan(event) {
   if (event.button !== 0 || event.target.closest('button')) return
   panning.value = true
@@ -332,47 +311,8 @@ function startPan(event) {
 </script>
 
 <style scoped>
-.drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 25;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: var(--dt-color-surface-primary);
-  border-left: 1px solid var(--dt-color-border-default);
-  box-shadow: var(--dt-shadow-medium);
-}
-
-.resize {
-  position: absolute;
-  top: 0;
-  left: -4px;
-  width: 8px;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  cursor: ew-resize;
-}
-
-header { position: relative; padding: var(--dt-space-500) var(--dt-space-550) var(--dt-space-400); }
-.close {
-  position: absolute;
-  top: var(--dt-space-400);
-  right: var(--dt-space-400);
-  width: var(--btn-height-icon);
-  height: var(--btn-height-icon);
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--dt-color-foreground-secondary);
-  font-size: 20px;
-  cursor: pointer;
-}
-h2 { margin: 0 var(--dt-space-600) 0 0; font-size: var(--dt-font-size-300); font-weight: 600; }
-.meta { display: flex; align-items: center; gap: var(--dt-space-300); margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); }
 .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--dt-color-foreground-muted); }
+.meta { display: flex; align-items: center; gap: var(--dt-space-300); margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); }
 
 .tabs {
   display: flex;
@@ -396,7 +336,6 @@ h2 { margin: 0 var(--dt-space-600) 0 0; font-size: var(--dt-font-size-300); font
   font-weight: 600;
 }
 
-.body { flex: 1; overflow: auto; padding: var(--dt-space-500) var(--dt-space-550) var(--dt-space-600); }
 .stack, .transcript, .meta-list { display: flex; flex-direction: column; gap: var(--dt-space-400); }
 .badges { display: flex; flex-wrap: wrap; gap: var(--dt-space-200); }
 h3 { margin: var(--dt-space-300) 0 0; font-size: var(--dt-font-size-200); }
