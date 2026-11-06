@@ -18,6 +18,10 @@
   font: var(--dt-typography-headline-lg);
 }
 
+.d-headline--lg-compact {
+  font: var(--dt-typography-headline-lg-compact);
+}
+
 .d-headline--md {
   font: var(--dt-typography-headline-md);
 }

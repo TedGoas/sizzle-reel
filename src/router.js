@@ -12,6 +12,7 @@ const prototypes = [
   { name: 'scorecards-future', label: 'Scorecards V4 - Future' },
   { name: 'studio', label: 'Studio' },
   { name: 'studio-demo', label: 'Studio Demo' },
+  { name: 'transfer-context', label: 'Transfer Context' },
 ]
 
 const routes = [
