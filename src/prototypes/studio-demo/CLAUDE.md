@@ -70,6 +70,7 @@ States (`mining` ref): `idle` → `running` → `done`
 - In any `SkillDrawer` (including Reschedule Appointments), Update shows a spinner for `TIMING.skillUpdateWorking` (1000ms) using the same `.sd-busy` pattern. The button is too narrow for "Updating…", so the text is screen-reader only (`.sd-busy__sr`).
 - Then the drawer emits `updated`, `AgentCreationScreen` closes it, and `showToast()` shows "<skill> is updated." in the same `SuccessToast`. Nothing is saved, so slash-command edits disappear when the drawer closes.
 - `showToast(message)` is the single entry point for editor toasts. It re-mounts the toast so the timer restarts.
+- Copilot guardrails ("Add guardrails…" in the Assistant, on Reschedule Appointments): while `generating` is on, the Guardrails editor gets `.is-thinking`, the same pink and purple gradient sweep as `CreateSkillDrawer`'s summary and the canvas skill nodes. The sweep runs from the start of the copilot's thinking until the last guardrail line is written. The old spinner bar is gone.
 
 ## Gotchas
 

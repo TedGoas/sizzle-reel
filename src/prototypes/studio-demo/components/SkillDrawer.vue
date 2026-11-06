@@ -64,11 +64,7 @@
         <section ref="guardrailsSection" class="field">
           <div class="field-label">Guardrails</div>
           <p class="field-hint">Add guidelines to ensure compliance and safety.</p>
-          <div v-if="generating" class="building">
-            <span class="spinner" aria-hidden="true" />
-            Generating skill content…
-          </div>
-          <div class="editor editor--mid">
+          <div class="editor editor--mid" :class="{ 'is-thinking': generating }" :aria-busy="generating">
             <EditorToolbar />
             <div class="editor-body" contenteditable="true" v-html="guardrails" @keydown="onEditorKeydown"></div>
           </div>
@@ -402,30 +398,38 @@ onUnmounted(() => {
 .editor--tall { height: 365px; }
 .editor--mid { height: 160px; }
 
-.building {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  padding: 6px 10px;
-  border: 1px solid rgba(28, 28, 28, 0.1);
-  border-radius: 6px;
-  background: #f9f9f9;
-  color: #3a3a3a;
-  font-size: 13px;
+/* Same sweep as CreateSkillDrawer's summary and the canvas skill nodes. */
+.editor.is-thinking {
+  position: relative;
 }
 
-.spinner {
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid rgba(28, 28, 28, 0.2);
-  border-top-color: #3a3a3a;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.editor.is-thinking::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(147, 88, 255, 0.08) 20%,
+    rgba(147, 88, 255, 0.2) 35%,
+    rgba(236, 72, 153, 0.15) 45%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(236, 72, 153, 0.15) 55%,
+    rgba(147, 88, 255, 0.2) 65%,
+    rgba(147, 88, 255, 0.08) 80%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  filter: blur(8px);
+  animation: editor-shimmer 1.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes editor-shimmer {
+  from { left: -100%; }
+  to { left: 100%; }
 }
 
 .editor-body {
