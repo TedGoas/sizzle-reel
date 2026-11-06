@@ -105,7 +105,15 @@
         :pan-x="pan.x"
         :pan-y="pan.y"
         :zoom="zoom"
+        :agent-selected="agentDrawerOpen"
         @open-skill="openSkillFromNode"
+        @open-agent="openAgentDrawer"
+      />
+
+      <AgentDrawer
+        v-if="agentDrawerOpen"
+        :agent-name="agentName"
+        @close="agentDrawerOpen = false"
       />
 
       <SkillDrawer
@@ -195,6 +203,7 @@ import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
+import AgentDrawer from './AgentDrawer.vue'
 import AddSkillPopover from './AddSkillPopover.vue'
 import CreateSkillDrawer from './CreateSkillDrawer.vue'
 import SettingsModal from './SettingsModal.vue'
@@ -219,6 +228,7 @@ const addedSkills = ref([])
 const removedSkills = ref([])
 const nameOverride = ref(props.initialName)
 const openSkillName = ref('')
+const agentDrawerOpen = ref(false)
 const addPopoverOpen = ref(false)
 const createSheetOpen = ref(false)
 const skillDrawerInstant = ref(false)
@@ -421,7 +431,13 @@ function closeSkill() {
   skillDrawerInstant.value = false
 }
 
+function openAgentDrawer() {
+  openSkillName.value = ''
+  agentDrawerOpen.value = true
+}
+
 function openSkillFromNode(name) {
+  agentDrawerOpen.value = false
   skillDrawerInstant.value = false
   openSkillName.value = name
 }
@@ -433,6 +449,7 @@ function openCreateSheet() {
 
 function finishManualSkill() {
   createSheetOpen.value = false
+  agentDrawerOpen.value = false
   addManualSkill()
   skillDrawerInstant.value = true
   openSkillName.value = manualSkillName

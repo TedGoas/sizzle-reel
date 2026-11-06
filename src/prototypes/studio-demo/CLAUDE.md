@@ -44,6 +44,13 @@ States (`mining` ref): `idle` → `running` → `done`
 - `composables/useDrawerDismiss.js`: focuses the panel on open (`preventScroll`) and closes on Escape. SideDrawer and ScenarioDrawer use it.
 - The Agent Editor's floating drawers (`SkillDrawer`, `CreateSkillDrawer`) have their own slide-in with an overshoot curve and no exit animation.
 
+## Agent Editor: AI Agent drawer
+
+- Click the **AI Agent** node on the canvas (`AgentCanvas` emits `open-agent`) and `AgentDrawer.vue` opens. It uses the same floating shell and styles as `SkillDrawer`. `AgentCreationScreen` keeps one drawer open at a time: `agentDrawerOpen` and `openSkillName` clear each other. While the drawer is open, the agent node shows the `is-selected` outline.
+- Fields follow Studio's `AgentPanel`: company name, company description, agent name (the canvas `agentName`), tasks editor, tone and voice select with a play button, greeting, knowledge base select, transfer instructions editor, and fallback radios. Presentation only: Cancel and Save just close the drawer.
+- Play button: the icon flips to `pause` for `TIMING.voicePreview` (2000ms), then back. There's no audio. Dialtone has no `stop` icon.
+- Data: `mock/agentData.js` holds `company` (**Hearth & Home**, the home-goods store; reuse it anywhere that needs a company), `voiceOptions` (flag + name + tone; US, UK, Spain), `knowledgeOptions` (document sources), `agentSettings`, `fallbackOptions`, `TIMING`.
+
 ## Gotchas
 
 - `design-tokens.css` resets `list-style: none` globally. Set `list-style: decimal` on any `ol` that should show numbers. (History's "Action items" list has no numbers because of this.)

@@ -10,7 +10,11 @@
         />
       </svg>
 
-      <article class="node node--agent">
+      <article
+        class="node node--agent"
+        :class="{ 'is-selected': agentSelected }"
+        @click="emit('open-agent')"
+      >
         <header class="node-header">
           <span class="node-kind">
             <svg class="kind-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -67,7 +71,7 @@
 import { computed } from 'vue'
 import Icon from './Icon.vue'
 
-const emit = defineEmits(['open-skill'])
+const emit = defineEmits(['open-skill', 'open-agent'])
 
 const props = defineProps({
   count: { type: Number, default: 0 },
@@ -78,6 +82,7 @@ const props = defineProps({
   panX: { type: Number, default: 0 },
   panY: { type: Number, default: 0 },
   zoom: { type: Number, default: 1 },
+  agentSelected: { type: Boolean, default: false },
   agentName: { type: String, default: 'AI Receptionist' },
   agentDescription: {
     type: String,
@@ -196,7 +201,13 @@ function pathFor(skill) {
   outline: 2px solid rgba(71, 21, 113, 0.3);
   animation: agent-in 0.45s ease;
   pointer-events: auto;
-  cursor: default;
+  cursor: pointer;
+  transition: outline-color 0.15s ease;
+}
+
+.node--agent:hover,
+.node--agent.is-selected {
+  outline-color: rgba(124, 82, 255, 0.6);
 }
 
 .node--skill {
