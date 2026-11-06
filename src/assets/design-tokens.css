@@ -47,6 +47,7 @@
    * ----------------------------------------------------------------------- */
   --dt-typography-headline-xl:        500 27px/1.2 var(--dt-font-family-body);
   --dt-typography-headline-lg:        700 19px/1.6 var(--dt-font-family-body);
+  --dt-typography-headline-lg-compact: 700 19px/1.2 var(--dt-font-family-body);
   --dt-typography-headline-md:        600 15px/1.4 var(--dt-font-family-body);
   --dt-typography-body-md:            400 15px/1.6 var(--dt-font-family-body);
   --dt-typography-body-md-compact:    400 15px/1.4 var(--dt-font-family-body);
@@ -120,12 +121,69 @@
   --dt-color-chart-sequential-10: oklch(.3327 .0697 239.96); /* indigo.900 */
 
   /* -------------------------------------------------------------------------
+   * Colors — inverted / contrast (dark surfaces like the callbar)
+   * Values from dialtone.dialpad.com (black.* scale)
+   * ----------------------------------------------------------------------- */
+  --dt-color-neutral-black:              oklch(0 0 0);
+  --dt-color-neutral-white:              oklch(1 0 0);
+  --dt-color-magenta-200:                oklch(.8232 .1275 343.61);
+  --dt-color-red-300:                    oklch(.7713 .1367 14.03);
+  --dt-color-red-500:                    oklch(.6392 .25 15.77);
+  --dt-color-red-600:                    oklch(.5724 .229466 18.56);
+  --dt-color-surface-strong:             oklch(.5134 .0063 95.18);        /* black.600 */
+  --dt-color-surface-contrast:           oklch(.3436 .0055 56.21);        /* black.800 */
+  --dt-color-surface-contrast-opaque:    oklch(.2572 .0063 78.21 / .92);  /* black.900 @ 92% */
+  --dt-color-foreground-primary-inverted:   oklch(.9748 .0025 48.72);     /* black.100 */
+  --dt-color-foreground-secondary-inverted: oklch(.9245 .0029 84.56);     /* black.200 */
+  --dt-color-foreground-tertiary-inverted:  oklch(.8448 .0059 84.57);     /* black.300 */
+  --dt-color-foreground-disabled-inverted:  oklch(.7321 .0061 84.57);     /* black.400 */
+  --dt-color-foreground-muted-inverted:     oklch(.9748 .0025 48.72 / .65);
+  --dt-color-border-default-inverted:    oklch(1 0 0 / .2);
+  --dt-action-color-background-inverted-hover: oklch(1 0 0 / .23);
+  --dt-action-color-background-critical-primary-default: var(--dt-color-red-500);
+  --dt-action-color-background-critical-primary-hover:   var(--dt-color-red-600);
+  --dt-avatar-color-background-1100:     oklch(.8471 .0921 331.77);
+  --dt-avatar-color-background-1600:     oklch(.8407 .1532 79.67);
+  --dt-avatar-color-background-1700:     oklch(.8872 .16 92.49);
+  --dt-color-gold-300:                   oklch(.8585 .122968 75.6919);
+  --dt-color-black-700:                  #3A3A3A;
+  --dt-color-purple-500:                 oklch(.5829 .2426 287.41);
+  --dt-color-purple-600:                 oklch(.4831 .2316 284.82);
+  --dt-color-blue-500:                   oklch(.5552 .223 260.26);
+  --dt-color-border-focus:               var(--dt-color-blue-500);
+  --dt-color-surface-backdrop:           oklch(0 0 0 / .65);   /* modal scrim */
+  --dt-action-color-background-base-primary-default: var(--dt-color-purple-500);
+  --dt-action-color-background-base-primary-hover:   var(--dt-color-purple-600);
+  --dt-color-gradient-gold-red-magenta-purple: linear-gradient(135deg, oklch(.3316 .1466 303.8) 0%, oklch(.3732 .1633 304.46) 3.08%, oklch(.4542 .1926 314.52) 14.48%, oklch(.489 .2033 320.73) 23.67%, oklch(.5259 .2058 339.37) 35.5%, oklch(.5856 .2146 353.36) 48.3%, oklch(.6184 .2208 6.85) 60.29%, oklch(.6538 .21 23.11) 70.08%, oklch(.7086 .1852 45.04) 90.02%, oklch(.7522 .1645 66.26) 97.29%, oklch(.7522 .1645 66.26) 100%);
+
+  /* -------------------------------------------------------------------------
+   * Radius / border
+   * ----------------------------------------------------------------------- */
+  --dt-size-border-100: 1px;
+  --dt-size-radius-300: 4px;
+  --dt-size-radius-400: 8px;
+  --dt-size-radius-500: 16px;
+  --dt-size-radius-600: 32px;
+  --dt-size-radius-pill: 102px;
+
+  /* -------------------------------------------------------------------------
+   * Motion
+   * ----------------------------------------------------------------------- */
+  --td100: .1s;
+  --td150: .15s;
+  --td200: .2s;
+  --td300: .3s;
+  --ttf-out-quint: cubic-bezier(.22, 1, .36, 1);
+
+  /* -------------------------------------------------------------------------
    * Button heights
    * ----------------------------------------------------------------------- */
   --btn-height-sm:   28px;  /* compact / small buttons */
   --btn-height-md:   32px;  /* standard text buttons */
   --btn-height-icon: 32px;  /* square icon-only buttons (same height, explicit semantic) */
   --btn-height-nav:  36px;  /* nav icon buttons (left bar) */
+  --btn-height-call: 42px;  /* incoming call Answer / Decline */
+  --btn-height-callbar: 48px; /* callbar End button */
 
   /* -------------------------------------------------------------------------
    * Shadows
@@ -133,6 +191,7 @@
   --dt-shadow-focus: 0 0 0 3px rgba(124, 82, 255, 0.35);
   --dt-shadow-small: 0 3px 8px rgba(0, 0, 0, 0.12);
   --dt-shadow-medium: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --dt-shadow-large: 0 4px 16px oklch(0 0 0 / .302);  /* modals */
 }
 
 /* -------------------------------------------------------------------------
