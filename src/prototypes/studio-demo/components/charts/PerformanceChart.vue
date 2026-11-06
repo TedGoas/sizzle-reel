@@ -23,7 +23,10 @@ import * as d3 from 'd3'
 const props = defineProps({
   points: { type: Array, required: true },
   colors: { type: Object, required: true },
+  visible: { type: Object, default: () => ({ total: true, contained: true, transferred: true }) },
 })
+
+const isShown = (key) => props.visible[key] !== false
 
 const seriesOrder = ['transferred', 'contained', 'total']
 const seriesLabels = {
@@ -161,7 +164,7 @@ function render(mode) {
   })
 
   seriesOrder.forEach((key) => {
-    root.select(`path.series-${key}`).raise()
+    root.select(`path.series-${key}`).raise().style('opacity', isShown(key) ? 1 : 0)
   })
 
   layout = { margin, x, y, width, height, data, containerWidth, containerHeight, root }
@@ -207,7 +210,7 @@ function showHover(index) {
     .attr('stroke', 'rgba(0, 0, 0, 0.15)')
     .attr('stroke-dasharray', '4 4')
 
-  marks.selectAll('circle.hover-dot').data(seriesOrder).join('circle')
+  marks.selectAll('circle.hover-dot').data(seriesOrder.filter(isShown)).join('circle')
     .attr('class', 'hover-dot')
     .attr('r', 4)
     .attr('cx', px)
@@ -228,7 +231,7 @@ function showHover(index) {
     label: point.label,
     left,
     top,
-    rows: ['total', 'contained', 'transferred'].map((key) => ({
+    rows: ['total', 'contained', 'transferred'].filter(isShown).map((key) => ({
       key,
       label: seriesLabels[key],
       color: props.colors[key],
@@ -279,6 +282,20 @@ onMounted(async () => {
 })
 
 onUnmounted(() => observer?.disconnect())
+
+watch(
+  () => ({ ...props.visible }),
+  () => {
+    if (!layout) return
+    seriesOrder.forEach((key) => {
+      layout.root.select(`path.series-${key}`)
+        .transition('visibility')
+        .duration(200)
+        .style('opacity', isShown(key) ? 1 : 0)
+    })
+    if (hoverIndex != null) showHover(hoverIndex)
+  },
+)
 
 watch(
   () => props.points,

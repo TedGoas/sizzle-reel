@@ -29,14 +29,22 @@
       <h3>Performance</h3>
       <article class="sd-card performance">
         <div class="performance-chart">
-          <PerformanceChart :points="data.days" :colors="strokeColors" />
+          <PerformanceChart :points="data.days" :colors="strokeColors" :visible="visible" />
         </div>
         <div class="legend">
-          <span v-for="series in seriesList" :key="series.key" class="legend-item">
+          <button
+            v-for="series in seriesList"
+            :key="series.key"
+            type="button"
+            class="sd-legend-item"
+            :class="{ inactive: !visible[series.key] }"
+            :aria-pressed="visible[series.key]"
+            @click="visible[series.key] = !visible[series.key]"
+          >
             <i class="swatch" :class="{ faint: series.key !== 'total' }" :style="{ background: series.color }" />
             {{ series.label }}
             <strong>{{ series.total }}</strong>
-          </span>
+          </button>
         </div>
       </article>
     </section>
@@ -99,7 +107,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import Icon from '../Icon.vue'
 import PerformanceChart from '../charts/PerformanceChart.vue'
 import RankChart from '../charts/RankChart.vue'
@@ -131,6 +139,7 @@ const seriesList = computed(() => [
   total: periodTotal(data.value.days, series.key).toLocaleString(),
 })))
 
+const visible = reactive({ total: true, contained: true, transferred: true })
 const rangeId = ref('past30')
 const open = ref(false)
 const sortKey = ref('volume')
@@ -206,17 +215,10 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--dt-space-500);
+  gap: var(--dt-space-400);
   margin-top: var(--dt-space-400);
 }
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-300);
-  color: var(--dt-color-foreground-primary);
-  font-size: var(--dt-font-size-100);
-}
-.legend-item strong { font-weight: 600; }
+.sd-legend-item strong { font-weight: 600; }
 .swatch {
   width: 16px;
   height: 4px;

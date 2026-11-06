@@ -48,15 +48,15 @@
           />
         </div>
         <div class="legend">
-          <button type="button" :class="{ inactive: !visible.positive }" @click="visible.positive = !visible.positive">
+          <button type="button" class="sd-legend-item" :class="{ inactive: !visible.positive }" @click="visible.positive = !visible.positive">
             <span class="swatch" :style="{ background: metricColors.positive }" />
             {{ active.positive }}
           </button>
-          <button type="button" :class="{ inactive: !visible.negative }" @click="visible.negative = !visible.negative">
+          <button type="button" class="sd-legend-item" :class="{ inactive: !visible.negative }" @click="visible.negative = !visible.negative">
             <span class="swatch" :style="{ background: metricColors.negative }" />
             {{ active.negative }}
           </button>
-          <button type="button" :class="{ inactive: !visible.rate }" @click="visible.rate = !visible.rate">
+          <button type="button" class="sd-legend-item" :class="{ inactive: !visible.rate }" @click="visible.rate = !visible.rate">
             <span class="swatch swatch--line" :style="{ background: metricColors.line }" />
             Rate
           </button>
@@ -371,24 +371,6 @@ h2, h3 {
   gap: var(--dt-space-400);
 }
 
-.legend button {
-  display: flex;
-  align-items: center;
-  gap: var(--dt-space-300);
-  padding: var(--dt-space-300) var(--dt-space-400);
-  border: 0;
-  border-radius: var(--dt-size-radius-300, 4px);
-  background: var(--dt-color-surface-moderate);
-  color: var(--dt-color-foreground-primary);
-  font: var(--dt-typography-body-sm-compact);
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.legend button.inactive {
-  opacity: 0.4;
-  text-decoration: line-through;
-}
 
 .swatch {
   width: 16px;

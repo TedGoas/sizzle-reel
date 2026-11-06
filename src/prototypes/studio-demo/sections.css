@@ -50,6 +50,31 @@
   font-size: var(--dt-font-size-100);
 }
 
+/* Clickable chart legend item: no fill at rest, subtle on hover, dimmed when off */
+.sd-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  padding: var(--dt-space-300) var(--dt-space-400);
+  border: 0;
+  border-radius: var(--dt-size-radius-300, 4px);
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font: var(--dt-typography-body-sm-compact);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sd-legend-item:hover {
+  background: var(--dt-color-surface-secondary);
+}
+
+.sd-legend-item.inactive {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
 .sd-card {
   background: var(--dt-color-surface-primary);
   border: 1px solid var(--dt-color-border-default);
