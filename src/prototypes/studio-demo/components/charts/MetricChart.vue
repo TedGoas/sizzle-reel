@@ -1,5 +1,19 @@
 <template>
-  <svg ref="svgRef" class="metric-chart" role="img" aria-label="Key metrics chart" />
+  <div class="chart-wrap" @mouseleave="clearHover">
+    <svg ref="svgRef" class="metric-chart" role="img" aria-label="Key metrics chart" />
+    <div v-if="hover" class="tip" :style="{ left: `${hover.left}px`, top: `${hover.top}px` }">
+      <div class="tip-body">
+        <div class="tip-date">{{ hover.label }}</div>
+        <div v-for="row in hover.rows" :key="row.key" class="tip-row">
+          <span class="tip-label">
+            <i class="tip-dot" :class="{ 'tip-dot--line': row.key === 'rate' }" :style="{ background: row.color }" />
+            {{ row.label }}
+          </span>
+          <span>{{ row.value }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -14,10 +28,15 @@ const props = defineProps({
   showPositive: { type: Boolean, default: true },
   showNegative: { type: Boolean, default: true },
   showRate: { type: Boolean, default: true },
+  positiveLabel: { type: String, default: 'Positive' },
+  negativeLabel: { type: String, default: 'Negative' },
 })
 
 const svgRef = ref(null)
+const hover = ref(null)
 let observer
+let layout = null
+let hoverIndex = null
 let introPlayed = false
 let ignoreResize = false
 
@@ -232,6 +251,79 @@ function render(mode) {
       .style('opacity', 1)
   }
   root.selectAll('.rate-dot').raise()
+
+  layout = { margin, x, y, height, data, containerWidth, containerHeight, root }
+
+  const overlay = root.selectAll('rect.hover-overlay').data([null]).join('rect')
+    .attr('class', 'hover-overlay')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('fill', 'transparent')
+    .on('mousemove', (event) => {
+      const [mx] = d3.pointer(event)
+      let nearest = 0
+      let best = Infinity
+      data.forEach((point, index) => {
+        const distance = Math.abs(x(point.day) + x.bandwidth() / 2 - mx)
+        if (distance < best) {
+          best = distance
+          nearest = index
+        }
+      })
+      showHover(nearest)
+    })
+  overlay.raise()
+
+  if (hoverIndex != null && hoverIndex < data.length) showHover(hoverIndex)
+  else if (hoverIndex != null) clearHover()
+}
+
+function showHover(index) {
+  if (!layout) return
+  hoverIndex = index
+  const point = layout.data[index]
+  const px = layout.x(point.day) + layout.x.bandwidth() / 2
+  let marks = layout.root.select('g.hover-marks')
+  if (marks.empty()) marks = layout.root.append('g').attr('class', 'hover-marks')
+
+  marks.selectAll('line.guide').data([px]).join('line')
+    .attr('class', 'guide')
+    .attr('x1', (d) => d)
+    .attr('x2', (d) => d)
+    .attr('y1', 0)
+    .attr('y2', layout.height)
+    .attr('stroke', 'rgba(0, 0, 0, 0.15)')
+    .attr('stroke-dasharray', '4 4')
+
+  marks.selectAll('circle.hover-dot').data(props.showRate ? [point] : []).join('circle')
+    .attr('class', 'hover-dot')
+    .attr('r', 4)
+    .attr('cx', px)
+    .attr('cy', (d) => layout.y(d.rate))
+    .attr('fill', props.lineColor)
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2)
+
+  marks.raise()
+  layout.root.select('rect.hover-overlay').raise()
+
+  const rows = []
+  if (props.showPositive) rows.push({ key: 'positive', label: props.positiveLabel, color: props.positiveColor, value: point.positive.toLocaleString() })
+  if (props.showNegative) rows.push({ key: 'negative', label: props.negativeLabel, color: props.negativeColor, value: point.negative.toLocaleString() })
+  if (props.showRate) rows.push({ key: 'rate', label: 'Rate', color: props.lineColor, value: `${point.rate.toFixed(1)}%` })
+
+  const tipWidth = 200
+  let left = layout.margin.left + px + 16
+  if (left + tipWidth > layout.containerWidth - 8) left = layout.margin.left + px - tipWidth - 16
+  left = Math.max(8, left)
+  const top = Math.max(8, Math.min(layout.margin.top + layout.y(point.rate) - 36, layout.containerHeight - 120))
+  hover.value = { label: point.day, left, top, rows }
+}
+
+function clearHover() {
+  hoverIndex = null
+  hover.value = null
+  layout?.root.select('g.hover-marks').remove()
 }
 
 onMounted(async () => {
@@ -260,10 +352,62 @@ watch(
 </script>
 
 <style scoped>
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .metric-chart {
   display: block;
   width: 100%;
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, sans-serif;
+}
+
+.tip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tip-body {
+  min-width: 180px;
+  padding: var(--dt-space-400) var(--dt-space-450);
+  border-radius: var(--dt-size-radius-300, 4px);
+  background: var(--dt-color-surface-glass);
+  box-shadow: var(--dt-shadow-small);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-300);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  white-space: nowrap;
+}
+
+.tip-date { font-weight: 600; color: var(--dt-color-foreground-primary); }
+
+.tip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--dt-space-500);
+}
+
+.tip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+}
+
+.tip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.tip-dot--line {
+  height: 2px;
+  border-radius: 1px;
 }
 </style>

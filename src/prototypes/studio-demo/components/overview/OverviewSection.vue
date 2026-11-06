@@ -43,6 +43,8 @@
             :show-positive="visible.positive"
             :show-negative="visible.negative"
             :show-rate="visible.rate"
+            :positive-label="active.positive"
+            :negative-label="active.negative"
           />
         </div>
         <div class="legend">
