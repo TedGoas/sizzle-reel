@@ -81,8 +81,21 @@
       </div>
 
       <footer class="sheet-footer">
-        <button type="button" class="btn btn--quiet" @click="emit('close')">Cancel</button>
-        <button type="button" class="btn btn--primary" @click="emit('close')">Update</button>
+        <button type="button" class="btn btn--quiet" :disabled="updating" @click="emit('close')">Cancel</button>
+        <button
+          type="button"
+          class="btn btn--primary sd-busy"
+          :class="{ 'is-busy': updating }"
+          :aria-busy="updating"
+          :disabled="updating"
+          @click="update"
+        >
+          <span class="sd-busy__label">Update</span>
+          <span v-if="updating" class="sd-busy__overlay" aria-live="polite">
+            <span class="sd-busy__spinner" aria-hidden="true" />
+            <span class="sd-busy__sr">Updating…</span>
+          </span>
+        </button>
       </footer>
     </div>
     <SlashMenu ref="slashMenu" />
@@ -93,6 +106,7 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import EditorToolbar from './EditorToolbar.vue'
 import SlashMenu from './SlashMenu.vue'
+import { TIMING } from '../mock/agentData.js'
 
 const props = defineProps({
   name: { type: String, default: '' },
@@ -105,7 +119,7 @@ const props = defineProps({
   instant: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'updated'])
 const baseWidth = 468
 const entered = ref(props.instant)
 const guardrailsSection = ref(null)
@@ -113,6 +127,18 @@ const slashMenu = ref(null)
 const width = ref(baseWidth)
 const resizing = ref(false)
 let resizeStart = null
+const updating = ref(false)
+let updateTimer = null
+
+// Presentation only: nothing is saved. Spin, then tell the parent.
+function update() {
+  if (updating.value) return
+  updating.value = true
+  updateTimer = setTimeout(() => {
+    updating.value = false
+    emit('updated')
+  }, TIMING.skillUpdateWorking)
+}
 
 function startResize(event) {
   if (event.button !== 0) return
@@ -160,6 +186,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  clearTimeout(updateTimer)
   document.removeEventListener('pointermove', moveResize)
   document.removeEventListener('pointerup', endResize)
   document.removeEventListener('pointercancel', endResize)

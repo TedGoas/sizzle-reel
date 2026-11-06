@@ -60,9 +60,9 @@
 
       <Teleport to="body">
         <Transition name="toast">
-          <PublishToast
+          <SuccessToast
             v-if="toastOpen"
-            :message="`${agentName} v${publishInfo.version} is live.`"
+            :message="toastMessage"
             @close="toastOpen = false"
           />
         </Transition>
@@ -159,6 +159,7 @@
         :guardrails="openSkill.guardrails"
         :instant="skillDrawerInstant"
         @close="closeSkill"
+        @updated="onSkillUpdated"
       />
 
       <AddSkillPopover
@@ -236,7 +237,7 @@ import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
 import AgentDrawer from './AgentDrawer.vue'
 import PublishPopover from './PublishPopover.vue'
-import PublishToast from './PublishToast.vue'
+import SuccessToast from './SuccessToast.vue'
 import { publishInfo } from '../mock/agentData.js'
 import AddSkillPopover from './AddSkillPopover.vue'
 import CreateSkillDrawer from './CreateSkillDrawer.vue'
@@ -266,12 +267,27 @@ const agentDrawerOpen = ref(false)
 const publishOpen = ref(false)
 const published = ref(false)
 const toastOpen = ref(false)
+const toastMessage = ref('')
+
+// Re-mount so the timer restarts when a second toast replaces the first.
+function showToast(message) {
+  toastOpen.value = false
+  nextTick(() => {
+    toastMessage.value = message
+    toastOpen.value = true
+  })
+}
 
 function onPublished() {
   publishOpen.value = false
   published.value = true
-  toastOpen.value = false
-  nextTick(() => { toastOpen.value = true })
+  showToast(`${agentName.value} v${publishInfo.version} is live.`)
+}
+
+function onSkillUpdated() {
+  const name = openSkillName.value
+  closeSkill()
+  showToast(`${name} is updated.`)
 }
 const addPopoverOpen = ref(false)
 const createSheetOpen = ref(false)

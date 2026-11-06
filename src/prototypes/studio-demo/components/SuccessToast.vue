@@ -21,7 +21,7 @@ const emit = defineEmits(['close'])
 let timer = null
 
 onMounted(() => {
-  timer = setTimeout(() => emit('close'), TIMING.publishToast)
+  timer = setTimeout(() => emit('close'), TIMING.successToast)
 })
 onUnmounted(() => clearTimeout(timer))
 </script>

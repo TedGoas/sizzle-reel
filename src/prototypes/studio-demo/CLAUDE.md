@@ -61,9 +61,15 @@ States (`mining` ref): `idle` → `running` → `done`
 - On both canvases (Edit agent, and Create once `phase === 'canvas'`), the toolbar Publish is a purple primary button that toggles `PublishPopover.vue`. Save stays inert.
 - Popover buttons use the shared `sd-btn sd-btn--outlined` and `sd-btn--primary` from `sections.css`, so they match the rest of the prototype.
 - Popover: the agent name, "Saved 2 min ago · by Nora Kim", "Never published" (or "Published just now · v1.2" after publishing), "Version history", "Share link", and "Publish v1.2". Only "Publish v1.2" does anything. Outside click and Escape close the popover, except while it's working.
-- Working: a spinner and "Publishing…" sit over the label for `TIMING.publishWorking` (1500ms). The label stays in the layout with `visibility: hidden`, so the button never changes size.
-- Then the popover closes, `published` flips the Draft badge to a green "Published", and `PublishToast.vue` shows "<agent> v1.2 is live." fixed at the top center (`top: 44px`, teleported to body). The toast copies Dialtone's `.d-toast--success`: `--dt-color-surface-success` background, `--dt-color-foreground-success` check, an inset `border-subtle` ring, and `--dt-shadow-medium`. It goes away after `TIMING.publishToast` (4000ms) or on ×.
+- Working: a spinner and "Publishing…" sit over the label for `TIMING.publishWorking` (1500ms). This uses the shared `.sd-busy` pattern in `sections.css`: the label stays in the layout with `visibility: hidden`, so the button never changes size.
+- Then the popover closes, `published` flips the Draft badge to a green "Published", and `SuccessToast.vue` shows "<agent> v1.2 is live." fixed at the top center (`top: 44px`, teleported to body). The toast copies Dialtone's `.d-toast--success`: `--dt-color-surface-success` background, `--dt-color-foreground-success` check, an inset `border-subtle` ring, and `--dt-shadow-medium`. It goes away after `TIMING.successToast` (4000ms) or on ×.
 - All of this is in-memory only and resets on refresh or when you leave the editor. Data is `publishInfo` and `TIMING` in `mock/agentData.js`.
+
+## Agent Editor: skill Update
+
+- In any `SkillDrawer` (including Reschedule Appointments), Update shows a spinner for `TIMING.skillUpdateWorking` (1000ms) using the same `.sd-busy` pattern. The button is too narrow for "Updating…", so the text is screen-reader only (`.sd-busy__sr`).
+- Then the drawer emits `updated`, `AgentCreationScreen` closes it, and `showToast()` shows "<skill> is updated." in the same `SuccessToast`. Nothing is saved, so slash-command edits disappear when the drawer closes.
+- `showToast(message)` is the single entry point for editor toasts. It re-mounts the toast so the timer restarts.
 
 ## Gotchas
 

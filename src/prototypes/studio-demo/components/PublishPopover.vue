@@ -29,18 +29,18 @@
       </button>
       <button
         type="button"
-        class="sd-btn sd-btn--primary publish-btn"
-        :class="{ 'is-working': working }"
+        class="sd-btn sd-btn--primary sd-busy publish-btn"
+        :class="{ 'is-busy': working }"
         :aria-busy="working"
         :disabled="working"
         @click="publish"
       >
-        <span class="btn-label">
+        <span class="sd-busy__label">
           Publish v{{ publishInfo.version }}
           <Icon name="arrow-up" :size="16" />
         </span>
-        <span v-if="working" class="btn-working" aria-live="polite">
-          <span class="spinner" aria-hidden="true" />
+        <span v-if="working" class="sd-busy__overlay" aria-live="polite">
+          <span class="sd-busy__spinner" aria-hidden="true" />
           Publishing…
         </span>
       </button>
@@ -154,50 +154,7 @@ onUnmounted(() => clearTimeout(timer))
   min-width: 0;
 }
 
-.publish-btn {
-  position: relative;
-}
-
 .publish-btn:not(:disabled):hover {
   filter: brightness(0.96);
 }
-
-.publish-btn:disabled {
-  opacity: 1;
-  cursor: progress;
-}
-
-.btn-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-200);
-}
-
-/* Keep the label in the layout so the button never changes size. */
-.is-working .btn-label {
-  visibility: hidden;
-}
-
-.btn-working {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--dt-space-300);
-}
-
-.spinner {
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 </style>

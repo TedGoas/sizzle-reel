@@ -75,6 +75,62 @@
   text-decoration: line-through;
 }
 
+/* Busy button: the label stays in the layout (hidden) so the button never changes size.
+   Markup: <button class="sd-btn sd-busy" :class="{ 'is-busy': busy }">
+             <span class="sd-busy__label">…</span>
+             <span v-if="busy" class="sd-busy__overlay"><span class="sd-busy__spinner" />Working…</span>
+           </button> */
+.sd-busy {
+  position: relative;
+}
+
+.sd-busy:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
+.sd-busy__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+}
+
+.sd-busy.is-busy .sd-busy__label {
+  visibility: hidden;
+}
+
+.sd-busy__overlay {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dt-space-300);
+}
+
+.sd-busy__spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sd-busy-spin 0.8s linear infinite;
+}
+
+/* Short buttons (like "Update") can't fit spinner + text: show the spinner, keep the text for screen readers. */
+.sd-busy__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes sd-busy-spin {
+  to { transform: rotate(360deg); }
+}
+
 .sd-card {
   background: var(--dt-color-surface-primary);
   border: 1px solid var(--dt-color-border-default);
