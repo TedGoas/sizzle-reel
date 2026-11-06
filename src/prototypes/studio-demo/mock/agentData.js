@@ -3,6 +3,14 @@
 
 export const TIMING = {
   voicePreview: 2000, // how long the voice sample "plays"
+  publishWorking: 1500, // spinner inside "Publish v1.2"
+  publishToast: 4000, // how long the success toast stays up
+}
+
+export const publishInfo = {
+  savedAgo: '2 min ago',
+  savedBy: 'Nora Kim',
+  version: '1.2',
 }
 
 export const company = {

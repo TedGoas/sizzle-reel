@@ -16,7 +16,7 @@
           <Icon name="arrow-left" :size="16" />
         </button>
         <span class="agent-name">{{ phase === 'canvas' ? agentName : 'New AI Agent' }}</span>
-        <span class="draft">Draft</span>
+        <span class="draft" :class="{ 'is-published': published }">{{ published ? 'Published' : 'Draft' }}</span>
       </div>
 
       <div class="float float--right">
@@ -40,11 +40,33 @@
           Test
         </span>
         <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">Save</span>
-        <span
-          class="text-btn"
-          :class="phase === 'canvas' ? 'text-btn--outline is-disabled' : 'text-btn--primary is-disabled'"
-        >Publish</span>
+        <button
+          type="button"
+          class="text-btn text-btn--primary"
+          :class="{ 'is-disabled': phase !== 'canvas' }"
+          :disabled="phase !== 'canvas'"
+          :aria-expanded="publishOpen"
+          @click="publishOpen = !publishOpen"
+        >Publish</button>
       </div>
+
+      <PublishPopover
+        v-if="publishOpen"
+        :agent-name="agentName"
+        :published="published"
+        @close="publishOpen = false"
+        @published="onPublished"
+      />
+
+      <Teleport to="body">
+        <Transition name="toast">
+          <PublishToast
+            v-if="toastOpen"
+            :message="`${agentName} v${publishInfo.version} is live.`"
+            @close="toastOpen = false"
+          />
+        </Transition>
+      </Teleport>
 
       <div class="panel" :class="{ 'is-building': phase === 'building', 'is-gone': phase === 'canvas' }">
         <Transition name="heading" mode="out-in">
@@ -197,13 +219,16 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onUnmounted, ref } from 'vue'
 import Icon from './Icon.vue'
 import LeftRail from './LeftRail.vue'
 import AgentCanvas from './AgentCanvas.vue'
 import AssistantChat from './AssistantChat.vue'
 import SkillDrawer from './SkillDrawer.vue'
 import AgentDrawer from './AgentDrawer.vue'
+import PublishPopover from './PublishPopover.vue'
+import PublishToast from './PublishToast.vue'
+import { publishInfo } from '../mock/agentData.js'
 import AddSkillPopover from './AddSkillPopover.vue'
 import CreateSkillDrawer from './CreateSkillDrawer.vue'
 import SettingsModal from './SettingsModal.vue'
@@ -229,6 +254,16 @@ const removedSkills = ref([])
 const nameOverride = ref(props.initialName)
 const openSkillName = ref('')
 const agentDrawerOpen = ref(false)
+const publishOpen = ref(false)
+const published = ref(false)
+const toastOpen = ref(false)
+
+function onPublished() {
+  publishOpen.value = false
+  published.value = true
+  toastOpen.value = false
+  nextTick(() => { toastOpen.value = true })
+}
 const addPopoverOpen = ref(false)
 const createSheetOpen = ref(false)
 const skillDrawerInstant = ref(false)
@@ -718,6 +753,33 @@ button.text-btn:disabled {
 
 .is-disabled {
   opacity: 0.5;
+}
+
+button.text-btn--primary:not(:disabled) {
+  cursor: pointer;
+}
+
+button.text-btn--primary:not(:disabled):hover {
+  filter: brightness(0.96);
+}
+
+.draft.is-published {
+  background: rgba(95, 211, 141, 0.18);
+  color: #116a3b;
+}
+
+.toast-enter-active {
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -12px);
 }
 
 .divider {
