@@ -6,6 +6,11 @@ Native rebuild of Agentic Studio with local Dialtone (`sd-*` classes in `section
 
 `list` (AgentListScreen) → `agent` (AgentDetailScreen, `section` = overview | testing | analytics | history) → `editor` (AgentCreationScreen with `start-on-canvas`). `creation` is the new-agent flow.
 
+### Start screen (creation)
+
+- The prompt is a real `<textarea>`: `typedText` overrides the chip sentence, and picking a chip clears it. Hovering a chip shows its sentence as the placeholder.
+- Presentation only: Enter or Send with typed text and no chip builds the **AI Receptionist** (`selectedChip = 0`). A picked chip still builds that chip's agent. The chat's user bubble shows whatever is in the field.
+
 ## Overview: skill mining
 
 Lives in `components/overview/OverviewSection.vue`, below the dashboard grid under "Improve and expand".

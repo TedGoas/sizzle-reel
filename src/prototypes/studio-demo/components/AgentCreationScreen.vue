@@ -76,8 +76,17 @@
           <p :key="subtext">{{ subtext }}</p>
         </Transition>
         <div class="prompt">
-          <span class="prompt-placeholder" :class="{ 'is-value': inputText }">{{ inputText || previewText || 'Describe your AI agent in a conversational manner...' }}</span>
-          <button type="button" class="send" :class="{ 'is-ready': inputText }" :aria-disabled="!inputText || phase !== 'edit'" @click="submit">
+          <textarea
+            class="prompt-input"
+            :value="promptValue"
+            :placeholder="previewText || 'Describe your AI agent in a conversational manner...'"
+            :readonly="phase !== 'edit'"
+            aria-label="Describe your AI agent"
+            rows="3"
+            @input="typedText = $event.target.value"
+            @keydown.enter.exact.prevent="submit"
+          />
+          <button type="button" class="send" :class="{ 'is-ready': canSubmit }" :aria-disabled="!canSubmit || phase !== 'edit'" @click="submit">
             <span v-if="phase === 'building'" class="spinner" />
             <Icon v-else name="send" :size="16" />
           </button>
@@ -166,7 +175,7 @@
 
       <AssistantChat
         v-if="chatOpen"
-        :user-text="inputText"
+        :user-text="promptValue"
         :agent-name="agentName"
         :skills="liveSkillNames"
         :opening-skills="showSkills ? receptionistSkills : []"
@@ -314,6 +323,10 @@ function chipSentence(index) {
 }
 
 const inputText = computed(() => chipSentence(selectedChip.value))
+// Presentation only: typing is allowed, but submit always builds the AI Receptionist.
+const typedText = ref(null)
+const promptValue = computed(() => typedText.value ?? inputText.value)
+const canSubmit = computed(() => !!promptValue.value.trim())
 const previewText = computed(() => (selectedChip.value == null ? chipSentence(hoveredChip.value) : ''))
 const chosenName = computed(() => (
   Number.isInteger(selectedChip.value) ? suggestionChips[selectedChip.value] : 'New AI Agent'
@@ -430,10 +443,12 @@ function chooseChip(index) {
   if (phase.value !== 'edit') return
   selectedChip.value = index
   hoveredChip.value = null
+  typedText.value = null
 }
 
 function submit() {
-  if (!inputText.value || phase.value !== 'edit') return
+  if (!canSubmit.value || phase.value !== 'edit') return
+  if (selectedChip.value == null) selectedChip.value = 0 // AI Receptionist
   phase.value = 'building'
   later(revealCanvas, 1060)
 }
@@ -847,14 +862,28 @@ p {
   box-sizing: border-box;
 }
 
-.prompt-placeholder {
-  color: #9a9a9a;
+.prompt-input {
+  display: block;
+  width: 100%;
+  min-height: 63px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1c1c1c;
+  font: inherit;
   font-size: 15px;
   line-height: 1.4;
+  resize: none;
+  outline: none;
 }
 
-.prompt-placeholder.is-value {
-  color: #1c1c1c;
+.prompt-input::placeholder {
+  color: #9a9a9a;
+}
+
+.prompt:focus-within {
+  border-color: rgba(124, 82, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(124, 82, 255, 0.12);
 }
 
 .send {
