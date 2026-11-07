@@ -1,5 +1,5 @@
 <template>
-  <div class="donut">
+  <div class="donut" @mouseleave="clearHover">
     <Doughnut ref="chartRef" :data="data" :options="options" />
     <div class="center" aria-hidden="true">
       <strong>{{ centerValue }}</strong>
@@ -10,7 +10,7 @@
         <div class="tooltip-row">
           <span class="chip" :style="{ background: hover.color }" />
           <span class="label">{{ hover.label }}</span>
-          <span class="metric">{{ hover.value.toLocaleString() }}</span>
+          <span class="metric">{{ hover.value.toLocaleString() }} · {{ hover.share }}%</span>
         </div>
       </div>
     </transition>
@@ -29,35 +29,79 @@ const props = defineProps({
   segments: { type: Array, required: true },
   centerValue: { type: String, required: true },
   centerLabel: { type: String, required: true },
+  hoveredId: { type: String, default: null },
+  selectedId: { type: String, default: null },
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'hover'])
 
 const chartRef = ref(null)
 const hover = ref(null)
+let hoverIndex = -1
 
 function dtColor(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
-const colors = computed(() => props.segments.map((segment) => dtColor(segment.colorToken)))
+// Canvas fill ignores color-mix, so fade the resolved pixel.
+function paint(color, alpha = 1) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1
+  canvas.height = 1
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  ctx.globalAlpha = alpha
+  ctx.fillStyle = color
+  ctx.fillRect(0, 0, 1, 1)
+  const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data
+  return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`
+}
+
+const total = computed(() => props.segments.reduce((sum, segment) => sum + segment.value, 0))
+
+const colors = computed(() => props.segments.map((segment) => {
+  const color = dtColor(segment.colorToken)
+  return segment.id ? paint(color) : paint(color, 0.65)
+}))
+
+function marked(id) {
+  return Boolean(id) && (id === props.hoveredId || id === props.selectedId)
+}
 
 const data = computed(() => ({
   labels: props.segments.map((segment) => segment.label),
   datasets: [{
     data: props.segments.map((segment) => segment.value),
     backgroundColor: colors.value,
+    offset: props.segments.map((segment) => (marked(segment.id) ? 10 : 0)),
     borderColor: dtColor('--dt-color-surface-primary'),
     borderWidth: 2,
-    hoverOffset: 4,
+    hoverOffset: 0,
   }],
 }))
+
+function shareOf(value) {
+  if (!total.value) return '0.0'
+  return ((value / total.value) * 100).toFixed(1)
+}
+
+function clearHover() {
+  hoverIndex = -1
+  hover.value = null
+  emit('hover', null)
+}
 
 const options = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  cutout: '72%',
-  layout: { padding: 4 },
+  cutout: '68%',
+  layout: { padding: 12 },
+  animation: {
+    duration: 600,
+    onComplete(animation) {
+      const chart = animation.chart
+      if (chart?.options.animation) chart.options.animation.duration = 160
+    },
+  },
   plugins: {
     legend: { display: false },
     tooltip: { enabled: false },
@@ -65,7 +109,7 @@ const options = computed(() => ({
   onHover(event, elements) {
     const target = event.native?.target
     if (!elements.length) {
-      hover.value = null
+      if (hoverIndex !== -1) clearHover()
       if (target) target.style.cursor = 'default'
       return
     }
@@ -73,7 +117,18 @@ const options = computed(() => ({
     const segment = props.segments[index]
     if (target) target.style.cursor = segment.id ? 'pointer' : 'default'
     const pos = element.tooltipPosition()
-    hover.value = { x: pos.x, y: pos.y, label: segment.label, value: segment.value, color: colors.value[index] }
+    hover.value = {
+      x: pos.x,
+      y: pos.y,
+      label: segment.label,
+      value: segment.value,
+      share: shareOf(segment.value),
+      color: colors.value[index],
+    }
+    if (index !== hoverIndex) {
+      hoverIndex = index
+      emit('hover', segment.id)
+    }
   },
   onClick(event, elements) {
     if (!elements.length) return
@@ -87,8 +142,8 @@ const options = computed(() => ({
 .donut {
   position: relative;
   flex: none;
-  width: 176px;
-  height: 176px;
+  width: 240px;
+  height: 240px;
 }
 
 .center {
@@ -99,7 +154,6 @@ const options = computed(() => ({
   align-items: center;
   justify-content: center;
   gap: var(--dt-space-100);
-  padding: 0 var(--dt-space-600);
   text-align: center;
   pointer-events: none;
 }
@@ -110,6 +164,7 @@ const options = computed(() => ({
 }
 
 .center span {
+  max-width: 9em;
   color: var(--dt-color-foreground-tertiary);
   font-size: var(--dt-font-size-100);
   line-height: 1.3;

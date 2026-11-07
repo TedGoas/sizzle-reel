@@ -143,14 +143,22 @@
           :segments="donutSegments"
           :center-value="`${uncoveredShare}%`"
           center-label="of calls not handled"
+          :hovered-id="hoveredGapId || ''"
+          :selected-id="drawer === 'gap' ? selectedGapId || '' : ''"
           @select="openGap"
+          @hover="hoveredGapId = $event"
         />
         <ul class="gaps">
           <li v-for="gap in miningGaps" :key="gap.id">
             <button
               type="button"
               class="gap"
-              :class="{ active: drawer === 'gap' && selectedGap?.id === gap.id }"
+              :class="{
+                active: drawer === 'gap' && selectedGap?.id === gap.id,
+                hot: hoveredGapId === gap.id,
+              }"
+              @mouseenter="hoveredGapId = gap.id"
+              @mouseleave="hoveredGapId = null"
               @click="openGap(gap.id)"
             >
               <span class="gap-chip" :style="{ background: `var(${gap.colorToken})` }" />
@@ -160,7 +168,7 @@
               </span>
               <span class="gap-count">
                 <strong>{{ gap.calls }}</strong>
-                <span>{{ gapShare(gap) }}%</span>
+                <span>({{ gapShare(gap) }}%)</span>
               </span>
               <Icon name="chevron-down" :size="12" class="gap-chevron" />
             </button>
@@ -225,6 +233,7 @@ const skillCounts = skillUsage.map((skill) => skill.count)
 const mining = ref('idle')
 const drawer = ref(null) // null | 'setup' | 'gap'. Drawers overlay the page so the dashboard grid doesn't reflow.
 const selectedGapId = ref(null)
+const hoveredGapId = ref(null)
 const selectedGap = computed(() => miningGaps.find((gap) => gap.id === selectedGapId.value))
 let miningTimer = 0
 
@@ -430,7 +439,8 @@ h2, h3 {
   flex-direction: column;
   align-items: center;
   gap: var(--dt-space-500);
-  width: min(520px, 100%);
+  width: calc((100% - 11 * var(--dt-space-525)) / 12 * 6 + 5 * var(--dt-space-525));
+  max-width: 100%;
   padding: var(--dt-space-600) var(--dt-space-550);
   text-align: center;
 }
@@ -506,6 +516,7 @@ h2, h3 {
 .results-body {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--dt-space-600);
 }
 
@@ -534,7 +545,8 @@ h2, h3 {
   cursor: pointer;
 }
 
-.gap:hover {
+.gap:hover,
+.gap.hot {
   background: var(--dt-color-surface-secondary);
 }
 
@@ -573,19 +585,22 @@ h2, h3 {
 .gap-count {
   display: flex;
   flex: none;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--dt-space-100);
+  align-items: baseline;
+  gap: var(--dt-space-200);
+  font-size: var(--dt-font-size-200);
+  font-variant-numeric: tabular-nums;
   font-feature-settings: 'lnum' 1, 'tnum' 1;
 }
 
 .gap-count strong {
-  font-size: var(--dt-font-size-200);
+  width: 2ch;
+  font-weight: 600;
+  text-align: right;
 }
 
 .gap-count span {
   color: var(--dt-color-foreground-tertiary);
-  font-size: var(--dt-font-size-100);
+  font-weight: 400;
 }
 
 .gap-chevron {
@@ -617,5 +632,7 @@ h2, h3 {
     grid-column: 1 / -1;
     grid-row: auto;
   }
+
+  .mining { width: 100%; }
 }
 </style>

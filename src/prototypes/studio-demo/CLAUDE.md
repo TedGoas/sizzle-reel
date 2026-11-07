@@ -19,7 +19,7 @@ States (`mining` ref): `idle` → `running` → `done`
 - **idle:** illustration card. "Start skill mining" opens the setup drawer. "Learn more" is inert.
 - **setup drawer** (`MiningSetupDrawer.vue`): call sources (checkboxes, first two on), call purposes (chips, max 5), date range (radios), email toggle. Presentation only. "Mine for skills" is disabled with no source.
 - **running:** the star in the illustration bounces, with a spinner and "Reading 1,542 conversations". Cancel returns to idle.
-- **done:** results card. `GapDonut.vue` (chart.js doughnut, glass tooltip, click a slice to open it) plus a list of gap rows. "Mine again" reopens setup.
+- **done:** results card. `GapDonut.vue` is a 240px chart.js doughnut. The center is the uncovered share. A frosted tooltip shows the slice count and its share of all calls. The handled remainder is fainter and not clickable. Hovering a slice or a row highlights both, and the open gap stays pulled out. Click a slice or row to open it. "Mine again" reopens setup.
 - **gap drawer** (`MiningGapDrawer.vue`): stats, three customer quotes, numbered steps. "Create skill" only closes the drawer for now.
 
 `drawer` ref: `null | 'setup' | 'gap'`. Mining drawers **overlay** the page at `DRAWER_WIDTH` (480). They don't push content, because pushing crushed the 12-column grid. State resets when you leave Overview (the component unmounts).
