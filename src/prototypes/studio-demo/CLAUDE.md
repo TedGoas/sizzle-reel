@@ -58,12 +58,22 @@ States (`mining` ref): `idle` → `running` → `done`
 
 ## Agent Editor: publish flow
 
-- On both canvases (Edit agent, and Create once `phase === 'canvas'`), the toolbar Publish is a purple primary button that toggles `PublishPopover.vue`. Save stays inert.
+- On both canvases (Edit agent, and Create once `phase === 'canvas'`), the toolbar Publish is a purple primary button that toggles `PublishPopover.vue`. Save is covered in the next section.
 - Popover buttons use the shared `sd-btn sd-btn--outlined` and `sd-btn--primary` from `sections.css`, so they match the rest of the prototype.
 - Popover: the agent name, "Saved 2 min ago · by Nora Kim", "Never published" (or "Published just now · v1.2" after publishing), "Version history", "Share link", and "Publish v1.2". Only "Publish v1.2" does anything. Outside click and Escape close the popover, except while it's working.
 - Working: a spinner and "Publishing…" sit over the label for `TIMING.publishWorking` (1500ms). This uses the shared `.sd-busy` pattern in `sections.css`: the label stays in the layout with `visibility: hidden`, so the button never changes size.
-- Then the popover closes, `published` flips the Draft badge to a green "Published", and `SuccessToast.vue` shows "<agent> v1.2 is live." fixed at the top center (`top: 44px`, teleported to body). The toast copies Dialtone's `.d-toast--success`: `--dt-color-surface-success` background, `--dt-color-foreground-success` check, an inset `border-subtle` ring, and `--dt-shadow-medium`. It goes away after `TIMING.successToast` (4000ms) or on ×.
+- Then the popover closes, `published` flips the Draft badge to a green "Published", and `SuccessToast.vue` shows "<agent> v1.2 is live." fixed at the top center (`top: 44px`, teleported to body). The toast copies Dialtone's `.d-toast--success`: `--dt-color-surface-success` background, `--dt-color-foreground-success` check, an inset `border-subtle` ring, and `--dt-shadow-medium`. It goes away after `TIMING.successToast` (3000ms) or on ×.
 - All of this is in-memory only and resets on refresh or when you leave the editor. Data is `publishInfo` and `TIMING` in `mock/agentData.js`.
+
+## Agent Editor: Save opens Overview
+
+- Toolbar Save (`.save-btn`, enabled once `phase === 'canvas'`) shows a dark `.sd-busy` spinner for `TIMING.saveWorking` (800ms). Then it emits `saved` with `{ name, published }`.
+- `index.vue` `onSaved()`:
+  - **Create** flow: builds the agent from `receptionistAgent` in `agents.js` (id 5, the name from the canvas, status `Draft`, or `Published` if you published first). It goes at the top of `agentList` and opens its Overview.
+  - **Edit** flow: goes back to that agent's Overview and flips its status to Published if you published.
+- Either way, `index.vue` shows the shared `SuccessToast` saying "<agent> is saved." `AgentListScreen` takes an `agents` prop (`agentList`), so a saved agent stays in the list until refresh.
+- `AgentDetailScreen` shows a gray `.badge--draft` for Draft and green for everything else. Overview data is the same mock for every agent.
+- The toast `<Transition name="toast">` CSS lives in `sections.css` (shared by the editor and `index.vue`).
 
 ## Agent Editor: skill Update
 

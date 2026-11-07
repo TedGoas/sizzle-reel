@@ -81,7 +81,11 @@
 
 <script setup>
 import Icon from './Icon.vue'
-import { agents } from '../agents.js'
+import { agents as defaultAgents } from '../agents.js'
+
+defineProps({
+  agents: { type: Array, default: () => defaultAgents },
+})
 
 const emit = defineEmits(['create', 'open', 'edit'])
 

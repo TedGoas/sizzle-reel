@@ -7,7 +7,7 @@
       </button>
       <div class="title-row">
         <h1>{{ agent.name }}</h1>
-        <span class="badge badge--ok">{{ agent.status }}</span>
+        <span class="badge" :class="agent.status === 'Draft' ? 'badge--draft' : 'badge--ok'">{{ agent.status }}</span>
       </div>
     </header>
     <div class="detail-body">
@@ -113,6 +113,11 @@ h1 {
   color: var(--dt-color-link-primary);
   font-size: var(--dt-font-size-100);
   font-weight: 600;
+}
+
+.badge--draft {
+  background: var(--dt-color-surface-secondary);
+  color: var(--dt-color-foreground-primary);
 }
 
 .badge--ok {

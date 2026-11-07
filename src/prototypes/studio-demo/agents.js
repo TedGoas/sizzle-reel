@@ -49,6 +49,20 @@ export const agents = [
   },
 ]
 
+// Added to the list when you Save a new agent from the Create flow.
+export const receptionistAgent = {
+  id: 5,
+  name: 'AI Receptionist',
+  locale: 'English US',
+  group: 'Hearth & Home Front Desk',
+  additionalGroups: '',
+  resolutionRate: '—',
+  usage: 0,
+  sparkline: '0,20 10,20 20,20 30,20 40,20 50,20 60,20',
+  type: 'Agentic',
+  status: 'Draft',
+}
+
 export const suggestionChips = [
   'AI Receptionist',
   'Scheduling Assistant',

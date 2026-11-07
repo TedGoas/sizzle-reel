@@ -5,7 +5,8 @@ export const TIMING = {
   voicePreview: 2000, // how long the voice sample "plays"
   publishWorking: 1500, // spinner inside "Publish v1.2"
   skillUpdateWorking: 1000, // spinner inside the skill drawer's Update
-  successToast: 4000, // how long the success toast stays up
+  saveWorking: 800, // spinner on the editor's Save before it opens Overview
+  successToast: 3000, // how long the success toast stays up
 }
 
 export const publishInfo = {

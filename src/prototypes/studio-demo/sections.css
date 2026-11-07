@@ -211,3 +211,18 @@
 .sd-menu button[aria-current="true"] {
   background: var(--dt-color-surface-secondary);
 }
+
+/* SuccessToast enter/leave (<Transition name="toast">), used by the editor and index.vue */
+.toast-enter-active {
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -12px);
+}

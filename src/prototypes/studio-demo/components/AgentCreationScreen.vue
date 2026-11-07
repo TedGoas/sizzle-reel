@@ -39,7 +39,19 @@
           <Icon name="play" :size="12" />
           Test
         </span>
-        <span class="text-btn" :class="{ 'is-disabled': phase !== 'canvas' }">Save</span>
+        <button
+          type="button"
+          class="text-btn sd-busy save-btn"
+          :class="{ 'is-busy': saving }"
+          :disabled="phase !== 'canvas' || saving"
+          @click="save"
+        >
+          <span class="sd-busy__label">Save</span>
+          <span v-if="saving" class="sd-busy__overlay" aria-live="polite">
+            <span class="sd-busy__spinner" aria-hidden="true" />
+            <span class="sd-busy__sr">Saving…</span>
+          </span>
+        </button>
         <button
           type="button"
           class="text-btn text-btn--primary"
@@ -238,7 +250,7 @@ import SkillDrawer from './SkillDrawer.vue'
 import AgentDrawer from './AgentDrawer.vue'
 import PublishPopover from './PublishPopover.vue'
 import SuccessToast from './SuccessToast.vue'
-import { publishInfo } from '../mock/agentData.js'
+import { TIMING, publishInfo } from '../mock/agentData.js'
 import AddSkillPopover from './AddSkillPopover.vue'
 import CreateSkillDrawer from './CreateSkillDrawer.vue'
 import SettingsModal from './SettingsModal.vue'
@@ -249,7 +261,7 @@ const props = defineProps({
   initialName: { type: String, default: '' },
 })
 
-const emit = defineEmits(['back', 'test'])
+const emit = defineEmits(['back', 'test', 'saved'])
 
 const hoveredChip = ref(null)
 const selectedChip = ref(null)
@@ -266,6 +278,7 @@ const openSkillName = ref('')
 const agentDrawerOpen = ref(false)
 const publishOpen = ref(false)
 const published = ref(false)
+const saving = ref(false)
 const toastOpen = ref(false)
 const toastMessage = ref('')
 
@@ -282,6 +295,16 @@ function onPublished() {
   publishOpen.value = false
   published.value = true
   showToast(`${agentName.value} v${publishInfo.version} is live.`)
+}
+
+// Save opens the agent's Overview (index.vue handles where to go).
+function save() {
+  if (saving.value || phase.value !== 'canvas') return
+  saving.value = true
+  publishOpen.value = false
+  later(() => {
+    emit('saved', { name: agentName.value, published: published.value })
+  }, TIMING.saveWorking)
 }
 
 function onSkillUpdated() {
@@ -769,6 +792,11 @@ button.text-btn:disabled {
   padding: 0 8px;
 }
 
+.save-btn .sd-busy__spinner {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: #3a3a3a;
+}
+
 .text-btn--primary {
   background: #7c52ff;
   color: #fff;
@@ -797,20 +825,6 @@ button.text-btn--primary:not(:disabled):hover {
 .draft.is-published {
   background: rgba(95, 211, 141, 0.18);
   color: #116a3b;
-}
-
-.toast-enter-active {
-  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.toast-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 1, 1);
-}
-
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translate(-50%, -12px);
 }
 
 .divider {
