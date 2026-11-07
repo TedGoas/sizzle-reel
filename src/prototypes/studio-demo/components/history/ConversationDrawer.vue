@@ -29,50 +29,62 @@
       </div>
     </template>
 
-      <section v-if="tab === 'recap'" class="stack">
+      <section v-if="tab === 'recap'" class="recap">
         <div class="badges">
           <span class="sd-chip">{{ conversation.outcome }}</span>
           <span v-if="conversation.escalationReason" class="sd-chip">{{ conversation.escalationReason }}</span>
           <span class="sd-chip">AI CSAT {{ conversation.aiCsat }}</span>
           <span class="sd-chip">{{ conversation.handleTime }}</span>
         </div>
-        <p>{{ conversation.extendedSummary }}</p>
-        <h3>Action items</h3>
-        <ol>
-          <li v-for="item in conversation.actionItems" :key="item">{{ item }}</li>
-        </ol>
-        <h3>Call purposes</h3>
-        <div class="badges">
-          <span v-for="purpose in conversation.purposes" :key="purpose" class="sd-chip">{{ purpose }}</span>
+        <p class="summary">{{ conversation.extendedSummary }}</p>
+        <div class="recap-section">
+          <h3>Action items</h3>
+          <ul class="actions">
+            <li v-for="item in conversation.actionItems" :key="item">{{ item }}</li>
+          </ul>
         </div>
-        <h3>Topics</h3>
-        <button
-          v-for="(topic, index) in conversation.topics"
-          :key="topic.title"
-          type="button"
-          class="topic"
-          @click="toggleTopic(index)"
-        >
-          <span>{{ openTopics.has(index) ? '▾' : '▸' }} {{ topic.title }}</span>
-          <span v-if="openTopics.has(index)" class="topic-body">{{ topic.description }}</span>
-        </button>
-        <h3>Session context</h3>
-        <p class="inline">
-          <span>{{ conversation.traces.events.length }} items extracted</span>
-          <button type="button" class="link" @click="emit('tab', 'traces')">View on Traces</button>
-        </p>
-        <h3>Skills</h3>
-        <div class="badges">
-          <button
-            v-for="skill in conversation.skills"
-            :key="skill"
-            type="button"
-            class="sd-chip"
-            :class="{ 'sd-chip--fail': conversation.failedSkills.includes(skill) }"
-            @click="conversation.failedSkills.includes(skill) && emit('tab', 'traces')"
-          >
-            {{ skill }}
-          </button>
+        <div class="recap-section">
+          <h3>Call purposes</h3>
+          <div class="badges">
+            <span v-for="purpose in conversation.purposes" :key="purpose" class="sd-chip">{{ purpose }}</span>
+          </div>
+        </div>
+        <div class="recap-section">
+          <h3>Topics</h3>
+          <div class="topics">
+            <button
+              v-for="(topic, index) in conversation.topics"
+              :key="topic.title"
+              type="button"
+              class="topic"
+              @click="toggleTopic(index)"
+            >
+              <span class="topic-title">{{ openTopics.has(index) ? '▾' : '▸' }} {{ topic.title }}</span>
+              <span v-if="openTopics.has(index)" class="topic-body">{{ topic.description }}</span>
+            </button>
+          </div>
+        </div>
+        <div class="recap-section">
+          <h3>Session context</h3>
+          <p class="inline">
+            <span>{{ conversation.traces.events.length }} items extracted</span>
+            <button type="button" class="link" @click="emit('tab', 'traces')">View on Traces</button>
+          </p>
+        </div>
+        <div class="recap-section">
+          <h3>Skills</h3>
+          <div class="badges">
+            <button
+              v-for="skill in conversation.skills"
+              :key="skill"
+              type="button"
+              class="sd-chip"
+              :class="{ 'sd-chip--fail': conversation.failedSkills.includes(skill) }"
+              @click="conversation.failedSkills.includes(skill) && emit('tab', 'traces')"
+            >
+              {{ skill }}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -109,68 +121,18 @@
               :class="[node.kind, { hot: showFail && failIds.has(node.id) }]"
               :style="{ left: node.x + 'px', top: node.y + 'px' }"
             >
-              {{ node.label }}
+              <span class="node-kind">{{ kindName(node.kind) }}</span>
+              <span>{{ node.label }}</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section v-else-if="tab === 'traces'" class="stack">
-        <div class="stats">
-          <article>
-            <span>Resolution</span>
-            <strong>{{ conversation.traces.resolution }}</strong>
-            <em>{{ conversation.traces.resolutionSub }}</em>
-          </article>
-          <article>
-            <span>Agent work</span>
-            <strong>{{ conversation.traces.skills }} skills · {{ conversation.traces.actions }} actions</strong>
-            <button v-if="conversation.traces.failedActions" type="button" class="link" @click="seekFail">
-              {{ conversation.traces.failedActions }} action failed
-            </button>
-            <em v-else>No failed actions</em>
-          </article>
-          <article>
-            <span>Audio quality</span>
-            <strong>{{ conversation.traces.audio }}</strong>
-            <em>{{ conversation.traces.audioSub }}</em>
-          </article>
-        </div>
-        <div class="player">
-          <div class="player-title">Recording</div>
-          <button type="button" class="track" :aria-label="`Seek recording, ${timeLabel}`" @click="seekTrack">
-            <span class="played" :style="{ width: timePct }" />
-            <span
-              v-for="event in conversation.traces.events"
-              :key="event.t + event.label"
-              class="dot"
-              :class="event.kind + (event.ok === false ? ' fail' : '')"
-              :style="{ left: pct(event.t) }"
-            />
-            <span class="playhead" :style="{ left: timePct }" />
-          </button>
-          <div class="ruler">
-            <span>0:00</span>
-            <span>{{ timeLabel }}</span>
-            <span>{{ clock(conversation.traces.duration) }}</span>
-          </div>
-          <div class="badges">
-            <button type="button" class="sd-chip" @click="seekKind('skill')">Skills</button>
-            <button v-if="failEvent" type="button" class="sd-chip sd-chip--fail" @click="seekFail">Failures</button>
-          </div>
-        </div>
-        <ul class="events">
-          <li v-for="event in conversation.traces.events" :key="event.t + event.label" :class="{ current: event.t <= playhead }">
-            <button type="button" @click="playhead = event.t">
-              <span class="when">{{ clock(event.t) }}</span>
-              <span class="kind">{{ event.kind }}</span>
-              <span>{{ event.label }}</span>
-              <span v-if="event.ok === false" class="fail-text">{{ event.detail }}</span>
-              <span v-else-if="event.ok" class="ok">ok</span>
-            </button>
-          </li>
-        </ul>
-      </section>
+      <TracesPanel
+        v-else-if="tab === 'traces'"
+        :traces="conversation.traces"
+        :focus-failure="focusFailure"
+      />
 
       <section v-else-if="tab === 'transcript'" class="transcript">
         <article v-for="(line, index) in conversation.transcript" :key="index" :class="line.speaker === 'Agent' ? 'agent' : 'customer'">
@@ -194,10 +156,12 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import SideDrawer from '../SideDrawer.vue'
+import TracesPanel from './TracesPanel.vue'
 
 const props = defineProps({
   conversation: { type: Object, default: null },
   tab: { type: String, default: 'recap' },
+  focusFailure: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['close', 'tab', 'resize', 'resizing'])
@@ -212,20 +176,14 @@ const tabs = [
 
 const openTopics = ref(new Set())
 const showFail = ref(false)
-const playhead = ref(0)
 const pan = ref({ x: 24, y: 12 })
 const panning = ref(false)
 
 watch(() => props.conversation?.id, () => {
   openTopics.value = new Set()
   showFail.value = false
-  playhead.value = 0
   pan.value = { x: 24, y: 12 }
 })
-
-const failEvent = computed(() => props.conversation?.traces.events.find((event) => event.ok === false))
-const timePct = computed(() => pct(playhead.value))
-const timeLabel = computed(() => clock(playhead.value))
 
 const nodeMap = computed(() => {
   const map = {}
@@ -242,54 +200,44 @@ const failIds = computed(() => {
   return ids
 })
 
+const NODE_W = 180
+const NODE_H = 64
+
+const kindNames = {
+  start: 'Start',
+  skill: 'Skill',
+  tool: 'Action',
+  end: 'End',
+  fail: 'Failed',
+}
+
+function kindName(kind) {
+  return kindNames[kind] || kind
+}
+
 const edges = computed(() => {
   if (!props.conversation) return []
   const fail = new Set(props.conversation.flow.failPath.map(([from, to]) => `${from}-${to}`))
   return props.conversation.flow.edges.map(([from, to]) => {
     const a = nodeMap.value[from]
     const b = nodeMap.value[to]
+    const sideBySide = Math.abs(a.y - b.y) < NODE_H && b.x > a.x
     return {
       key: `${from}-${to}`,
-      x1: a.x + 96,
-      y1: a.y + 28,
-      x2: b.x + 96,
-      y2: b.y + 18,
+      x1: sideBySide ? a.x + NODE_W : a.x + NODE_W / 2,
+      y1: sideBySide ? a.y + NODE_H / 2 : a.y + NODE_H,
+      x2: sideBySide ? b.x : b.x + NODE_W / 2,
+      y2: sideBySide ? b.y + NODE_H / 2 : b.y,
       fail: fail.has(`${from}-${to}`),
     }
   })
 })
-
-function pct(seconds) {
-  const duration = props.conversation?.traces.duration || 1
-  return `${Math.min(100, (seconds / duration) * 100)}%`
-}
-
-function clock(seconds) {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${String(secs).padStart(2, '0')}`
-}
 
 function toggleTopic(index) {
   const next = new Set(openTopics.value)
   if (next.has(index)) next.delete(index)
   else next.add(index)
   openTopics.value = next
-}
-
-function seekTrack(event) {
-  const rect = event.currentTarget.getBoundingClientRect()
-  const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
-  playhead.value = Math.round(ratio * props.conversation.traces.duration)
-}
-
-function seekKind(kind) {
-  const event = props.conversation.traces.events.find((item) => item.kind === kind)
-  if (event) playhead.value = event.t
-}
-
-function seekFail() {
-  if (failEvent.value) playhead.value = failEvent.value.t
 }
 
 function startPan(event) {
@@ -336,17 +284,46 @@ function startPan(event) {
   font-weight: 600;
 }
 
-.stack, .transcript, .meta-list { display: flex; flex-direction: column; gap: var(--dt-space-400); }
+.transcript, .meta-list { display: flex; flex-direction: column; gap: var(--dt-space-400); }
 .badges { display: flex; flex-wrap: wrap; gap: var(--dt-space-200); }
-h3 { margin: var(--dt-space-300) 0 0; font-size: var(--dt-font-size-200); }
-p, li { margin: 0; color: var(--dt-color-foreground-secondary); font-size: var(--dt-font-size-200); }
-ol { margin: 0; padding-left: 1.2em; }
+.recap { display: flex; flex-direction: column; gap: var(--dt-space-600); }
+.recap-section { display: flex; flex-direction: column; gap: var(--dt-space-300); }
+.recap h3 {
+  margin: 0;
+  color: var(--dt-color-foreground-primary);
+  font-size: var(--dt-font-size-200);
+  font-weight: 700;
+  line-height: 1.4;
+}
+.summary {
+  margin: 0;
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-200);
+  line-height: 1.6;
+}
+.actions {
+  margin: 0;
+  padding-left: 1.2em;
+  list-style: disc;
+}
+.actions li {
+  margin: 0;
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-200);
+}
+.actions li + li { margin-top: var(--dt-space-300); }
+.topics {
+  overflow: hidden;
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: 8px;
+}
 .topic {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--dt-space-200);
-  padding: var(--dt-space-300) 0;
+  width: 100%;
+  padding: var(--dt-space-400);
   border: 0;
   border-bottom: 1px solid var(--dt-color-border-subtle);
   background: transparent;
@@ -356,8 +333,17 @@ ol { margin: 0; padding-left: 1.2em; }
   text-align: left;
   cursor: pointer;
 }
-.topic-body { color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); }
-.inline { display: flex; justify-content: space-between; gap: var(--dt-space-400); }
+.topic:last-child { border-bottom: 0; }
+.topic-title { font-weight: 600; }
+.topic-body { color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); line-height: 1.5; }
+.inline {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--dt-space-400);
+  margin: 0;
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-200);
+}
 .link {
   border: 0;
   background: transparent;
@@ -368,11 +354,11 @@ ol { margin: 0; padding-left: 1.2em; }
 }
 .badges .sd-chip { font-family: inherit; cursor: pointer; }
 
-.flow { display: flex; flex-direction: column; height: 100%; min-height: 420px; gap: var(--dt-space-400); }
+.flow { display: flex; flex-direction: column; gap: var(--dt-space-400); }
 .flow-bar { display: flex; align-items: center; gap: var(--dt-space-400); flex-wrap: wrap; }
 .canvas {
   position: relative;
-  flex: 1;
+  height: 560px;
   overflow: hidden;
   border: 1px solid var(--dt-color-border-subtle);
   border-radius: 8px;
@@ -388,93 +374,36 @@ ol { margin: 0; padding-left: 1.2em; }
 .wires line.fail { stroke: var(--dt-color-foreground-critical); stroke-width: 3; }
 .node {
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
   width: 180px;
-  padding: var(--dt-space-400);
+  height: 64px;
+  padding: 0 var(--dt-space-400);
   border: 1px solid var(--dt-color-border-default);
   border-radius: 8px;
   background: var(--dt-color-surface-primary);
   font-size: var(--dt-font-size-100);
   font-weight: 600;
 }
-.node.fail { border-color: var(--dt-color-foreground-critical); color: var(--dt-color-foreground-critical); }
+.node-kind {
+  color: var(--dt-color-foreground-tertiary);
+  font-size: var(--dt-font-size-100);
+  font-weight: 600;
+}
+.node.fail {
+  border-color: var(--dt-color-foreground-critical);
+  color: var(--dt-color-foreground-critical);
+}
+.node.fail .node-kind { color: var(--dt-color-foreground-critical); }
 .node.hot { box-shadow: 0 0 0 3px color-mix(in srgb, var(--dt-color-foreground-critical) 25%, transparent); }
 .fail-note {
   color: var(--dt-color-foreground-critical);
   font-size: var(--dt-font-size-100);
   font-weight: 600;
 }
-
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--dt-space-400); }
-.stats article {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--dt-space-400);
-  border: 1px solid var(--dt-color-border-subtle);
-  border-radius: 8px;
-}
-.stats span, .stats em { color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); font-style: normal; }
-.stats strong { font-size: var(--dt-font-size-200); }
-.player { display: flex; flex-direction: column; gap: var(--dt-space-300); }
-.player-title { font-weight: 600; }
-.track {
-  position: relative;
-  height: 28px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--dt-color-surface-secondary);
-  cursor: pointer;
-}
-.played {
-  position: absolute;
-  left: 0;
-  top: 10px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--dt-color-surface-brand);
-}
-.track .dot {
-  position: absolute;
-  top: 9px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--dt-color-foreground-muted);
-  transform: translateX(-50%);
-}
-.track .dot.skill { background: var(--dt-color-surface-brand); }
-.track .dot.action { background: var(--dt-color-foreground-success); }
-.track .dot.fail, .track .dot.action.fail { background: var(--dt-color-foreground-critical); }
-.playhead {
-  position: absolute;
-  top: 2px;
-  width: 2px;
-  height: 24px;
-  background: var(--dt-color-foreground-primary);
-  transform: translateX(-50%);
-}
-.ruler { display: flex; justify-content: space-between; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-100); }
-.events { list-style: none; margin: 0; padding: 0; }
-.events button {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--dt-space-300);
-  width: 100%;
-  padding: var(--dt-space-300) 0;
-  border: 0;
-  border-bottom: 1px solid var(--dt-color-border-subtle);
-  background: transparent;
-  color: var(--dt-color-foreground-muted);
-  font-family: inherit;
-  font-size: var(--dt-font-size-100);
-  text-align: left;
-  cursor: pointer;
-}
-.events .current button { color: var(--dt-color-foreground-primary); }
-.when { width: 36px; }
-.kind { width: 64px; text-transform: capitalize; }
-.fail-text { color: var(--dt-color-foreground-critical); }
-.ok { color: var(--dt-color-foreground-success); }
 
 .transcript article {
   padding: var(--dt-space-400);
@@ -483,7 +412,11 @@ ol { margin: 0; padding-left: 1.2em; }
 }
 .transcript .agent { background: var(--dt-color-surface-brand-subtle); }
 .transcript span { font-size: var(--dt-font-size-100); font-weight: 600; }
-.transcript p { margin-top: var(--dt-space-200); }
+.transcript p {
+  margin: var(--dt-space-200) 0 0;
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-200);
+}
 .meta-list div {
   display: flex;
   justify-content: space-between;

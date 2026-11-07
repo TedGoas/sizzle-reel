@@ -58,7 +58,7 @@
                 type="button"
                 class="sd-chip"
                 :class="{ 'sd-chip--fail': row.failedSkills.includes(skill) }"
-                @click.stop="open(row, row.failedSkills.includes(skill) ? 'traces' : 'recap')"
+                @click.stop="open(row, row.failedSkills.includes(skill) ? 'traces' : 'recap', row.failedSkills.includes(skill))"
               >
                 {{ skill }}
               </button>
@@ -73,8 +73,9 @@
         v-if="conversation"
         :conversation="conversation"
         :tab="tab"
+        :focus-failure="focusFailure"
         @close="conversation = null"
-        @tab="tab = $event"
+        @tab="chooseTab"
         @resize="width = $event"
         @resizing="resizing = $event"
       />
@@ -83,7 +84,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import Icon from '../Icon.vue'
 import ConversationDrawer from './ConversationDrawer.vue'
 import DrawerTransition from '../DrawerTransition.vue'
@@ -97,6 +98,7 @@ const query = ref('')
 const outcome = ref('All outcomes')
 const conversation = ref(null)
 const tab = ref('recap')
+const focusFailure = ref(false)
 const width = ref(preferredDrawerWidth())
 const resizing = ref(false)
 
@@ -111,9 +113,16 @@ const rows = computed(() => {
   })
 })
 
-function open(row, nextTab) {
+function open(row, nextTab, failed = false) {
   conversation.value = row
   tab.value = nextTab
+  focusFailure.value = false
+  if (failed) nextTick(() => { focusFailure.value = true })
+}
+
+function chooseTab(id) {
+  tab.value = id
+  focusFailure.value = false
 }
 </script>
 
