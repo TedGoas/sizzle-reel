@@ -1,0 +1,228 @@
+/* Shared controls for Studio Demo agent sections. Colors and space come from Dialtone tokens. */
+
+.sd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dt-space-200);
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-450);
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-200);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sd-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sd-btn--primary {
+  background: var(--dt-color-surface-brand);
+  color: #fff;
+}
+
+.sd-btn--primary:not(:disabled):active {
+  filter: brightness(0.92);
+}
+
+.sd-btn--outlined {
+  background: var(--dt-color-surface-primary);
+  border-color: var(--dt-color-border-default);
+  font-weight: 500;
+}
+
+.sd-btn--clear {
+  color: var(--dt-color-foreground-secondary);
+  font-weight: 500;
+}
+
+.sd-btn--sm {
+  height: var(--btn-height-sm);
+  padding: 0 var(--dt-space-400);
+  font-size: var(--dt-font-size-100);
+}
+
+/* Clickable chart legend item: no fill at rest, subtle on hover, dimmed when off */
+.sd-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  padding: var(--dt-space-300) var(--dt-space-400);
+  border: 0;
+  border-radius: var(--dt-size-radius-300, 4px);
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font: var(--dt-typography-body-sm-compact);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.sd-legend-item:hover {
+  background: var(--dt-color-surface-secondary);
+}
+
+.sd-legend-item.inactive {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+/* Busy button: the label stays in the layout (hidden) so the button never changes size.
+   Markup: <button class="sd-btn sd-busy" :class="{ 'is-busy': busy }">
+             <span class="sd-busy__label">…</span>
+             <span v-if="busy" class="sd-busy__overlay"><span class="sd-busy__spinner" />Working…</span>
+           </button> */
+.sd-busy {
+  position: relative;
+}
+
+.sd-busy:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
+.sd-busy__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+}
+
+.sd-busy.is-busy .sd-busy__label {
+  visibility: hidden;
+}
+
+.sd-busy__overlay {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dt-space-300);
+}
+
+.sd-busy__spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: sd-busy-spin 0.8s linear infinite;
+}
+
+/* Short buttons (like "Update") can't fit spinner + text: show the spinner, keep the text for screen readers. */
+.sd-busy__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@keyframes sd-busy-spin {
+  to { transform: rotate(360deg); }
+}
+
+.sd-card {
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-default);
+  border-radius: 8px;
+}
+
+.sd-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--dt-space-400);
+  border-radius: 999px;
+  background: var(--dt-color-surface-secondary);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.sd-chip--fail {
+  background: color-mix(in srgb, var(--dt-color-foreground-critical) 12%, white);
+  color: var(--dt-color-foreground-critical);
+}
+
+.sd-field {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-400);
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-400);
+  border: 1px solid var(--dt-color-border-default);
+  border-radius: 6px;
+  background: var(--dt-color-surface-primary);
+  color: var(--dt-color-foreground-muted);
+  font-family: inherit;
+  font-size: var(--dt-font-size-200);
+}
+
+.sd-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.sd-menu {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + var(--dt-space-200));
+  right: 0;
+  min-width: 180px;
+  padding: var(--dt-space-200);
+  background: var(--dt-color-surface-primary);
+  border: 1px solid var(--dt-color-border-default);
+  border-radius: 8px;
+  box-shadow: var(--dt-shadow-small);
+}
+
+.sd-menu button {
+  display: block;
+  width: 100%;
+  padding: var(--dt-space-400) var(--dt-space-450);
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-100);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sd-menu button:hover,
+.sd-menu button[aria-current="true"] {
+  background: var(--dt-color-surface-secondary);
+}
+
+/* SuccessToast enter/leave (<Transition name="toast">), used by the editor and index.vue */
+.toast-enter-active {
+  transition: opacity 0.24s ease, transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -12px);
+}

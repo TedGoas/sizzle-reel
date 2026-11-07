@@ -1,0 +1,10 @@
+.studio-demo {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #fff;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
