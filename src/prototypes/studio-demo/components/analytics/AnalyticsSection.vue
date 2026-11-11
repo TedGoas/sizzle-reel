@@ -234,15 +234,15 @@ import TileTitle from './TileTitle.vue'
 import { TIMING, analyticsRanges, periodTotal, topSlices } from '../../mock/analyticsData.js'
 
 const tips = {
-  performance: 'Conversation volume, how many the AI contained, and how many went to a person.',
-  csat: 'Average satisfaction from 1 to 5, split by contained and transferred conversations.',
-  aht: 'Voice is active talk time. Digital is open to resolved, including time between replies.',
-  fcr: 'Share of conversations with no repeat contact about the same issue within 72 hours.',
-  purposes: 'What customers contact about. The top five are listed, and the rest are Other.',
-  reasons: 'Why a conversation was transferred. The top five reasons are listed, and the rest are Other.',
-  destinations: 'Where transferred conversations went. The top five are listed, and the rest are Other.',
-  routing: 'How conversations move from intake, to contained or transferred, then to an outcome.',
-  skills: 'Skills ranked by how often they run, and how often they finish.',
+  performance: 'All customer conversations in the selected period, split by how many the AI contained and how many were transferred.',
+  csat: 'Average customer satisfaction score for AI-handled conversations, rated from 1 (lowest) to 5 (highest).',
+  aht: 'Average time to handle a conversation from start to completion, including wrap-up. Voice and Digital shown side by side.',
+  fcr: 'Share of conversations that start with the selected AI agent and have no follow-up about the same issue within 72 hours. Conversations transferred into this agent are not included. Recent conversations are evaluated after the 72-hour window has passed.',
+  purposes: 'Classifies the customer\'s reason for contacting the organization, ranked by conversation volume. A conversation can match more than one purpose.',
+  reasons: 'Transfers initiated by AI agents in the selected group, grouped by reason.',
+  destinations: 'Where AI-initiated transfers from the selected group were routed, grouped by receiving destination.',
+  routing: 'How inbound conversations split between AI-contained and transferred paths, and which resolution outcome they end in.',
+  skills: 'AI skills ranked by conversations handled, with performance metrics for each skill.',
 }
 
 const breakdowns = computed(() => [
