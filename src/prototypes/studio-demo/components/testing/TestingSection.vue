@@ -114,10 +114,10 @@
             <span class="result-title">
               {{ result.status }}
               <span v-if="result.isNew" class="sd-chip">New</span>
-              <span class="meta">Task completion: {{ result.completion }}/{{ result.total }} ({{ result.percentage }}%)</span>
             </span>
-            <span class="channels">{{ result.channels.join(' · ') }}</span>
+            <span class="meta">Task completion: {{ result.completion }}/{{ result.total }} ({{ result.percentage }}%)</span>
             <span class="synopsis">{{ result.description }}</span>
+            <span class="channels">{{ result.channels.join(' · ') }}</span>
           </span>
         </button>
       </div>
@@ -298,7 +298,7 @@ function openToast() {
   gap: var(--dt-space-500);
 }
 
-.head, .table-title, .result-title {
+.head, .table-title {
   justify-content: space-between;
   align-items: flex-start;
 }
@@ -370,16 +370,46 @@ tbody tr { cursor: pointer; }
 .timeline { display: flex; flex-direction: column; gap: var(--dt-space-450); }
 .result {
   width: 100%;
+  align-items: center;
   padding: var(--dt-space-500);
   text-align: left;
   font-family: inherit;
   color: inherit;
   cursor: pointer;
 }
-.result-copy { display: flex; flex-direction: column; gap: var(--dt-space-300); flex: 1; }
-.result-title { display: flex; align-items: center; gap: var(--dt-space-300); font-weight: 600; }
-.meta, .synopsis, .channels { color: var(--dt-color-foreground-tertiary); font-weight: 400; font-size: var(--dt-font-size-100); }
-.channels { margin-left: auto; }
+.result-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--dt-space-500);
+  row-gap: var(--dt-space-350);
+  align-items: center;
+  flex: 1;
+}
+.result .result-title,
+.result .meta {
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+  line-height: 1.2;
+}
+.result-title {
+  gap: var(--dt-space-200);
+  font-weight: 600;
+}
+.result .meta,
+.result .synopsis,
+.result .channels {
+  color: var(--dt-color-foreground-tertiary);
+  font-weight: 400;
+  font-size: var(--dt-font-size-100);
+  line-height: 1.2;
+}
+.result .meta,
+.result .channels {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+}
 
 .ring {
   --pct: 0%;
