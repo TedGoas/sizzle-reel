@@ -37,10 +37,7 @@
     </div>
 
     <article class="sd-card performance">
-      <div class="tile-title">
-        <h3>Performance</h3>
-        <Icon name="help-circle" :size="14" />
-      </div>
+      <TileTitle title="Performance" :tip="tips.performance" />
       <div class="performance-chart">
         <PerformanceChart :points="data.days" :colors="strokeColors" :visible="visible" />
       </div>
@@ -63,49 +60,66 @@
 
     <div class="row row--3">
       <article v-for="card in data.quality" :key="card.id" class="sd-card kpi">
-        <div class="tile-title">
-          <h3>{{ card.label }}</h3>
-          <Icon name="help-circle" :size="14" />
+        <TileTitle :title="card.label" :tip="tips[card.id]" />
+        <div v-if="card.columns" class="channels">
+          <div v-for="column in card.columns" :key="column.id" class="channel">
+            <span class="channel-label">{{ column.label }}</span>
+            <p class="value">
+              <span class="value-num">
+                <span class="value-ghost" aria-hidden="true">{{ column.value }}</span>
+                <span class="value-live">{{ displays[`${card.id}-${column.id}`] }}</span>
+              </span>
+            </p>
+            <span class="kpi-trend" :class="trendTone(column.trend, true)">
+              <Icon v-if="column.trend !== 0" name="arrow-up" :size="12" :class="{ flip: column.trend < 0 }" />
+              <span v-else aria-hidden="true">—</span>
+              {{ trendLabel(column.trend) }}
+            </span>
+          </div>
         </div>
-        <p class="value">
-          <span class="value-num">
-            <span class="value-ghost" aria-hidden="true">{{ card.value }}</span>
-            <span class="value-live">{{ displays[card.id] }}</span>
-          </span>
-          <span v-if="card.unit" class="unit">{{ card.unit }}</span>
-        </p>
-        <p class="note">{{ card.note }}</p>
+        <template v-else>
+          <div class="headline">
+            <p class="value">
+              <span class="value-num">
+                <span class="value-ghost" aria-hidden="true">{{ card.value }}</span>
+                <span class="value-live">{{ displays[card.id] }}</span>
+              </span>
+            </p>
+            <span class="kpi-trend" :class="trendTone(card.trend, false)">
+              <Icon v-if="card.trend !== 0" name="arrow-up" :size="12" :class="{ flip: card.trend < 0 }" />
+              <span v-else aria-hidden="true">—</span>
+              {{ trendLabel(card.trend) }}
+            </span>
+          </div>
+          <ul v-if="card.rows" class="split-rows">
+            <li v-for="row in card.rows" :key="row.label">
+              <i :style="{ background: `var(${row.token})` }" />
+              <span>{{ row.label }}</span>
+              <strong>{{ row.value }}</strong>
+            </li>
+          </ul>
+          <p v-if="card.evaluated != null" class="note">
+            {{ card.evaluated.toLocaleString() }} evaluated · {{ card.pending.toLocaleString() }} pending
+          </p>
+        </template>
       </article>
     </div>
 
     <div class="row row--3">
-      <article class="sd-card chart-card">
-        <div class="tile-title">
-          <h3>Conversation purpose</h3>
-          <Icon name="help-circle" :size="14" />
-        </div>
-        <div class="chart"><RankChart :labels="labels(data.purposes)" :values="values(data.purposes)" suffix="%" :color="strokeColors.total" /></div>
-      </article>
-      <article class="sd-card chart-card">
-        <div class="tile-title">
-          <h3>Transfer reasons</h3>
-          <Icon name="help-circle" :size="14" />
-        </div>
-        <div class="chart"><RankChart :labels="labels(data.reasons)" :values="values(data.reasons)" suffix="%" :color="strokeColors.contained" /></div>
-      </article>
-      <article class="sd-card chart-card">
-        <div class="tile-title">
-          <h3>Transfer destinations</h3>
-          <Icon name="help-circle" :size="14" />
-        </div>
-        <div class="chart"><RankChart :labels="labels(data.destinations)" :values="values(data.destinations)" suffix="%" :color="strokeColors.transferred" /></div>
+      <article v-for="chart in breakdowns" :key="chart.id" class="sd-card chart-card">
+        <TileTitle :title="chart.title" :tip="tips[chart.id]" />
+        <BreakdownDonut :segments="chart.segments" :caption="chart.caption" />
       </article>
     </div>
 
+    <article class="sd-card routing-card">
+      <TileTitle title="Conversation routing" :tip="tips.routing" />
+      <RoutingSankey :nodes="data.routing.nodes" :links="data.routing.links" />
+    </article>
+
     <article class="sd-card table-card">
       <div class="tile-title table-title">
-        <h3>Skills leaderboard</h3>
-        <Icon name="help-circle" :size="14" />
+        <TileTitle title="Skills leaderboard" :tip="tips.skills" />
       </div>
       <div class="table-scroll" :class="{ 'is-scrolled': tableScrolled }" @scroll="onTableScroll">
         <table>
@@ -214,8 +228,28 @@
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from '../Icon.vue'
 import PerformanceChart from '../charts/PerformanceChart.vue'
-import RankChart from '../charts/RankChart.vue'
-import { TIMING, analyticsRanges, periodTotal } from '../../mock/analyticsData.js'
+import BreakdownDonut from '../charts/BreakdownDonut.vue'
+import RoutingSankey from '../charts/RoutingSankey.vue'
+import TileTitle from './TileTitle.vue'
+import { TIMING, analyticsRanges, periodTotal, topSlices } from '../../mock/analyticsData.js'
+
+const tips = {
+  performance: 'Conversation volume, how many the AI contained, and how many went to a person.',
+  csat: 'Average satisfaction from 1 to 5, split by contained and transferred conversations.',
+  aht: 'Voice is active talk time. Digital is open to resolved, including time between replies.',
+  fcr: 'Share of conversations with no repeat contact about the same issue within 72 hours.',
+  purposes: 'What customers contact about. The top five are listed, and the rest are Other.',
+  reasons: 'Why a conversation was transferred. The top five reasons are listed, and the rest are Other.',
+  destinations: 'Where transferred conversations went. The top five are listed, and the rest are Other.',
+  routing: 'How conversations move from intake, to contained or transferred, then to an outcome.',
+  skills: 'Skills ranked by how often they run, and how often they finish.',
+}
+
+const breakdowns = computed(() => [
+  { id: 'purposes', title: 'Conversation purpose', caption: 'conversations', segments: topSlices(data.value.purposes) },
+  { id: 'reasons', title: 'Transfer reasons', caption: 'transfers', segments: topSlices(data.value.reasons) },
+  { id: 'destinations', title: 'Transfer destinations', caption: 'transferred', segments: topSlices(data.value.destinations) },
+])
 
 const leadingFilters = ['Groups']
 const trailingFilters = ['Purpose', 'Containment', 'Transfer reason', 'Conversation type', 'AI Agent', 'Agentic Skills']
@@ -321,6 +355,27 @@ function sparkPoints(values) {
   }).join(' ')
 }
 
+function trendLabel(value) {
+  const amount = Math.abs(value)
+  const text = Number.isInteger(amount) ? String(amount) : amount.toFixed(1)
+  return `${text}%`
+}
+
+function trendTone(value, lowerIsBetter) {
+  if (value === 0) return 'flat'
+  const good = lowerIsBetter ? value < 0 : value > 0
+  return good ? 'up' : 'down'
+}
+
+function countTargets(cards) {
+  const targets = {}
+  for (const card of cards) {
+    if (card.value) targets[card.id] = card.value
+    for (const column of card.columns || []) targets[`${card.id}-${column.id}`] = column.value
+  }
+  return targets
+}
+
 const displays = ref({})
 let countFrame = 0
 
@@ -339,10 +394,10 @@ function frameText(value, progress) {
 
 function playCounts() {
   cancelAnimationFrame(countFrame)
-  const cards = data.value.quality
+  const targets = countTargets(data.value.quality)
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (reduce) {
-    displays.value = Object.fromEntries(cards.map((card) => [card.id, card.value]))
+    displays.value = { ...targets }
     return
   }
   const start = performance.now()
@@ -350,7 +405,7 @@ function playCounts() {
     const t = Math.min(1, (now - start) / TIMING.qualityCount)
     const eased = 1 - (1 - t) ** 3
     const next = {}
-    for (const card of cards) next[card.id] = frameText(card.value, eased)
+    for (const [key, value] of Object.entries(targets)) next[key] = frameText(value, eased)
     displays.value = next
     if (t < 1) countFrame = requestAnimationFrame(step)
   }
@@ -367,16 +422,8 @@ watch([sortKey, sortDir], () => {
 })
 onUnmounted(() => cancelAnimationFrame(countFrame))
 displays.value = Object.fromEntries(
-  data.value.quality.map((card) => [card.id, frameText(card.value, 0)]),
+  Object.entries(countTargets(data.value.quality)).map(([key, value]) => [key, frameText(value, 0)]),
 )
-
-function labels(rows) {
-  return rows.map((row) => row.label)
-}
-
-function values(rows) {
-  return rows.map((row) => row.value)
-}
 </script>
 
 <style scoped>
@@ -430,9 +477,69 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
   color: var(--dt-color-foreground-tertiary);
 }
 
-.kpi, .chart-card, .performance {
+.kpi, .chart-card, .performance, .routing-card {
   min-width: 0;
   padding: var(--dt-space-500);
+}
+
+.headline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--dt-space-300);
+}
+
+.channels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--dt-space-400);
+  margin-top: var(--dt-space-300);
+}
+
+.channel-label {
+  color: var(--dt-color-foreground-tertiary);
+  font-size: var(--dt-font-size-100);
+}
+
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  font-size: var(--dt-font-size-100);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-trend.up { color: var(--dt-color-foreground-success); }
+.kpi-trend.down { color: var(--dt-color-foreground-critical); }
+.kpi-trend.flat { color: var(--dt-color-foreground-tertiary); }
+
+.split-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-300);
+  margin: var(--dt-space-400) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.split-rows li {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+}
+
+.split-rows i {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.split-rows strong {
+  margin-left: auto;
+  color: var(--dt-color-foreground-primary);
+  font-weight: 600;
 }
 
 .performance-chart { height: 280px; margin-top: var(--dt-space-400); }
