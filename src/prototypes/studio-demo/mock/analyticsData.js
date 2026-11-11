@@ -119,24 +119,28 @@ function buildRouting(points) {
   }
   const containedSplit = split(contained)
   const transferredSplit = split(transferred)
+  const outcome = (id, label, value, tone, via) => ({ id, label, column: 2, value, tone, via })
   return {
     nodes: [
-      { id: 'all', label: 'Conversations', column: 0, value: total, tone: 'routing' },
+      { id: 'all', label: 'Inbound conversations', column: 0, value: total, tone: 'routing' },
       { id: 'contained', label: 'AI contained', column: 1, value: contained, tone: 'routing' },
-      { id: 'transferred', label: 'Transferred', column: 1, value: transferred, tone: 'routing' },
-      { id: 'resolved', label: 'Resolved', column: 2, value: containedSplit.resolved + transferredSplit.resolved, tone: 'resolved' },
-      { id: 'unresolved', label: 'Not resolved', column: 2, value: containedSplit.unresolved + transferredSplit.unresolved, tone: 'unresolved' },
-      { id: 'unknown', label: 'Unknown', column: 2, value: containedSplit.unknown + transferredSplit.unknown, tone: 'unknown' },
+      { id: 'transferred', label: 'Transferred to human', column: 1, value: transferred, tone: 'routing' },
+      outcome('contained-resolved', 'Resolved', containedSplit.resolved, 'resolved', 'AI contained'),
+      outcome('contained-unresolved', 'Not resolved', containedSplit.unresolved, 'unresolved', 'AI contained'),
+      outcome('contained-unknown', 'Unknown', containedSplit.unknown, 'unknown', 'AI contained'),
+      outcome('transferred-resolved', 'Resolved', transferredSplit.resolved, 'resolved', 'Transferred to human'),
+      outcome('transferred-unresolved', 'Not resolved', transferredSplit.unresolved, 'unresolved', 'Transferred to human'),
+      outcome('transferred-unknown', 'Unknown', transferredSplit.unknown, 'unknown', 'Transferred to human'),
     ],
     links: [
       { from: 'all', to: 'contained', value: contained, tone: 'routing' },
       { from: 'all', to: 'transferred', value: transferred, tone: 'routing' },
-      { from: 'contained', to: 'resolved', value: containedSplit.resolved, tone: 'resolved' },
-      { from: 'contained', to: 'unresolved', value: containedSplit.unresolved, tone: 'unresolved' },
-      { from: 'contained', to: 'unknown', value: containedSplit.unknown, tone: 'unknown' },
-      { from: 'transferred', to: 'resolved', value: transferredSplit.resolved, tone: 'resolved' },
-      { from: 'transferred', to: 'unresolved', value: transferredSplit.unresolved, tone: 'unresolved' },
-      { from: 'transferred', to: 'unknown', value: transferredSplit.unknown, tone: 'unknown' },
+      { from: 'contained', to: 'contained-resolved', value: containedSplit.resolved, tone: 'resolved' },
+      { from: 'contained', to: 'contained-unresolved', value: containedSplit.unresolved, tone: 'unresolved' },
+      { from: 'contained', to: 'contained-unknown', value: containedSplit.unknown, tone: 'unknown' },
+      { from: 'transferred', to: 'transferred-resolved', value: transferredSplit.resolved, tone: 'resolved' },
+      { from: 'transferred', to: 'transferred-unresolved', value: transferredSplit.unresolved, tone: 'unresolved' },
+      { from: 'transferred', to: 'transferred-unknown', value: transferredSplit.unknown, tone: 'unknown' },
     ],
   }
 }

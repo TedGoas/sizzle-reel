@@ -1,12 +1,12 @@
 <template>
   <div class="routing" @mouseleave="tip = null">
-    <svg :viewBox="`0 0 ${width} ${height}`" role="img" aria-label="Conversation routing">
+    <svg :viewBox="`0 0 ${width} ${layout.height}`" role="img" aria-label="Conversation routing">
       <path
         v-for="link in layout.links"
         :key="`${link.from}-${link.to}`"
         :d="link.d"
         :fill="toneColor(link.tone)"
-        fill-opacity="0.28"
+        :fill-opacity="link.tone === 'routing' ? 0.12 : 0.2"
         @mouseenter="showTip($event, link.label, link.value)"
         @mousemove="moveTip"
       />
@@ -17,17 +17,20 @@
           :width="node.w"
           :height="node.h"
           :fill="toneColor(node.tone)"
-          rx="2"
-          @mouseenter="showTip($event, node.label, node.value)"
+          @mouseenter="showTip($event, node.via ? `${node.label} via ${node.via}` : node.label, node.value)"
           @mousemove="moveTip"
         />
-        <text
-          :x="node.labelX"
-          :y="node.labelY"
-          :text-anchor="node.anchor"
-          fill="var(--dt-color-foreground-secondary)"
-          font-size="12"
-        >{{ node.label }}</text>
+        <text :x="node.labelX" :y="node.labelY" :text-anchor="node.anchor" fill="var(--dt-color-foreground-primary)" font-size="14">
+          <tspan :x="node.labelX" :dy="node.via ? -14 : -8">{{ node.column < 2 ? '• ' : '' }}{{ node.label }}</tspan>
+          <tspan
+            v-if="node.via"
+            :x="node.labelX"
+            dy="15"
+            fill="var(--dt-color-foreground-tertiary)"
+            font-size="12"
+          >via {{ node.via }}</tspan>
+          <tspan :x="node.labelX" dy="16" font-weight="600">{{ node.valueLabel }} {{ node.shareLabel }}</tspan>
+        </text>
       </g>
     </svg>
     <ul class="legend">
@@ -50,9 +53,8 @@ const props = defineProps({
   links: { type: Array, required: true },
 })
 
-const width = 720
-const height = 240
-const nodeWidth = 8
+const width = 1000
+const nodeWidth = 12
 const tip = ref(null)
 
 const legend = [
@@ -73,34 +75,72 @@ function toneColor(tone) {
   return `var(${toneToken[tone]})`
 }
 
+function shareLabel(value, total) {
+  const rounded = Math.round((value / total) * 1000) / 10
+  return `${Number.isInteger(rounded) ? rounded : rounded.toFixed(1)}%`
+}
+
+function decorate(node, index, x, y, h, inbound) {
+  const anchor = index === 1 ? 'end' : 'start'
+  return {
+    ...node,
+    x,
+    y,
+    w: nodeWidth,
+    h,
+    anchor,
+    labelX: index === 1 ? x - 14 : x + nodeWidth + 16,
+    labelY: y + h / 2,
+    valueLabel: node.value.toLocaleString(),
+    shareLabel: shareLabel(node.value, inbound),
+  }
+}
+
 const layout = computed(() => {
   const columns = [0, 1, 2].map((column) => props.nodes.filter((node) => node.column === column))
-  const gap = 18
-  const top = 16
-  const usable = height - top - 8
-  const xFor = [132, 330, 560]
+  const inbound = columns[0].reduce((sum, node) => sum + node.value, 0) || 1
+  const gap = 12
+  const groupGap = 22
+  const top = 28
+  const xFor = [8, 390, 690]
+  const outcomes = columns[2]
+  const outcomeTotal = outcomes.reduce((sum, node) => sum + node.value, 0) || 1
+  const outcomeItems = outcomes.map((node) => ({
+    ...node,
+    h: Math.max(8, (node.value / outcomeTotal) * 250),
+  }))
+  outcomeItems.forEach((item, index) => {
+    if (index === 0) {
+      item.y = top
+      return
+    }
+    const prev = outcomeItems[index - 1]
+    const extra = item.via && item.via !== prev.via ? groupGap : 0
+    const natural = prev.y + prev.h + gap + extra
+    const pitched = prev.y + prev.h / 2 + 70 - item.h / 2
+    item.y = Math.max(natural, pitched)
+  })
+  const bottom = outcomeItems[outcomeItems.length - 1].y + outcomeItems[outcomeItems.length - 1].h
+  const span = bottom - top
+  const middle = columns[1]
+  const middleTotal = middle.reduce((sum, node) => sum + node.value, 0) || 1
+  const middleFree = span - gap
+  let middleY = top
+  const middleItems = middle.map((node) => {
+    const h = Math.max(8, (node.value / middleTotal) * middleFree)
+    const item = { ...node, y: middleY, h }
+    middleY += h + gap
+    return item
+  })
   const placed = {}
-  columns.forEach((column, index) => {
-    const total = column.reduce((sum, node) => sum + node.value, 0) || 1
-    let y = top
-    const free = usable - gap * Math.max(0, column.length - 1)
-    column.forEach((node) => {
-      const h = Math.max(12, (node.value / total) * free)
-      const x = xFor[index]
-      const anchor = index === 0 ? 'end' : 'start'
-      const labelX = index === 0 ? x - 8 : x + nodeWidth + 8
-      placed[node.id] = {
-        ...node,
-        x,
-        y,
-        w: nodeWidth,
-        h,
-        anchor,
-        labelX,
-        labelY: y + h / 2 + 4,
-      }
-      y += h + gap
-    })
+  columns[0].forEach((node) => {
+    placed[node.id] = decorate(node, 0, xFor[0], top, span, inbound)
+  })
+  middleItems.forEach((node) => {
+    placed[node.id] = decorate(node, 1, xFor[1], node.y, node.h, inbound)
+  })
+  outcomeItems.forEach((node) => {
+    placed[node.id] = decorate(node, 2, xFor[2], node.y, node.h, inbound)
   })
 
   const sourceOffset = {}
@@ -114,7 +154,7 @@ const layout = computed(() => {
     const ty = target.y + (targetOffset[link.to] || 0)
     sourceOffset[link.from] = (sourceOffset[link.from] || 0) + sourceHeight
     targetOffset[link.to] = (targetOffset[link.to] || 0) + targetHeight
-    const x0 = source.x + source.w + (source.column === 1 ? 108 : 0)
+    const x0 = source.x + source.w
     const x1 = target.x
     const curve = (x1 - x0) / 2
     const d = [
@@ -126,10 +166,11 @@ const layout = computed(() => {
     ].join(' ')
     const from = props.nodes.find((node) => node.id === link.from)
     const to = props.nodes.find((node) => node.id === link.to)
-    return { ...link, d, label: `${from.label} to ${to.label}` }
+    const label = to.via ? `${to.label} via ${to.via}` : `${from.label} to ${to.label}`
+    return { ...link, d, label }
   })
 
-  return { nodes: Object.values(placed), links }
+  return { nodes: Object.values(placed), links, height: bottom + 44 }
 })
 
 function showTip(event, label, value) {
