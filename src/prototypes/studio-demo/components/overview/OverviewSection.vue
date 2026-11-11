@@ -337,6 +337,7 @@ h2, h3 {
 
 .metric-tabs {
   display: flex;
+  align-items: stretch;
   gap: var(--dt-space-500);
 }
 
@@ -366,6 +367,7 @@ h2, h3 {
 }
 
 .tab-metric {
+  margin-top: auto;
   font: var(--dt-typography-headline-xl);
 }
 
