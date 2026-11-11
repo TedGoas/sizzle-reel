@@ -7,13 +7,7 @@
 
     <div class="grid">
       <article class="sd-card card metrics">
-        <div class="widget-title">
-          <h2>Key metrics</h2>
-          <svg class="info" viewBox="0 0 12 12" aria-hidden="true">
-            <circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" />
-            <path d="M6 5.25v3.1M6 3.55v.15" stroke="currentColor" stroke-linecap="round" />
-          </svg>
-        </div>
+        <TileTitle title="Key metrics" :tip="overviewTips.metrics" />
         <div class="metric-tabs" role="tablist">
           <button
             v-for="series in metricSeries"
@@ -23,15 +17,17 @@
             :aria-selected="series.id === activeId"
             :class="{ active: series.id === activeId }"
             @click="activeId = series.id"
+            @mouseenter="tabTip = series.id"
+            @mouseleave="tabTip = null"
+            @focus="tabTip = series.id"
+            @blur="tabTip = null"
           >
-            <span class="tab-label">
-              {{ series.label }}
-              <svg class="info" viewBox="0 0 12 12" aria-hidden="true">
-                <circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" />
-                <path d="M6 5.25v3.1M6 3.55v.15" stroke="currentColor" stroke-linecap="round" />
-              </svg>
-            </span>
+            <span class="tab-label">{{ series.label }}</span>
             <span class="tab-metric">{{ metricRate(series.points) }}</span>
+            <span v-if="tabTip === series.id" class="dark-tip" role="tooltip">
+              <strong>{{ series.label }}</strong>
+              <p>{{ series.tip }}</p>
+            </span>
           </button>
         </div>
         <div class="chart-box">
@@ -63,49 +59,41 @@
         </div>
       </article>
 
-      <article class="sd-card card stat">
-        <h2>Total conversations</h2>
-        <p class="hero">{{ totalConversations.total.toLocaleString() }}</p>
-        <div class="split">
-          <span class="bar voice" :style="{ flex: totalConversations.voice }" />
-          <span class="bar digital" :style="{ flex: totalConversations.digital }" />
-        </div>
-        <div class="split-labels">
-          <span>Voice: {{ totalConversations.voice.toLocaleString() }}</span>
-          <span>Digital: {{ totalConversations.digital.toLocaleString() }}</span>
-        </div>
-      </article>
+      <CompositionStat
+        title="Total conversations"
+        :tip="totalConversations.tip"
+        :total="totalConversations.total"
+        :trend="totalConversations.trend"
+        :caption="totalConversations.caption"
+        :segments="totalConversations.segments"
+      />
+
+      <CompositionStat
+        title="Guardian alerts"
+        :tip="guardianAlerts.tip"
+        :total="guardianAlerts.total"
+        :trend="guardianAlerts.trend"
+        :share="guardianAlerts.share"
+        :caption="guardianAlerts.caption"
+        :segments="guardianAlerts.segments"
+        lower-is-better
+      />
 
       <article class="sd-card card stat">
-        <h2>Guardian alerts</h2>
-        <p class="hero">{{ guardianAlerts.total }}</p>
-        <div class="split">
-          <span class="bar caution" :style="{ flex: guardianAlerts.cautions }" />
-          <span class="bar risk" :style="{ flex: guardianAlerts.highRisk }" />
-        </div>
-        <div class="split-labels">
-          <span>Cautions: {{ guardianAlerts.cautions }}</span>
-          <span>High risk: {{ guardianAlerts.highRisk }}</span>
-        </div>
-      </article>
-
-      <article class="sd-card card stat">
-        <h2>AI CSAT</h2>
+        <TileTitle title="AI CSAT" :tip="overviewTips.csat" />
         <p class="hero"><span class="quiet">{{ aiCsat.label }}</span> {{ aiCsat.score }}</p>
         <p class="sub">Voice: {{ aiCsat.voice }}, Digital: {{ aiCsat.digital }}</p>
       </article>
 
       <article class="sd-card card stat">
-        <h2>Average handle time</h2>
+        <TileTitle title="Average handle time" :tip="overviewTips.aht" />
         <p class="hero">{{ averageHandleTime.total }}</p>
         <p class="sub">Voice: {{ averageHandleTime.voice }}, Digital: {{ averageHandleTime.digital }}</p>
       </article>
 
       <article class="sd-card card skills">
-        <h2>Most used skills</h2>
-        <div class="chart-box">
-          <RankChart :labels="skillLabels" :values="skillCounts" color="#6366F1" />
-        </div>
+        <TileTitle title="Most used skills" :tip="overviewTips.skills" />
+        <BreakdownDonut :segments="skillUsage" caption="starts" />
       </article>
     </div>
 
@@ -197,8 +185,10 @@
 <script setup>
 import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from '../Icon.vue'
+import TileTitle from '../analytics/TileTitle.vue'
+import CompositionStat from './CompositionStat.vue'
 import MetricChart from '../charts/MetricChart.vue'
-import RankChart from '../charts/RankChart.vue'
+import BreakdownDonut from '../charts/BreakdownDonut.vue'
 import MiningIllustration from './MiningIllustration.vue'
 import DrawerTransition from '../DrawerTransition.vue'
 import MiningSetupDrawer from './MiningSetupDrawer.vue'
@@ -214,9 +204,11 @@ import {
   aiCsat,
   averageHandleTime,
   skillUsage,
+  overviewTips,
 } from '../../mock/overviewData.js'
 
 const activeId = ref(metricSeries[0].id)
+const tabTip = ref(null)
 const active = computed(() => metricSeries.find((series) => series.id === activeId.value))
 const visible = reactive({ positive: true, negative: true, rate: true })
 
@@ -225,9 +217,6 @@ watch(activeId, () => {
   visible.negative = true
   visible.rate = true
 })
-
-const skillLabels = skillUsage.map((skill) => skill.name)
-const skillCounts = skillUsage.map((skill) => skill.count)
 
 // Skill mining: idle -> running (TIMING.miningRun) -> done
 const mining = ref('idle')
@@ -300,6 +289,7 @@ onUnmounted(() => clearTimeout(miningTimer))
 .grid .stat:nth-child(4) { grid-column: 7 / 10; grid-row: 2; }
 .grid .stat:nth-child(5) { grid-column: 7 / 10; grid-row: 3; }
 .skills { grid-column: 10 / 13; grid-row: 2 / 4; }
+.skills :deep(.breakdown) { margin-top: 0; }
 
 h2, h3 {
   margin: 0;
@@ -307,32 +297,15 @@ h2, h3 {
   font-weight: 600;
 }
 
-.widget-title {
-  display: flex;
-  align-items: center;
-  gap: var(--dt-space-300);
-}
-
-.widget-title h2 {
-  color: var(--dt-color-foreground-secondary);
-  font-size: var(--dt-font-size-100);
-  font-weight: 500;
-}
-
 .tab-label {
-  display: flex;
-  align-items: center;
-  gap: var(--dt-space-300);
-  color: var(--dt-color-foreground-secondary);
+  color: var(--dt-color-foreground-primary);
   font-size: var(--dt-font-size-100);
-  line-height: 1.2;
-}
-
-.info {
-  width: 12px;
-  height: 12px;
-  color: var(--dt-color-foreground-tertiary);
-  flex: none;
+  line-height: 1.6;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--dt-color-foreground-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 
 .metric-tabs {
@@ -342,6 +315,7 @@ h2, h3 {
 }
 
 .metric-tabs button {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -363,7 +337,35 @@ h2, h3 {
 }
 
 .metric-tabs button.active {
-  border-color: #B794F6;
+  border-color: var(--dt-color-purple-500);
+}
+
+.dark-tip {
+  position: absolute;
+  z-index: 6;
+  bottom: calc(100% + var(--dt-space-200));
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-300);
+  width: max-content;
+  max-width: 240px;
+  padding: var(--dt-space-400) var(--dt-space-450);
+  background: var(--dt-color-surface-contrast);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-medium);
+  color: var(--dt-color-foreground-primary-inverted);
+  font-size: var(--dt-font-size-100);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  pointer-events: none;
+}
+
+.dark-tip strong { font-weight: 700; }
+.dark-tip p {
+  margin: 0;
+  color: var(--dt-color-foreground-secondary-inverted);
 }
 
 .tab-metric {
@@ -403,33 +405,10 @@ h2, h3 {
   font-weight: 500;
 }
 
-.sub,
-.split-labels {
+.sub {
   margin: 0;
   color: var(--dt-color-foreground-tertiary);
   font-size: var(--dt-font-size-100);
-}
-
-.split {
-  display: flex;
-  gap: var(--dt-space-200);
-  height: 10px;
-}
-
-.bar {
-  border-radius: 999px;
-  min-width: 8px;
-}
-
-.voice { background: #8AABDD; }
-.digital { background: #AEC3E7; }
-.caution { background: #4385CB; }
-.risk { background: #D9524C; }
-
-.split-labels {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--dt-space-400);
 }
 
 .section-title {

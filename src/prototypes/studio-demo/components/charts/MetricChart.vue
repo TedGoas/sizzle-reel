@@ -59,8 +59,8 @@ function render(mode) {
   const margin = { top: 16, right: 12, bottom: 36, left: 40 }
   const width = containerWidth - margin.left - margin.right
   const height = containerHeight - margin.top - margin.bottom
-  const labelColor = '#6B6B6B'
-  const gridColor = 'hsl(0 0% 11% / 0.1)'
+  const labelColor = 'var(--dt-color-foreground-tertiary)'
+  const gridColor = 'var(--dt-color-border-subtle)'
 
   const svgSelection = d3.select(node)
   svgSelection.attr('width', containerWidth).attr('height', containerHeight)
@@ -114,7 +114,7 @@ function render(mode) {
   const stacked = stack(data)
   const colors = { positive: props.positiveColor, negative: props.negativeColor }
   const shown = { positive: props.showPositive, negative: props.showNegative }
-  const gap = 2
+  const gap = 1.5
 
   const groups = root.selectAll('.bar-group').data(stacked, (d) => d.key)
   groups.exit().remove()
@@ -128,7 +128,7 @@ function render(mode) {
   const barsEnter = bars.enter().append('rect')
     .attr('x', (d) => x(d.data.day))
     .attr('width', x.bandwidth())
-    .attr('rx', 2)
+    .attr('rx', 0)
     .attr('y', mode === 'intro' ? height : (d) => yFor(d))
     .attr('height', mode === 'intro' ? 0 : (d) => heightFor(d))
 
@@ -156,8 +156,7 @@ function render(mode) {
     return d[0] > 0 ? base - gap : base
   }
   function heightFor(d) {
-    const size = barScale(d[1]) - barScale(d[0])
-    return Math.max(0, d[0] > 0 ? size - gap : size)
+    return Math.max(0, barScale(d[1]) - barScale(d[0]))
   }
 
   const line = d3.line()
@@ -301,7 +300,7 @@ function showHover(index) {
     .attr('cx', px)
     .attr('cy', (d) => layout.y(d.rate))
     .attr('fill', props.lineColor)
-    .attr('stroke', '#fff')
+    .attr('stroke', 'var(--dt-color-surface-primary)')
     .attr('stroke-width', 2)
 
   marks.raise()
