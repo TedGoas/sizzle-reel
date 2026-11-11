@@ -59,8 +59,8 @@ const total = computed(() => props.segments.reduce((sum, segment) => sum + segme
 const colors = computed(() => props.segments.map((segment) => dtColor(segment.colorToken)))
 
 function shareOf(value) {
-  if (!total.value) return '0.0'
-  return ((value / total.value) * 100).toFixed(1)
+  if (!total.value) return '0'
+  return String(Math.round((value / total.value) * 100))
 }
 
 const chartData = computed(() => ({
