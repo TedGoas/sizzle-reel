@@ -54,7 +54,13 @@
       <div class="row row--3">
         <article v-for="card in data.quality" :key="card.id" class="sd-card kpi">
           <h4>{{ card.label }}</h4>
-          <p class="value">{{ card.value }} <span v-if="card.unit">{{ card.unit }}</span></p>
+          <p class="value">
+            <span class="value-num">
+              <span class="value-ghost" aria-hidden="true">{{ card.value }}</span>
+              <span class="value-live">{{ displays[card.id] }}</span>
+            </span>
+            <span v-if="card.unit" class="unit">{{ card.unit }}</span>
+          </p>
           <p class="note">{{ card.note }}</p>
         </article>
       </div>
@@ -107,11 +113,11 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from '../Icon.vue'
 import PerformanceChart from '../charts/PerformanceChart.vue'
 import RankChart from '../charts/RankChart.vue'
-import { analyticsRanges, periodTotal } from '../../mock/analyticsData.js'
+import { TIMING, analyticsRanges, periodTotal } from '../../mock/analyticsData.js'
 
 const columns = [
   { key: 'name', label: 'Skill' },
@@ -175,6 +181,49 @@ function pick(id) {
   open.value = false
 }
 
+const displays = ref({})
+let countFrame = 0
+
+function frameText(value, progress) {
+  if (progress >= 1) return value
+  return value.replace(/\d+(?:\.\d+)?/g, (raw) => {
+    const [intPart, frac] = raw.split('.')
+    const decimals = frac ? frac.length : 0
+    const current = Number(raw) * progress
+    const shown = decimals ? current.toFixed(decimals) : String(Math.round(current))
+    const [shownInt, shownFrac] = shown.split('.')
+    const padded = shownInt.padStart(intPart.length, '\u2007')
+    return shownFrac != null ? `${padded}.${shownFrac}` : padded
+  })
+}
+
+function playCounts() {
+  cancelAnimationFrame(countFrame)
+  const cards = data.value.quality
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduce) {
+    displays.value = Object.fromEntries(cards.map((card) => [card.id, card.value]))
+    return
+  }
+  const start = performance.now()
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / TIMING.qualityCount)
+    const eased = 1 - (1 - t) ** 3
+    const next = {}
+    for (const card of cards) next[card.id] = frameText(card.value, eased)
+    displays.value = next
+    if (t < 1) countFrame = requestAnimationFrame(step)
+  }
+  countFrame = requestAnimationFrame(step)
+}
+
+onMounted(playCounts)
+watch(rangeId, playCounts)
+onUnmounted(() => cancelAnimationFrame(countFrame))
+displays.value = Object.fromEntries(
+  data.value.quality.map((card) => [card.id, frameText(card.value, 0)]),
+)
+
 function labels(rows) {
   return rows.map((row) => row.label)
 }
@@ -189,11 +238,14 @@ function values(rows) {
   display: flex;
   flex-direction: column;
   gap: var(--dt-space-600);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .head, .row {
   display: flex;
   gap: var(--dt-space-500);
+  min-width: 0;
 }
 
 .head { justify-content: space-between; align-items: flex-start; }
@@ -207,9 +259,15 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
 
 .range { position: relative; }
 
-.row--3 { display: grid; grid-template-columns: repeat(3, 1fr); }
+.row--3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 
-.kpi, .chart-card { padding: var(--dt-space-500); }
+.kpi, .chart-card {
+  min-width: 0;
+  padding: var(--dt-space-500);
+}
 .performance { padding: var(--dt-space-500); }
 .performance-chart { height: 280px; }
 .legend {
@@ -226,15 +284,26 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
 }
 .swatch.faint { opacity: 0.65; }
 .value {
+  position: relative;
   margin: var(--dt-space-300) 0 0;
   color: var(--dt-color-foreground-primary);
   font-size: var(--dt-font-size-400);
   font-weight: 600;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
-.value span { color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-200); font-weight: 500; }
+.value-num {
+  display: inline-grid;
+  vertical-align: baseline;
+}
+.value-ghost,
+.value-live {
+  grid-area: 1 / 1;
+}
+.value-ghost { visibility: hidden; }
+.unit { color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-200); font-weight: 500; }
 .note { font-size: var(--dt-font-size-100); }
-.chart { height: 180px; margin-top: var(--dt-space-400); }
+.chart { height: 180px; min-width: 0; margin-top: var(--dt-space-400); }
 
 .table-card { padding: 0; overflow: hidden; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }

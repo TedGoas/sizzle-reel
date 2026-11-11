@@ -1,3 +1,7 @@
+export const TIMING = {
+  qualityCount: 560,
+}
+
 const monthDay = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' })
 
 function buildDays() {
