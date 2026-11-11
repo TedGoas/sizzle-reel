@@ -5,6 +5,13 @@
         <h2>Analytics</h2>
         <p>Track conversation volume, topics, quality, transfer paths, and skill performance.</p>
       </div>
+    </header>
+
+    <div class="filters">
+      <button v-for="label in leadingFilters" :key="label" type="button" class="sd-btn sd-btn--outlined sd-btn--sm filter-chip">
+        {{ label }}
+        <Icon name="chevron-down" :size="12" />
+      </button>
       <div class="range">
         <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="open = !open">
           {{ current.label }}
@@ -23,92 +30,183 @@
           </button>
         </div>
       </div>
-    </header>
+      <button v-for="label in trailingFilters" :key="label" type="button" class="sd-btn sd-btn--outlined sd-btn--sm filter-chip">
+        {{ label }}
+        <Icon name="chevron-down" :size="12" />
+      </button>
+    </div>
 
-    <section>
-      <h3>Performance</h3>
-      <article class="sd-card performance">
-        <div class="performance-chart">
-          <PerformanceChart :points="data.days" :colors="strokeColors" :visible="visible" />
+    <article class="sd-card performance">
+      <div class="tile-title">
+        <h3>Performance</h3>
+        <Icon name="help-circle" :size="14" />
+      </div>
+      <div class="performance-chart">
+        <PerformanceChart :points="data.days" :colors="strokeColors" :visible="visible" />
+      </div>
+      <div class="legend">
+        <button
+          v-for="series in seriesList"
+          :key="series.key"
+          type="button"
+          class="sd-legend-item"
+          :class="{ inactive: !visible[series.key] }"
+          :aria-pressed="visible[series.key]"
+          @click="visible[series.key] = !visible[series.key]"
+        >
+          <i class="swatch" :class="{ faint: series.key !== 'total' }" :style="{ background: series.color }" />
+          {{ series.label }}
+          <strong>{{ series.total }}</strong>
+        </button>
+      </div>
+    </article>
+
+    <div class="row row--3">
+      <article v-for="card in data.quality" :key="card.id" class="sd-card kpi">
+        <div class="tile-title">
+          <h3>{{ card.label }}</h3>
+          <Icon name="help-circle" :size="14" />
         </div>
-        <div class="legend">
-          <button
-            v-for="series in seriesList"
-            :key="series.key"
-            type="button"
-            class="sd-legend-item"
-            :class="{ inactive: !visible[series.key] }"
-            :aria-pressed="visible[series.key]"
-            @click="visible[series.key] = !visible[series.key]"
-          >
-            <i class="swatch" :class="{ faint: series.key !== 'total' }" :style="{ background: series.color }" />
-            {{ series.label }}
-            <strong>{{ series.total }}</strong>
-          </button>
-        </div>
+        <p class="value">
+          <span class="value-num">
+            <span class="value-ghost" aria-hidden="true">{{ card.value }}</span>
+            <span class="value-live">{{ displays[card.id] }}</span>
+          </span>
+          <span v-if="card.unit" class="unit">{{ card.unit }}</span>
+        </p>
+        <p class="note">{{ card.note }}</p>
       </article>
-    </section>
+    </div>
 
-    <section>
-      <h3>Quality</h3>
-      <div class="row row--3">
-        <article v-for="card in data.quality" :key="card.id" class="sd-card kpi">
-          <h4>{{ card.label }}</h4>
-          <p class="value">
-            <span class="value-num">
-              <span class="value-ghost" aria-hidden="true">{{ card.value }}</span>
-              <span class="value-live">{{ displays[card.id] }}</span>
-            </span>
-            <span v-if="card.unit" class="unit">{{ card.unit }}</span>
-          </p>
-          <p class="note">{{ card.note }}</p>
-        </article>
+    <div class="row row--3">
+      <article class="sd-card chart-card">
+        <div class="tile-title">
+          <h3>Conversation purpose</h3>
+          <Icon name="help-circle" :size="14" />
+        </div>
+        <div class="chart"><RankChart :labels="labels(data.purposes)" :values="values(data.purposes)" suffix="%" :color="strokeColors.total" /></div>
+      </article>
+      <article class="sd-card chart-card">
+        <div class="tile-title">
+          <h3>Transfer reasons</h3>
+          <Icon name="help-circle" :size="14" />
+        </div>
+        <div class="chart"><RankChart :labels="labels(data.reasons)" :values="values(data.reasons)" suffix="%" :color="strokeColors.contained" /></div>
+      </article>
+      <article class="sd-card chart-card">
+        <div class="tile-title">
+          <h3>Transfer destinations</h3>
+          <Icon name="help-circle" :size="14" />
+        </div>
+        <div class="chart"><RankChart :labels="labels(data.destinations)" :values="values(data.destinations)" suffix="%" :color="strokeColors.transferred" /></div>
+      </article>
+    </div>
+
+    <article class="sd-card table-card">
+      <div class="tile-title table-title">
+        <h3>Skills leaderboard</h3>
+        <Icon name="help-circle" :size="14" />
       </div>
-    </section>
-
-    <section>
-      <h3>Breakdowns</h3>
-      <div class="row row--3">
-        <article class="sd-card chart-card">
-          <h4>Conversation purpose</h4>
-          <div class="chart"><RankChart :labels="labels(data.purposes)" :values="values(data.purposes)" suffix="%" :color="strokeColors.total" /></div>
-        </article>
-        <article class="sd-card chart-card">
-          <h4>Transfer reasons</h4>
-          <div class="chart"><RankChart :labels="labels(data.reasons)" :values="values(data.reasons)" suffix="%" :color="strokeColors.contained" /></div>
-        </article>
-        <article class="sd-card chart-card">
-          <h4>Transfer destinations</h4>
-          <div class="chart"><RankChart :labels="labels(data.destinations)" :values="values(data.destinations)" suffix="%" :color="strokeColors.transferred" /></div>
-        </article>
-      </div>
-    </section>
-
-    <section>
-      <h3>Skills</h3>
-      <article class="sd-card table-card">
+      <div class="table-scroll" :class="{ 'is-scrolled': tableScrolled }" @scroll="onTableScroll">
         <table>
           <thead>
             <tr>
-              <th v-for="column in columns" :key="column.key" :aria-sort="ariaSort(column.key)">
+              <th
+                v-for="column in columns"
+                :key="column.key"
+                :class="[column.align, { pin: column.pin }]"
+                :aria-sort="ariaSort(column.key)"
+              >
                 <button type="button" @click="sortBy(column.key)">
                   {{ column.label }}
-                  <span class="sort-mark" :class="{ on: sortKey === column.key }">{{ sortDir === 'asc' ? '↑' : '↓' }}</span>
+                  <svg class="sort-svg" :class="{ on: sortKey === column.key }" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                    <template v-if="sortKey !== column.key">
+                      <path d="m7 15 5 5 5-5" />
+                      <path d="m7 9 5-5 5 5" />
+                    </template>
+                    <path v-else-if="sortDir === 'asc'" d="m18 15-6-6-6 6" />
+                    <path v-else d="m6 9 6 6 6-6" />
+                  </svg>
                 </button>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="skill in sortedSkills" :key="skill.name">
-              <td>{{ skill.name }}</td>
-              <td>{{ skill.volume.toLocaleString() }}</td>
-              <td>{{ skill.containment }}%</td>
-              <td>{{ skill.success }}%</td>
+            <tr v-for="skill in pageSkills" :key="skill.name">
+              <td class="pin">{{ skill.name }}</td>
+              <td class="num">{{ skill.conversations.toLocaleString() }}</td>
+              <td class="num">
+                <span :class="{ bad: skill.escalated >= 5 && skill.escalated >= skill.intended }">
+                  {{ skill.escalated.toLocaleString() }}
+                </span>
+                <span v-if="skill.intended > 0" class="intended">+{{ skill.intended.toLocaleString() }} intended</span>
+              </td>
+              <td class="num">{{ skill.runs.toLocaleString() }}</td>
+              <td class="num">{{ skill.incomplete.toLocaleString() }}</td>
+              <td class="num">{{ skill.completed.toLocaleString() }}</td>
+              <td class="rate">
+                <span class="rate-copy">
+                  <span>{{ skill.completion }}%</span>
+                  <span class="trend" :class="trendClass(skill.trend)">
+                    <Icon v-if="skill.trend !== 0" name="arrow-up" :size="12" :class="{ flip: skill.trend < 0 }" />
+                    <span v-else aria-hidden="true">—</span>
+                    {{ Math.abs(skill.trend) }}%
+                  </span>
+                </span>
+                <svg class="spark" :class="trendClass(skill.trend)" viewBox="0 0 48 24" width="48" height="24" aria-hidden="true">
+                  <polyline
+                    :points="sparkPoints(skill.spark)"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </td>
             </tr>
           </tbody>
         </table>
-      </article>
-    </section>
+      </div>
+      <footer class="pager">
+        <label class="page-size">
+          Items per page
+          <select class="custom-select custom-select--sm" :value="pageSize" @change="setPageSize">
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="100">100</option>
+          </select>
+        </label>
+        <div class="pager-nav">
+          <span>{{ pageStart }}–{{ pageEnd }} of {{ sortedSkills.length }}</span>
+          <button type="button" class="page-btn" :disabled="page === 1" aria-label="First page" @click="page = 1">
+            <Icon name="chevron-right" :size="12" class="flip" />
+            <Icon name="chevron-right" :size="12" class="flip" />
+          </button>
+          <button type="button" class="page-btn" :disabled="page === 1" aria-label="Previous page" @click="page -= 1">
+            <Icon name="chevron-right" :size="12" class="flip" />
+          </button>
+          <button
+            v-for="n in pageCount"
+            :key="n"
+            type="button"
+            class="page-btn page-num"
+            :aria-current="n === page ? 'page' : undefined"
+            :aria-label="`Page ${n}`"
+            @click="page = n"
+          >
+            {{ n }}
+          </button>
+          <button type="button" class="page-btn" :disabled="page === pageCount" aria-label="Next page" @click="page += 1">
+            <Icon name="chevron-right" :size="12" />
+          </button>
+          <button type="button" class="page-btn" :disabled="page === pageCount" aria-label="Last page" @click="page = pageCount">
+            <Icon name="chevron-right" :size="12" />
+            <Icon name="chevron-right" :size="12" />
+          </button>
+        </div>
+      </footer>
+    </article>
   </div>
 </template>
 
@@ -119,11 +217,17 @@ import PerformanceChart from '../charts/PerformanceChart.vue'
 import RankChart from '../charts/RankChart.vue'
 import { TIMING, analyticsRanges, periodTotal } from '../../mock/analyticsData.js'
 
+const leadingFilters = ['Groups']
+const trailingFilters = ['Purpose', 'Containment', 'Transfer reason', 'Conversation type', 'AI Agent', 'Agentic Skills']
+
 const columns = [
-  { key: 'name', label: 'Skill' },
-  { key: 'volume', label: 'Volume' },
-  { key: 'containment', label: 'Containment' },
-  { key: 'success', label: 'Success' },
+  { key: 'name', label: 'Skill', align: 'left', pin: true },
+  { key: 'conversations', label: 'Conversations', align: 'num' },
+  { key: 'escalated', label: 'Escalated', align: 'num' },
+  { key: 'runs', label: 'Total runs', align: 'num' },
+  { key: 'incomplete', label: 'Incomplete runs', align: 'num' },
+  { key: 'completed', label: 'Completed runs', align: 'num' },
+  { key: 'completion', label: 'Completion rate', align: 'left' },
 ]
 
 function token(name, fallback) {
@@ -148,8 +252,15 @@ const seriesList = computed(() => [
 const visible = reactive({ total: true, contained: true, transferred: true })
 const rangeId = ref('past30')
 const open = ref(false)
-const sortKey = ref('volume')
+const sortKey = ref('runs')
 const sortDir = ref('desc')
+const page = ref(1)
+const pageSize = ref(10)
+const tableScrolled = ref(false)
+
+function onTableScroll(event) {
+  tableScrolled.value = event.currentTarget.scrollLeft > 0
+}
 const current = computed(() => analyticsRanges.find((range) => range.id === rangeId.value))
 const data = computed(() => current.value.data)
 const sortedSkills = computed(() => {
@@ -161,6 +272,13 @@ const sortedSkills = computed(() => {
     return (left - right) * direction
   })
 })
+const pageCount = computed(() => Math.max(1, Math.ceil(sortedSkills.value.length / pageSize.value)))
+const pageSkills = computed(() => {
+  const start = (page.value - 1) * pageSize.value
+  return sortedSkills.value.slice(start, start + pageSize.value)
+})
+const pageStart = computed(() => (sortedSkills.value.length === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
+const pageEnd = computed(() => Math.min(page.value * pageSize.value, sortedSkills.value.length))
 
 function sortBy(key) {
   if (sortKey.value === key) {
@@ -176,9 +294,31 @@ function ariaSort(key) {
   return sortDir.value === 'asc' ? 'ascending' : 'descending'
 }
 
+function setPageSize(event) {
+  pageSize.value = Number(event.target.value)
+  page.value = 1
+}
+
 function pick(id) {
   rangeId.value = id
   open.value = false
+}
+
+function trendClass(trend) {
+  if (trend > 0) return 'up'
+  if (trend < 0) return 'down'
+  return 'flat'
+}
+
+function sparkPoints(values) {
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const span = max - min || 1
+  return values.map((value, index) => {
+    const x = (index / (values.length - 1)) * 48
+    const y = 22 - ((value - min) / span) * 20
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  }).join(' ')
 }
 
 const displays = ref({})
@@ -189,8 +329,8 @@ function frameText(value, progress) {
   return value.replace(/\d+(?:\.\d+)?/g, (raw) => {
     const [intPart, frac] = raw.split('.')
     const decimals = frac ? frac.length : 0
-    const current = Number(raw) * progress
-    const shown = decimals ? current.toFixed(decimals) : String(Math.round(current))
+    const currentValue = Number(raw) * progress
+    const shown = decimals ? currentValue.toFixed(decimals) : String(Math.round(currentValue))
     const [shownInt, shownFrac] = shown.split('.')
     const padded = shownInt.padStart(intPart.length, '\u2007')
     return shownFrac != null ? `${padded}.${shownFrac}` : padded
@@ -218,7 +358,13 @@ function playCounts() {
 }
 
 onMounted(playCounts)
-watch(rangeId, playCounts)
+watch(rangeId, () => {
+  page.value = 1
+  playCounts()
+})
+watch([sortKey, sortDir], () => {
+  page.value = 1
+})
 onUnmounted(() => cancelAnimationFrame(countFrame))
 displays.value = Object.fromEntries(
   data.value.quality.map((card) => [card.id, frameText(card.value, 0)]),
@@ -237,39 +383,59 @@ function values(rows) {
 .analytics {
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-600);
+  gap: var(--dt-space-500);
   min-width: 0;
   max-width: 100%;
 }
 
-.head, .row {
+.head {
   display: flex;
   gap: var(--dt-space-500);
   min-width: 0;
 }
 
-.head { justify-content: space-between; align-items: flex-start; }
-
-h2, h3, h4 { margin: 0; font-weight: 600; }
+h2, h3 { margin: 0; font-weight: 600; }
 h2 { font-size: var(--dt-font-size-300); }
-h3 { margin-bottom: var(--dt-space-400); font-size: var(--dt-font-size-200); }
-h4 { font-size: var(--dt-font-size-200); }
+h3 { font-size: var(--dt-font-size-200); }
 
 p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-200); }
 
-.range { position: relative; }
-
-.row--3 {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--dt-space-400);
 }
 
-.kpi, .chart-card {
+.filter-chip {
+  color: var(--dt-color-foreground-secondary);
+  border-color: var(--dt-color-border-subtle);
+}
+
+.range { position: relative; }
+.range .sd-menu { left: 0; right: auto; }
+
+.row {
+  display: grid;
+  gap: var(--dt-space-500);
+  min-width: 0;
+}
+
+.row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.tile-title {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  color: var(--dt-color-foreground-tertiary);
+}
+
+.kpi, .chart-card, .performance {
   min-width: 0;
   padding: var(--dt-space-500);
 }
-.performance { padding: var(--dt-space-500); }
-.performance-chart { height: 280px; }
+
+.performance-chart { height: 280px; margin-top: var(--dt-space-400); }
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -305,21 +471,21 @@ p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary);
 .note { font-size: var(--dt-font-size-100); }
 .chart { height: 180px; min-width: 0; margin-top: var(--dt-space-400); }
 
-.table-card { padding: 0; overflow: hidden; }
-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.table-card { min-width: 0; }
+.table-title {
+  padding: var(--dt-space-500);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
+}
+.table-scroll { overflow-x: auto; }
+table { width: 100%; min-width: 860px; border-collapse: separate; border-spacing: 0; }
 th, td {
   padding: var(--dt-space-400) var(--dt-space-500);
   border-bottom: 1px solid var(--dt-color-border-subtle);
   text-align: left;
   font-size: var(--dt-font-size-200);
-  overflow: hidden;
   white-space: nowrap;
 }
-th:nth-child(1), td:nth-child(1) { width: 40%; }
-th:nth-child(2), td:nth-child(2) { width: 20%; }
-th:nth-child(3), td:nth-child(3) { width: 20%; }
-th:nth-child(4), td:nth-child(4) { width: 20%; }
-th { background: var(--dt-color-surface-secondary); }
+th { font-weight: 600; }
 th button {
   display: inline-flex;
   align-items: center;
@@ -333,13 +499,106 @@ th button {
   font-weight: 600;
   cursor: pointer;
 }
-.sort-mark {
-  width: 1em;
-  color: var(--dt-color-foreground-primary);
-  visibility: hidden;
+th.num,
+td.num { text-align: right; }
+td.num { font-variant-numeric: tabular-nums; }
+th.num button { margin-left: auto; }
+.pin {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--dt-color-surface-primary);
 }
-.sort-mark.on { visibility: visible; }
+.table-scroll.is-scrolled .pin {
+  box-shadow: 4px 0 5px -3px rgba(0, 0, 0, 0.08);
+}
+th.pin { z-index: 2; }
+.bad { color: var(--dt-color-foreground-critical); }
+.intended {
+  display: block;
+  color: var(--dt-color-foreground-tertiary);
+  font-size: var(--dt-font-size-100);
+}
+.sort-svg {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--dt-color-foreground-muted);
+}
+.sort-svg.on { color: var(--dt-color-foreground-primary); }
+.flip { transform: rotate(180deg); }
+.rate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dt-space-400);
+}
+.rate-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-variant-numeric: tabular-nums;
+}
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  font-size: var(--dt-font-size-100);
+}
+.trend.up, .spark.up { color: var(--dt-color-foreground-success); }
+.trend.down, .spark.down { color: var(--dt-color-foreground-critical); }
+.trend.flat, .spark.flat { color: var(--dt-color-foreground-tertiary); }
+.spark { flex: none; }
 tbody tr:last-child td { border-bottom: 0; }
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dt-space-400);
+  padding: var(--dt-space-400) var(--dt-space-500);
+  border-top: 1px solid var(--dt-color-border-subtle);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+}
+.page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+}
+.pager-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+}
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  padding: 0 var(--dt-space-200);
+  border: 0;
+  border-radius: var(--dt-size-radius-300, 4px);
+  background: transparent;
+  color: var(--dt-color-foreground-secondary);
+  font: inherit;
+  font-size: var(--dt-font-size-100);
+  cursor: pointer;
+}
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.page-btn[aria-current="page"] {
+  background: var(--dt-color-surface-secondary);
+  color: var(--dt-color-foreground-primary);
+  font-weight: 600;
+}
 
 @media (max-width: 1100px) {
   .row--3 { grid-template-columns: 1fr; }
