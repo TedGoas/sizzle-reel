@@ -17,17 +17,19 @@
             :aria-selected="series.id === activeId"
             :class="{ active: series.id === activeId }"
             @click="activeId = series.id"
-            @mouseenter="tabTip = series.id"
-            @mouseleave="tabTip = null"
-            @focus="tabTip = series.id"
-            @blur="tabTip = null"
           >
-            <span class="tab-label">{{ series.label }}</span>
-            <span class="tab-metric">{{ metricRate(series.points) }}</span>
-            <span v-if="tabTip === series.id" class="dark-tip" role="tooltip">
-              <strong>{{ series.label }}</strong>
-              <p>{{ series.tip }}</p>
+            <span
+              class="tab-label"
+              @mouseenter="tabTip = series.id"
+              @mouseleave="tabTip = null"
+            >
+              {{ series.label }}
+              <span v-if="tabTip === series.id" class="dark-tip" role="tooltip">
+                <strong>{{ series.label }}</strong>
+                <p>{{ series.tip }}</p>
+              </span>
             </span>
+            <span class="tab-metric">{{ metricRate(series.points) }}</span>
           </button>
         </div>
         <div class="chart-box">
@@ -298,6 +300,7 @@ h2, h3 {
 }
 
 .tab-label {
+  position: relative;
   color: var(--dt-color-foreground-primary);
   font-size: var(--dt-font-size-100);
   line-height: 1.6;
