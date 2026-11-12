@@ -252,7 +252,7 @@ const breakdowns = computed(() => [
 ])
 
 const leadingFilters = ['Groups']
-const trailingFilters = ['Purpose', 'Containment', 'Transfer reason', 'Conversation type', 'AI Agent', 'Agentic Skills']
+const trailingFilters = ['Purpose', 'Containment', 'Transfer reason', 'Conversation type', 'Agentic Skills']
 
 const columns = [
   { key: 'name', label: 'Skill', align: 'left', pin: true },
