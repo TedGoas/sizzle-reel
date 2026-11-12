@@ -38,6 +38,12 @@
         </div>
         <p class="summary">{{ conversation.extendedSummary }}</p>
         <div class="recap-section">
+          <h3>What happened</h3>
+          <ul class="actions">
+            <li v-for="moment in conversation.moments" :key="moment">{{ moment }}</li>
+          </ul>
+        </div>
+        <div class="recap-section">
           <h3>Action items</h3>
           <ul class="actions">
             <li v-for="item in conversation.actionItems" :key="item">{{ item }}</li>
@@ -134,21 +140,56 @@
         :focus-failure="focusFailure"
       />
 
+      <section v-else-if="tab === 'logs'" class="logs">
+        <input class="finder" type="search" placeholder="Search logs" aria-label="Search logs" />
+        <table>
+          <thead>
+            <tr>
+              <th><button type="button">Time <span aria-hidden="true">▾</span></button></th>
+              <th><button type="button">Level <span aria-hidden="true">▾</span></button></th>
+              <th><button type="button">Source <span aria-hidden="true">▾</span></button></th>
+              <th><button type="button">Message <span aria-hidden="true">▾</span></button></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, index) in conversation.logs" :key="index">
+              <td>{{ row.time }}</td>
+              <td>{{ row.level }}</td>
+              <td>{{ row.source }}</td>
+              <td>{{ row.message }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
       <section v-else-if="tab === 'transcript'" class="transcript">
-        <article v-for="(line, index) in conversation.transcript" :key="index" :class="line.speaker === 'Agent' ? 'agent' : 'customer'">
-          <span>{{ line.speaker }}</span>
+        <article v-for="(line, index) in conversation.transcript" :key="index" :class="line.speaker.toLowerCase()">
+          <span>{{ line.time }} · {{ line.speaker }}</span>
           <p>{{ line.text }}</p>
         </article>
       </section>
 
-      <section v-else class="meta-list">
-        <div><span>Conversation ID</span><strong>{{ conversation.metadata.conversationId }}</strong></div>
-        <div><span>Started</span><strong>{{ conversation.metadata.started }}</strong></div>
-        <div><span>Call ID</span><strong>{{ conversation.metadata.callId }}</strong></div>
-        <div><span>Agent ID</span><strong>{{ conversation.metadata.agentId }}</strong></div>
-        <div><span>Office</span><strong>{{ conversation.metadata.office }}</strong></div>
-        <div><span>Channel</span><strong>{{ conversation.channel }}</strong></div>
-        <div><span>Entry point</span><strong>{{ conversation.entry }}</strong></div>
+      <section v-else class="details">
+        <div class="meta-list">
+          <div><span>Conversation ID</span><strong>{{ conversation.metadata.conversationId }}</strong></div>
+          <div><span>Started</span><strong>{{ conversation.metadata.started }}</strong></div>
+          <div><span>Call ID</span><strong>{{ conversation.metadata.callId }}</strong></div>
+          <div><span>Agent ID</span><strong>{{ conversation.metadata.agentId }}</strong></div>
+          <div><span>Office</span><strong>{{ conversation.metadata.office }}</strong></div>
+          <div><span>Channel</span><strong>{{ conversation.channel }}</strong></div>
+          <div><span>Entry point</span><strong>{{ conversation.entry }}</strong></div>
+        </div>
+        <div class="session">
+          <button type="button" class="session-toggle" @click="sessionOpen = !sessionOpen">
+            {{ sessionOpen ? '▾' : '▸' }} Session
+          </button>
+          <div v-if="sessionOpen" class="meta-list">
+            <div><span>Audio</span><strong>{{ conversation.session.audio }}</strong></div>
+            <div><span>Participants</span><strong>{{ conversation.session.participants.join(', ') }}</strong></div>
+            <div><span>Tools</span><strong>{{ conversation.session.tools.join(', ') }}</strong></div>
+            <div v-if="conversation.session.transfer"><span>Transfer</span><strong>{{ conversation.session.transfer }}</strong></div>
+          </div>
+        </div>
       </section>
   </SideDrawer>
 </template>
@@ -170,11 +211,13 @@ const tabs = [
   { id: 'recap', label: 'Recap' },
   { id: 'flow', label: 'Flow run' },
   { id: 'traces', label: 'Traces' },
+  { id: 'logs', label: 'Logs' },
   { id: 'transcript', label: 'Transcript' },
   { id: 'metadata', label: 'Metadata' },
 ]
 
 const openTopics = ref(new Set())
+const sessionOpen = ref(true)
 const showFail = ref(false)
 const pan = ref({ x: 24, y: 12 })
 const panning = ref(false)
@@ -264,6 +307,7 @@ function startPan(event) {
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--dt-space-200);
   padding: 0 var(--dt-space-550);
   border-bottom: 1px solid var(--dt-color-border-subtle);
@@ -411,13 +455,65 @@ function startPan(event) {
   background: var(--dt-color-surface-secondary);
 }
 .transcript .agent { background: var(--dt-color-surface-brand-subtle); }
+.transcript .system { background: transparent; border: 1px solid var(--dt-color-border-subtle); }
 .transcript span { font-size: var(--dt-font-size-100); font-weight: 600; }
 .transcript p {
   margin: var(--dt-space-200) 0 0;
   color: var(--dt-color-foreground-secondary);
   font-size: var(--dt-font-size-200);
 }
-.meta-list div {
+.finder {
+  width: 100%;
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-400);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-size-radius-300);
+  background: var(--dt-color-surface-primary);
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-100);
+}
+.logs { display: flex; flex-direction: column; gap: var(--dt-space-400); }
+.logs table { width: 100%; border-collapse: collapse; }
+.logs th, .logs td {
+  padding: var(--dt-space-300) var(--dt-space-400);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+.logs th button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dt-color-foreground-tertiary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-100);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: default;
+}
+.logs td:last-child { color: var(--dt-color-foreground-primary); }
+.details { display: flex; flex-direction: column; align-items: stretch; gap: var(--dt-space-600); }
+.session { display: flex; flex-direction: column; align-items: stretch; gap: var(--dt-space-300); }
+.session-toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dt-color-foreground-primary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-200);
+  font-weight: 700;
+  cursor: pointer;
+}
+.meta-list > div {
   display: flex;
   justify-content: space-between;
   gap: var(--dt-space-500);

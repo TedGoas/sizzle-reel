@@ -31,6 +31,17 @@ States (`mining` ref): `idle` → `running` → `done`
 - `miningSummary.analyzed` (1542) matches `totalConversations.total`, and the gap `calls` sum to `uncovered` (278).
 - Gap colors are `--dt-color-chart-categorical-01…05`. The handled remainder is `--dt-color-chart-neutral`.
 
+## History drawer
+
+`history/ConversationDrawer.vue` opens from a conversation row. Tabs: Recap, Flow run, Traces, Logs, Transcript, Metadata.
+
+- Recap adds a "What happened" list from `moments`.
+- Traces keeps the recording timeline. Each call has a full event list (about 18 to 24 rows) spread across the recording. The event list is a time, type, and summary table. Search and sort carets do nothing. Clicking a row still seeks the playhead.
+- Logs is a tool-call table from `logs`, at least five rows. The search field does nothing.
+- Transcript lines have a time. Each call is at least eight customer lines and eight agent lines, plus a few System tool lines. System lines are tool results.
+- Metadata keeps the id fields in one list. The Session group sits under that list, full width: audio, participants, tools, and transfer when there is one. The section uses class `details`, not `meta`, so it does not pick up the header meta row style.
+- All of that copy lives on each record in `mock/historyData.js`.
+
 ## Shared drawer shell
 
 `components/SideDrawer.vue`: fixed right panel, full height, resizable from the left edge, with an × close.

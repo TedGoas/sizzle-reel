@@ -117,17 +117,32 @@
       </div>
     </section>
 
-    <ul class="events">
-      <li v-for="event in traces.events" :key="event.id" :class="{ on: event.id === active?.id }">
-        <button type="button" @click="go(event.t)">
-          <span class="when">{{ clock(event.t) }}</span>
-          <span class="kind">{{ kindLabel(event.kind) }}</span>
-          <span class="what">{{ event.label }}</span>
-          <span v-if="event.ok === false" class="fail-text">{{ event.detail }}</span>
-          <span v-else class="meta">{{ event.meta }}</span>
-        </button>
-      </li>
-    </ul>
+    <div class="event-log">
+      <input class="finder" type="search" placeholder="Search events" aria-label="Search events" />
+      <table>
+        <thead>
+          <tr>
+            <th><button type="button">Time <span aria-hidden="true">▾</span></button></th>
+            <th><button type="button">Type <span aria-hidden="true">▾</span></button></th>
+            <th><button type="button">Summary <span aria-hidden="true">▾</span></button></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="event in traces.events"
+            :key="event.id"
+            :class="{ on: event.id === active?.id, fail: event.ok === false || event.kind === 'fail' }"
+            tabindex="0"
+            @click="go(event.t)"
+            @keydown.enter="go(event.t)"
+          >
+            <td>{{ clock(event.t) }}</td>
+            <td>{{ typeName(event.kind) }}</td>
+            <td>{{ event.summary || event.label }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div v-if="active" class="detail">
       <h3>{{ active.label }}</h3>
@@ -228,9 +243,18 @@ function clock(seconds) {
   return `${mins}:${String(secs).padStart(2, '0')}`
 }
 
-function kindLabel(kind) {
-  if (kind === 'fail') return 'failed'
-  return kind
+const typeNames = {
+  customer: 'Customer',
+  agent: 'Agent',
+  thinking: 'Thinking',
+  skill: 'Skill',
+  action: 'Action',
+  fail: 'Failed',
+  interrupt: 'Interruption',
+}
+
+function typeName(kind) {
+  return typeNames[kind] || kind
 }
 
 function setZoom(next) {
@@ -430,33 +454,49 @@ function stop() {
 }
 .group .sd-chip { font-family: inherit; cursor: pointer; }
 
-.events { list-style: none; margin: 0; padding: 0; }
-.events button {
-  display: grid;
-  grid-template-columns: 44px 76px minmax(0, 1fr) auto;
-  align-items: baseline;
-  column-gap: var(--dt-space-400);
+.event-log { display: flex; flex-direction: column; gap: var(--dt-space-400); }
+.finder {
   width: 100%;
-  padding: var(--dt-space-300) var(--dt-space-400);
-  border: 0;
-  border-bottom: 1px solid var(--dt-color-border-subtle);
-  background: transparent;
-  color: var(--dt-color-foreground-muted);
+  height: var(--btn-height-md);
+  padding: 0 var(--dt-space-400);
+  border: 1px solid var(--dt-color-border-subtle);
+  border-radius: var(--dt-size-radius-300);
+  background: var(--dt-color-surface-primary);
+  color: var(--dt-color-foreground-primary);
   font-family: inherit;
   font-size: var(--dt-font-size-100);
-  text-align: left;
-  cursor: pointer;
 }
-.events .on button {
-  border-radius: 6px;
+.event-log table { width: 100%; border-collapse: collapse; }
+.event-log th, .event-log td {
+  padding: var(--dt-space-300) var(--dt-space-400);
+  border-bottom: 1px solid var(--dt-color-border-subtle);
+  color: var(--dt-color-foreground-secondary);
+  font-size: var(--dt-font-size-100);
+  text-align: left;
+  vertical-align: top;
+}
+.event-log th button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-200);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--dt-color-foreground-tertiary);
+  font-family: inherit;
+  font-size: var(--dt-font-size-100);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: default;
+}
+.event-log tbody tr { cursor: pointer; }
+.event-log tbody tr.on td {
   background: var(--dt-color-surface-secondary);
   color: var(--dt-color-foreground-primary);
   font-weight: 600;
 }
-.kind { text-transform: capitalize; }
-.what { min-width: 0; }
-.meta { color: var(--dt-color-foreground-tertiary); }
-.fail-text { color: var(--dt-color-foreground-critical); }
+.event-log tbody tr.fail td:nth-child(2) { color: var(--dt-color-foreground-critical); }
 
 .detail {
   display: flex;

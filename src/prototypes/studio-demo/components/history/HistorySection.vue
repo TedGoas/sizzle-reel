@@ -6,7 +6,7 @@
   >
     <header>
       <h2>History</h2>
-      <p>Conversations this agent handled. Open a row to see the recap, flow, traces, transcript, and metadata.</p>
+      <p>Conversations this agent handled. Open a row to see the recap, flow, traces, logs, transcript, and metadata.</p>
     </header>
 
     <div class="toolbar">
