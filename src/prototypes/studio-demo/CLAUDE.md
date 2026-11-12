@@ -35,6 +35,7 @@ States (`mining` ref): `idle` → `running` → `done`
 
 `history/ConversationDrawer.vue` opens from a conversation row. Tabs: Recap, Flow run, Traces, Logs, Transcript, Metadata.
 
+- Recap, Traces, Logs, Transcript, and Metadata each have a Copy button in the upper right. It is a plain button with a gray hover, the same height as the search field. It is visual only: the label becomes Copied and the icon becomes a check for `TIMING.copyReset`, then it returns to Copy. Nothing is written to the clipboard. Flow run has no Copy button. On Traces and Logs the search field is half the row, with Copy at the right.
 - Recap adds a "What happened" list from `moments`.
 - Traces keeps the recording timeline. Transport is three icon buttons: back 10 seconds, play/pause, and forward 10 seconds. A five-bar waveform sits beside the Recording title only while playback is running. Hover or focus on a timeline dot shows a dark tooltip with the same type and summary as the table. Each call has a full event list (about 18 to 24 rows) spread across the recording. The event list is a time, type, and summary table. Search and sort carets do nothing. Clicking a row still seeks the playhead.
 - Logs is a tool-call table from `logs`, at least five rows. The search field does nothing.

@@ -30,11 +30,14 @@
     </template>
 
       <section v-if="tab === 'recap'" class="recap">
-        <div class="badges">
-          <span class="sd-chip">{{ conversation.outcome }}</span>
-          <span v-if="conversation.escalationReason" class="sd-chip">{{ conversation.escalationReason }}</span>
-          <span class="sd-chip">AI CSAT {{ conversation.aiCsat }}</span>
-          <span class="sd-chip">{{ conversation.handleTime }}</span>
+        <div class="recap-head">
+          <div class="badges">
+            <span class="sd-chip">{{ conversation.outcome }}</span>
+            <span v-if="conversation.escalationReason" class="sd-chip">{{ conversation.escalationReason }}</span>
+            <span class="sd-chip">AI CSAT {{ conversation.aiCsat }}</span>
+            <span class="sd-chip">{{ conversation.handleTime }}</span>
+          </div>
+          <CopyButton />
         </div>
         <p class="summary">{{ conversation.extendedSummary }}</p>
         <div class="recap-section">
@@ -141,7 +144,10 @@
       />
 
       <section v-else-if="tab === 'logs'" class="logs">
-        <input class="finder" type="search" placeholder="Search logs" aria-label="Search logs" />
+        <div class="finder-row">
+          <input class="finder" type="search" placeholder="Search logs" aria-label="Search logs" />
+          <CopyButton />
+        </div>
         <table>
           <thead>
             <tr>
@@ -163,6 +169,7 @@
       </section>
 
       <section v-else-if="tab === 'transcript'" class="transcript">
+        <div class="copy-row"><CopyButton /></div>
         <article v-for="(line, index) in conversation.transcript" :key="index" :class="line.speaker.toLowerCase()">
           <span>{{ line.time }} · {{ line.speaker }}</span>
           <p>{{ line.text }}</p>
@@ -170,6 +177,7 @@
       </section>
 
       <section v-else class="details">
+        <div class="copy-row"><CopyButton /></div>
         <div class="meta-list">
           <div><span>Conversation ID</span><strong>{{ conversation.metadata.conversationId }}</strong></div>
           <div><span>Started</span><strong>{{ conversation.metadata.started }}</strong></div>
@@ -198,6 +206,7 @@
 import { computed, ref, watch } from 'vue'
 import SideDrawer from '../SideDrawer.vue'
 import TracesPanel from './TracesPanel.vue'
+import CopyButton from './CopyButton.vue'
 
 const props = defineProps({
   conversation: { type: Object, default: null },
@@ -329,6 +338,19 @@ function startPan(event) {
 }
 
 .transcript, .meta-list { display: flex; flex-direction: column; gap: var(--dt-space-400); }
+.recap-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--dt-space-400);
+}
+.copy-row { display: flex; justify-content: flex-end; }
+.finder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.finder-row .finder { width: 50%; }
 .badges { display: flex; flex-wrap: wrap; gap: var(--dt-space-200); }
 .recap { display: flex; flex-direction: column; gap: var(--dt-space-600); }
 .recap-section { display: flex; flex-direction: column; gap: var(--dt-space-300); }

@@ -805,6 +805,10 @@ export const conversations = [
 
 export const outcomeOptions = ['All outcomes', 'Contained', 'Transferred', 'Resolved']
 
+export const TIMING = {
+  copyReset: 2000,
+}
+
 export function preferredDrawerWidth() {
   return Math.min(860, Math.max(480, window.innerWidth - 780))
 }

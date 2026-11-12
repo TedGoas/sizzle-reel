@@ -155,7 +155,10 @@
     </section>
 
     <div class="event-log">
-      <input class="finder" type="search" placeholder="Search events" aria-label="Search events" />
+      <div class="finder-row">
+        <input class="finder" type="search" placeholder="Search events" aria-label="Search events" />
+        <CopyButton />
+      </div>
       <table>
         <thead>
           <tr>
@@ -198,6 +201,7 @@
 
 <script setup>
 import { computed, onUnmounted, ref, watch } from 'vue'
+import CopyButton from './CopyButton.vue'
 
 const props = defineProps({
   traces: { type: Object, required: true },
@@ -594,6 +598,12 @@ function stop() {
 .group .sd-chip { font-family: inherit; cursor: pointer; }
 
 .event-log { display: flex; flex-direction: column; gap: var(--dt-space-400); }
+.finder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.finder-row .finder { width: 50%; }
 .finder {
   width: 100%;
   height: var(--btn-height-md);
