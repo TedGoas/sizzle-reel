@@ -73,14 +73,14 @@
 
       <div class="controls">
         <div class="transport">
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--icon" aria-label="Back 10 seconds" @click="skip(-10)">
+          <button type="button" class="sd-btn sd-btn--icon" aria-label="Back 10 seconds" @click="skip(-10)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4.8 12a7.2 7.2 0 1 0 2.1-5.1" />
               <path d="M4.6 4.4V8h3.6" />
               <text x="12" y="14.6" font-size="8">10</text>
             </svg>
           </button>
-          <button type="button" class="sd-btn sd-btn--primary sd-btn--icon" :aria-label="playing ? 'Pause' : 'Play'" @click="toggle">
+          <button type="button" class="sd-btn sd-btn--icon play" :aria-label="playing ? 'Pause' : 'Play'" @click="toggle">
             <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
               <rect x="14" y="3" width="5" height="18" rx="1" />
               <rect x="5" y="3" width="5" height="18" rx="1" />
@@ -89,7 +89,7 @@
               <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
             </svg>
           </button>
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--icon" aria-label="Forward 10 seconds" @click="skip(10)">
+          <button type="button" class="sd-btn sd-btn--icon" aria-label="Forward 10 seconds" @click="skip(10)">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M19.2 12a7.2 7.2 0 1 1-2.1-5.1" />
               <path d="M19.4 4.4V8h-3.6" />
@@ -99,10 +99,10 @@
           <span class="time">{{ clock(playhead) }} / {{ clock(duration) }}</span>
         </div>
         <div class="zoom">
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" aria-label="Zoom out" @click="setZoom(zoom - 0.5)">−</button>
+          <button type="button" class="sd-btn sd-btn--sm" aria-label="Zoom out" @click="setZoom(zoom - 0.5)">−</button>
           <input v-model.number="zoom" type="range" min="1" max="8" step="0.5" aria-label="Zoom level" />
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" aria-label="Zoom in" @click="setZoom(zoom + 0.5)">+</button>
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="zoom = 1">Fit</button>
+          <button type="button" class="sd-btn sd-btn--sm" aria-label="Zoom in" @click="setZoom(zoom + 0.5)">+</button>
+          <button type="button" class="sd-btn sd-btn--sm" @click="zoom = 1">Fit</button>
         </div>
       </div>
 
@@ -216,7 +216,6 @@ const legend = [
   { id: 'action', label: 'Action' },
   { id: 'fail', label: 'Failed' },
   { id: 'interrupt', label: 'Interruption' },
-  { id: 'silence', label: 'Silence' },
 ]
 
 const playhead = ref(0)
@@ -397,7 +396,7 @@ function stop() {
 .player-title {
   display: flex;
   align-items: center;
-  gap: var(--dt-space-300);
+  gap: var(--dt-space-400);
   font-weight: 600;
 }
 .wave {
@@ -407,22 +406,26 @@ function stop() {
   height: 14px;
 }
 .wave i {
-  width: 3px;
-  height: 6px;
-  border-radius: 1px;
-  background: var(--dt-color-foreground-primary);
-  animation: wave 0.9s ease-in-out infinite;
+  width: 2px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--dt-color-foreground-tertiary);
+  transform-origin: center;
+  transform: scaleY(0.35);
+  animation: wave var(--wave-dur) ease-in-out infinite;
+  animation-delay: var(--wave-delay);
 }
-.wave i:nth-child(2) { animation-delay: 0.12s; }
-.wave i:nth-child(3) { animation-delay: 0.24s; }
-.wave i:nth-child(4) { animation-delay: 0.36s; }
-.wave i:nth-child(5) { animation-delay: 0.48s; }
+.wave i:nth-child(1) { --wave-dur: 0.7s; --wave-delay: 0.18s; --wave-peak: 0.7; }
+.wave i:nth-child(2) { --wave-dur: 1.15s; --wave-delay: 0.46s; --wave-peak: 1; }
+.wave i:nth-child(3) { --wave-dur: 0.55s; --wave-delay: 0s; --wave-peak: 0.55; }
+.wave i:nth-child(4) { --wave-dur: 0.96s; --wave-delay: 0.3s; --wave-peak: 0.84; }
+.wave i:nth-child(5) { --wave-dur: 1.32s; --wave-delay: 0.08s; --wave-peak: 0.64; }
 @keyframes wave {
-  0%, 100% { height: 6px; }
-  50% { height: 14px; }
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(var(--wave-peak)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wave i { height: 10px; animation: none; }
+  .wave i { animation: none; transform: scaleY(var(--wave-peak)); }
 }
 .scroll { overflow-x: auto; }
 .lane {
@@ -507,9 +510,18 @@ function stop() {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.transport .sd-btn--primary svg {
+.transport .play svg {
   width: 14px;
   height: 14px;
+}
+.transport .sd-btn,
+.zoom .sd-btn {
+  border-color: transparent;
+  background: transparent;
+}
+.transport .sd-btn:hover,
+.zoom .sd-btn:hover {
+  background: var(--dt-color-surface-secondary);
 }
 .transport text {
   fill: currentColor;
@@ -549,7 +561,49 @@ function stop() {
   font-size: var(--dt-font-size-100);
   font-weight: 400;
 }
-.zoom input { width: 88px; }
+.zoom input[type="range"] {
+  width: 88px;
+  height: 16px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.zoom input[type="range"]:focus-visible {
+  outline: 2px solid var(--dt-color-border-focus);
+  outline-offset: 2px;
+}
+.zoom input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dt-color-surface-moderate);
+}
+.zoom input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--dt-color-foreground-secondary);
+  box-shadow: none;
+}
+.zoom input[type="range"]::-moz-range-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dt-color-surface-moderate);
+}
+.zoom input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--dt-color-foreground-secondary);
+  box-shadow: none;
+}
 
 .legend {
   display: flex;
@@ -585,7 +639,6 @@ function stop() {
   background: var(--dt-color-foreground-secondary);
   transform: rotate(45deg);
 }
-.legend .silence { border-radius: 2px; background: var(--dt-color-surface-secondary); box-shadow: inset 0 0 0 1px var(--dt-color-border-default); }
 
 .moments { display: flex; flex-direction: column; gap: var(--dt-space-400); }
 .group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--dt-space-300); }
@@ -641,7 +694,7 @@ function stop() {
 }
 .event-log tbody tr { cursor: pointer; }
 .event-log tbody tr.on td {
-  background: var(--dt-color-surface-secondary);
+  background: var(--dt-color-surface-brand-subtle);
   color: var(--dt-color-foreground-primary);
   font-weight: 600;
 }

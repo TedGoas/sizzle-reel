@@ -24,9 +24,9 @@
             <th>Date</th>
             <th>Conversation summary</th>
             <th>Channel</th>
-            <th>Entry point</th>
+            <th>Entry</th>
             <th>Outcome</th>
-            <th>AI CSAT</th>
+            <th>CSAT</th>
             <th>Skills</th>
           </tr>
         </thead>
