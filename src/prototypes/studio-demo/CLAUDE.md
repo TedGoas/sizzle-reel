@@ -48,7 +48,7 @@ States (`mining` ref): `idle` → `running` → `done`
 `components/SideDrawer.vue`: fixed right panel, full height, resizable from the left edge, with an × close.
 - Slots: `meta` (under the title), `nav` (tabs), default (scrolling body), `footer`.
 - Props: `title`, `titleId`, `defaultWidth` (empty means `preferredDrawerWidth()` from historyData).
-- `history/ConversationDrawer.vue` uses it with the tabs in `nav`. `HistorySection` pushes content by the emitted `resize` width. Overview doesn't.
+- `history/ConversationDrawer.vue` uses it with the tabs in `nav`. The history drawer overlays the table. The selected row keeps a light highlight so it stays visible beside the panel. Overview doesn't push either.
 
 ## Drawer motion
 
@@ -57,7 +57,7 @@ States (`mining` ref): `idle` → `running` → `done`
   - No overshoot: these drawers sit flush to the right edge, so a bounce would flash a gap.
   - Reduced motion gets a 150ms fade.
 - Switching records while a drawer is open (another History row, another gap) swaps the content in place and scrolls to the top (`contentKey`). It doesn't slide again.
-- History's `margin-right` push animates with the enter curve and turns off while you drag to resize (`resizing` emit).
+- History does not push the table. The drawer covers the right side, and the selected row stays highlighted underneath.
 - `composables/useDrawerDismiss.js`: focuses the panel on open (`preventScroll`) and closes on Escape. SideDrawer and ScenarioDrawer use it.
 - The Agent Editor's floating drawers (`SkillDrawer`, `CreateSkillDrawer`) have their own slide-in with an overshoot curve and no exit animation.
 

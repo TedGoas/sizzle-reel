@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="history"
-    :class="{ 'is-resizing': resizing }"
-    :style="{ marginRight: conversation ? width + 'px' : '0px' }"
-  >
+  <div class="history">
     <header>
       <h2>History</h2>
       <p>Conversations this agent handled. Open a row to see the recap, flow, traces, logs, transcript, and metadata.</p>
@@ -76,8 +72,6 @@
         :focus-failure="focusFailure"
         @close="conversation = null"
         @tab="chooseTab"
-        @resize="width = $event"
-        @resizing="resizing = $event"
       />
     </DrawerTransition>
   </div>
@@ -88,7 +82,7 @@ import { computed, ref, nextTick } from 'vue'
 import Icon from '../Icon.vue'
 import ConversationDrawer from './ConversationDrawer.vue'
 import DrawerTransition from '../DrawerTransition.vue'
-import { conversations, outcomeOptions, preferredDrawerWidth } from '../../mock/historyData.js'
+import { conversations, outcomeOptions } from '../../mock/historyData.js'
 
 defineProps({
   agent: { type: Object, required: true },
@@ -99,8 +93,6 @@ const outcome = ref('All outcomes')
 const conversation = ref(null)
 const tab = ref('recap')
 const focusFailure = ref(false)
-const width = ref(preferredDrawerWidth())
-const resizing = ref(false)
 
 const rows = computed(() => {
   const needle = query.value.trim().toLowerCase()
@@ -131,12 +123,6 @@ function chooseTab(id) {
   display: flex;
   flex-direction: column;
   gap: var(--dt-space-500);
-  /* Make room for the drawer in step with its slide (see DrawerTransition). */
-  transition: margin-right var(--side-drawer-enter);
-}
-.history.is-resizing { transition: none; }
-@media (prefers-reduced-motion: reduce) {
-  .history { transition: none; }
 }
 h2 { margin: 0; font-size: var(--dt-font-size-300); font-weight: 600; }
 header p { margin: var(--dt-space-200) 0 0; color: var(--dt-color-foreground-tertiary); font-size: var(--dt-font-size-200); }
@@ -162,7 +148,9 @@ th, td {
 }
 th { background: var(--dt-color-surface-secondary); font-weight: 600; }
 tbody tr { cursor: pointer; }
-tbody tr.active { background: var(--dt-color-surface-brand-subtle); }
+tbody tr:hover { background: var(--dt-color-surface-secondary); }
+tbody tr.active,
+tbody tr.active:hover { background: var(--dt-color-surface-brand-subtle); }
 .title { font-weight: 600; font-size: var(--dt-font-size-200); }
 .meta { margin-top: 2px; color: var(--dt-color-foreground-tertiary); }
 .nowrap { white-space: nowrap; }
