@@ -36,7 +36,7 @@ States (`mining` ref): `idle` → `running` → `done`
 `history/ConversationDrawer.vue` opens from a conversation row. Tabs: Recap, Flow run, Traces, Logs, Transcript, Metadata.
 
 - Recap adds a "What happened" list from `moments`.
-- Traces keeps the recording timeline. Each call has a full event list (about 18 to 24 rows) spread across the recording. The event list is a time, type, and summary table. Search and sort carets do nothing. Clicking a row still seeks the playhead.
+- Traces keeps the recording timeline. Transport is three icon buttons: back 10 seconds, play/pause, and forward 10 seconds. A five-bar waveform sits beside the Recording title only while playback is running. Hover or focus on a timeline dot shows a dark tooltip with the same type and summary as the table. Each call has a full event list (about 18 to 24 rows) spread across the recording. The event list is a time, type, and summary table. Search and sort carets do nothing. Clicking a row still seeks the playhead.
 - Logs is a tool-call table from `logs`, at least five rows. The search field does nothing.
 - Transcript lines have a time. Each call is at least eight customer lines and eight agent lines, plus a few System tool lines. System lines are tool results.
 - Metadata keeps the id fields in one list. The Session group sits under that list, full width: audio, participants, tools, and transfer when there is one. The section uses class `details`, not `meta`, so it does not pick up the header meta row style.

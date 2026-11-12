@@ -21,9 +21,14 @@
       </article>
     </div>
 
-    <section class="player">
-      <div class="player-title">Recording</div>
-      <div class="scroll">
+    <section ref="playerEl" class="player">
+      <div class="player-title">
+        Recording
+        <span v-if="playing" class="wave" aria-hidden="true">
+          <i /><i /><i /><i /><i />
+        </span>
+      </div>
+      <div class="scroll" @scroll="tip = null">
         <div
           class="lane"
           :style="{ width: `${zoom * 100}%` }"
@@ -45,20 +50,52 @@
             class="dot"
             :class="[event.kind, { on: event.id === active?.id }]"
             :style="{ left: pct(event.t) }"
-            :aria-label="`${event.label}, ${clock(event.t)}`"
+            :aria-label="`${typeName(event.kind)}. ${event.summary || event.label}`"
             @click.stop="go(event.t)"
+            @mouseenter="showTip(event, $event)"
+            @mouseleave="tip = null"
+            @focus="showTip(event, $event)"
+            @blur="tip = null"
           />
           <div class="playhead" :style="{ left: pct(playhead) }" />
         </div>
       </div>
 
+      <div
+        v-if="tip"
+        class="event-tip"
+        role="tooltip"
+        :style="{ left: `${tip.x}px`, top: `${tip.y}px` }"
+      >
+        <strong>{{ typeName(tip.event.kind) }}</strong>
+        <span>{{ tip.event.summary || tip.event.label }}</span>
+      </div>
+
       <div class="controls">
         <div class="transport">
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="skip(-10)">Back 10s</button>
-          <button type="button" class="sd-btn sd-btn--primary sd-btn--sm" @click="toggle">
-            {{ playing ? 'Pause' : 'Play' }}
+          <button type="button" class="sd-btn sd-btn--outlined sd-btn--icon" aria-label="Back 10 seconds" @click="skip(-10)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4.8 12a7.2 7.2 0 1 0 2.1-5.1" />
+              <path d="M4.6 4.4V8h3.6" />
+              <text x="12" y="14.6" font-size="8">10</text>
+            </svg>
           </button>
-          <button type="button" class="sd-btn sd-btn--outlined sd-btn--sm" @click="skip(10)">Forward 10s</button>
+          <button type="button" class="sd-btn sd-btn--primary sd-btn--icon" :aria-label="playing ? 'Pause' : 'Play'" @click="toggle">
+            <svg v-if="playing" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="14" y="3" width="5" height="18" rx="1" />
+              <rect x="5" y="3" width="5" height="18" rx="1" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+            </svg>
+          </button>
+          <button type="button" class="sd-btn sd-btn--outlined sd-btn--icon" aria-label="Forward 10 seconds" @click="skip(10)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M19.2 12a7.2 7.2 0 1 1-2.1-5.1" />
+              <path d="M19.4 4.4V8h-3.6" />
+              <text x="12" y="14.6" font-size="8">10</text>
+            </svg>
+          </button>
           <span class="time">{{ clock(playhead) }} / {{ clock(duration) }}</span>
         </div>
         <div class="zoom">
@@ -181,6 +218,8 @@ const legend = [
 const playhead = ref(0)
 const playing = ref(false)
 const zoom = ref(1)
+const playerEl = ref(null)
+const tip = ref(null)
 let timer = 0
 
 const duration = computed(() => props.traces.duration || 1)
@@ -223,6 +262,7 @@ const anomalies = computed(() => {
 watch(() => props.traces, () => {
   stop()
   zoom.value = 1
+  tip.value = null
   playhead.value = props.focusFailure ? (failEvent.value?.t || 0) : 0
 })
 
@@ -255,6 +295,20 @@ const typeNames = {
 
 function typeName(kind) {
   return typeNames[kind] || kind
+}
+
+function showTip(event, domEvent) {
+  const player = playerEl.value
+  if (!player) return
+  const playerRect = player.getBoundingClientRect()
+  const rect = domEvent.currentTarget.getBoundingClientRect()
+  const half = 110
+  const center = rect.left + rect.width / 2 - playerRect.left - player.clientLeft
+  tip.value = {
+    event,
+    x: Math.min(player.clientWidth - half - 8, Math.max(half + 8, center)),
+    y: rect.top - playerRect.top - player.clientTop,
+  }
 }
 
 function setZoom(next) {
@@ -328,6 +382,7 @@ function stop() {
 }
 
 .player {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--dt-space-400);
@@ -335,7 +390,36 @@ function stop() {
   border: 1px solid var(--dt-color-border-subtle);
   border-radius: 8px;
 }
-.player-title { font-weight: 600; }
+.player-title {
+  display: flex;
+  align-items: center;
+  gap: var(--dt-space-300);
+  font-weight: 600;
+}
+.wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+.wave i {
+  width: 3px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--dt-color-foreground-primary);
+  animation: wave 0.9s ease-in-out infinite;
+}
+.wave i:nth-child(2) { animation-delay: 0.12s; }
+.wave i:nth-child(3) { animation-delay: 0.24s; }
+.wave i:nth-child(4) { animation-delay: 0.36s; }
+.wave i:nth-child(5) { animation-delay: 0.48s; }
+@keyframes wave {
+  0%, 100% { height: 6px; }
+  50% { height: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave i { height: 10px; animation: none; }
+}
 .scroll { overflow-x: auto; }
 .lane {
   --track: 48px;
@@ -405,7 +489,62 @@ function stop() {
 
 .controls, .transport, .zoom { display: flex; align-items: center; gap: var(--dt-space-300); }
 .controls { justify-content: space-between; flex-wrap: wrap; }
+.sd-btn--icon {
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  padding: 0;
+}
+.transport svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.transport .sd-btn--primary svg {
+  width: 14px;
+  height: 14px;
+}
+.transport text {
+  fill: currentColor;
+  stroke: none;
+  font-family: inherit;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.transport .sd-btn:focus-visible {
+  outline: 2px solid var(--dt-color-border-focus);
+  outline-offset: 1px;
+}
 .time { color: var(--dt-color-foreground-secondary); font-size: var(--dt-font-size-100); }
+.event-tip {
+  position: absolute;
+  z-index: 6;
+  transform: translate(-50%, calc(-100% - var(--dt-space-200)));
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-200);
+  width: max-content;
+  max-width: 220px;
+  padding: var(--dt-space-400) var(--dt-space-450);
+  background: var(--dt-color-surface-contrast);
+  border-radius: var(--dt-space-300);
+  box-shadow: var(--dt-shadow-medium);
+  color: var(--dt-color-foreground-primary-inverted);
+  font-size: var(--dt-font-size-100);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  pointer-events: none;
+}
+.event-tip strong { font-weight: 700; }
+.player .event-tip > span {
+  color: var(--dt-color-foreground-secondary-inverted);
+  font-size: var(--dt-font-size-100);
+  font-weight: 400;
+}
 .zoom input { width: 88px; }
 
 .legend {
